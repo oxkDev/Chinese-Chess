@@ -1,0 +1,27 @@
+<svg width="315" height="350" viewBox="0 0 315 350" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M52.5 17.5L52.5 157.5" stroke="white" stroke-opacity="0.6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M87.5 17.5L87.5 157.5" stroke="white" stroke-opacity="0.6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M122.5 17.5L122.5 157.5" stroke="white" stroke-opacity="0.6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M157.5 17.5L157.5 157.5" stroke="white" stroke-opacity="0.6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M192.5 17.5L192.5 157.5" stroke="white" stroke-opacity="0.6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M227.5 17.5L227.5 157.5" stroke="white" stroke-opacity="0.6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M262.5 17.5V157.5" stroke="white" stroke-opacity="0.6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M52.5 192.5L52.5 332.5" stroke="white" stroke-opacity="0.6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M87.5 192.5L87.5 332.5" stroke="white" stroke-opacity="0.6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M122.5 192.5L122.5 332.5" stroke="white" stroke-opacity="0.6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M157.5 192.5L157.5 332.5" stroke="white" stroke-opacity="0.6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M192.5 192.5L192.5 332.5" stroke="white" stroke-opacity="0.6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M227.5 192.5L227.5 332.5" stroke="white" stroke-opacity="0.6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M262.5 192.5L262.5 332.5" stroke="white" stroke-opacity="0.6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M17.5 52.5L297.5 52.5" stroke="white" stroke-opacity="0.6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M17.5 87.5L297.5 87.5" stroke="white" stroke-opacity="0.6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M17.5 122.5L297.5 122.5" stroke="white" stroke-opacity="0.6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M17.5 157.5H297.5" stroke="white" stroke-opacity="0.6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M17.5 192.5H297.5" stroke="white" stroke-opacity="0.6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M17.5 227.5H297.5" stroke="white" stroke-opacity="0.6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M17.5 262.5H297.5" stroke="white" stroke-opacity="0.6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M17.5 297.5H297.5" stroke="white" stroke-opacity="0.6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M192.5 262.5L157.5 297.5M157.5 297.5L122.5 332.5M157.5 297.5L192.5 332.5M157.5 297.5L122.5 262.5" stroke="white" stroke-opacity="0.6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M192.5 17.5L157.5 52.5M157.5 52.5L122.5 87.5M157.5 52.5L192.5 87.5M157.5 52.5L122.5 17.5" stroke="white" stroke-opacity="0.6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M17.5 175L17.5 22.5C17.5 19.7386 19.7386 17.5 22.5 17.5L292.5 17.5C295.261 17.5 297.5 19.7386 297.5 22.5L297.5 327.5C297.5 330.261 295.261 332.5 292.5 332.5L22.5 332.5C19.7386 332.5 17.5 330.261 17.5 327.5L17.5 175Z" stroke="white" stroke-opacity="0.6" stroke-width="3" stroke-linejoin="round"/>
+</svg>

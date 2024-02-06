@@ -1,0 +1,5 @@
+<svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="animation">
+<path id="Animation" d="M15 3H3.5C3.22386 3 3 3.22386 3 3.5V15M15 3H26.5C26.7761 3 27 3.22386 27 3.5V15M15 3L21 9L27 15M15 3L9 9L3 15M27 15V26.5C27 26.7761 26.7761 27 26.5 27H15M27 15L21 21L15 27M15 27H3.5C3.22386 27 3 26.7761 3 26.5V15M15 27L9 21L3 15" stroke="white" stroke-opacity="0.6" stroke-width="2" stroke-linejoin="round"/>
+</g>
+</svg>

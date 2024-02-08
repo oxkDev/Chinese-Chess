@@ -1,5 +1,5 @@
 # Chinese-Chess
->> This is a minimalist Chinese Chess web application interface.
+> This is a minimalist Chinese Chess web application interface.
 
 ## Planned Features
 1. Customisable Themes and Styles

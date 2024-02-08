@@ -2,12 +2,8 @@
 import { ref, defineProps, defineEmits } from 'vue';
 import ChessPieceIcons from '@/components/ChessPieceIcons.vue';
 
-interface Pieces {
-  [key: string]: number[]
-}
-
 const props = defineProps<{
-  pieces: Pieces,
+  pieces: { [key: string]: number[] },
   turn: 0 | 1,
   actions: { moves: { [key: string]: number[][] }, blocks: { [key: string]: number[][] } },
   stalemate: string[],

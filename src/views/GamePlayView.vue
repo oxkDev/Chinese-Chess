@@ -5,12 +5,13 @@ import GameMenuView from "./GameMenuView.vue";
 import RequestGroup from "@/components/groups/RequestGroup.vue";
 import Board, { GameSettings } from "@/store/chinese chess";
 import { onMounted, ref, watch } from 'vue';
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { useStore } from 'vuex';
 import ChessBoardGroup from "@/components/groups/ChessBoardGroup.vue";
 
 const store = useStore();
 const route = useRoute();
+const router = useRouter();
 
 const settings: GameSettings = store.getters.settings;
 const gamePlay = ref(new Board(settings));
@@ -29,9 +30,14 @@ const timings = ref({
   1: { game: formatTimings(settings.gameDuration), turn: formatTimings(settings.turnDuration) },
 } as { [key: number]: { game: string, turn: string } });
 
+// let menuOverlay = route.hash != "" || route.name != "Game Play";
+const menuPage = ref("" as ("home" | "settings" | "restart" | ""));
+
 watch(route, () => {
-  if (!route.hash) setTimeout(() => gamePlay.value.pause(false), 500);
-  else gamePlay.value.pause(true);
+  // console.log(menuOverlay);
+  if (route.hash != '' || route.name != 'Game Play') gamePlay.value.pause(true);
+  else setTimeout(() => gamePlay.value.pause(false), 500);
+  if (route.name == "menuSettings") menuPage.value = "settings";
 });
 
 watch(settings, () => {
@@ -158,14 +164,21 @@ onMounted(() => {
       </nav>
     </div>
     <transition :duration="{ enter: 700, leave: 500 }" mode="out-in">
-      <div :key="route.hash" id="gameOverlay" v-if="route.hash != ''">
+      <div :key="String(route.hash != '' || route.name != 'Game Play')" id="gameOverlay"
+        v-if="route.hash != '' || route.name != 'Game Play'">
         <section class="overlayContent">
           <game-settings-view v-if="route.hash == '#gameSettings'" />
-          <game-menu-view> v-if="route.hash == '#menu'"</game-menu-view>
+          <game-menu-view v-if="route.hash == '#menu' || route.name == 'menuSettings'" :sub-page="menuPage"
+            @action="act => { if (act == 'restart') undo(0); menuPage = '' }" @update="path => { menuPage = path; }"
+            ref="menuOverlay" />
         </section>
         <div class="footer bottom">
           <nav class="navbar main">
-            <icon-button-main to="" icon="cross" />
+            <transition-group name="footerNav" :duration="500">
+              <icon-button-main v-if="route.name != 'Game Play' || menuPage != ''" type="button"
+                @click="router.push('/game-play#menu'); menuPage = '';" icon="back 1" key="back 1"/>
+              <icon-button-main type="button" @click="router.push('/game-play'); menuPage = '';" icon="cross" key="cross"/>
+            </transition-group>
           </nav>
         </div>
       </div>
@@ -231,10 +244,6 @@ onMounted(() => {
   bottom: 0px;
 }
 
-.top {
-  transform: rotate(180deg);
-}
-
 .v-enter-from .top,
 .top {
   transform: rotate(180deg);
@@ -242,9 +251,10 @@ onMounted(() => {
 
 #gameOverlay {
   width: 100vw;
-  height: 100%;
-  left: 0px;
+  height: 100vh;
   position: absolute;
+  left: 0px;
+  top: 0px;
   z-index: 50;
   display: flex;
   justify-content: center;
@@ -276,7 +286,7 @@ onMounted(() => {
   opacity: 0;
 }
 
-.v-enter-active .timing>h2{
+.v-enter-active .timing>h2 {
   transition-delay: .2s;
 }
 </style>

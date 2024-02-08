@@ -15,7 +15,7 @@ const show = ref(false);
 let timeout = 0;
 
 watch(route, () => {
-  if (route.hash && route.hash != `#${props.title}` && show.value && route.path == '/settings') {
+  if (route.hash && route.hash != `#${props.title}` && show.value && route.path.indexOf("/settings") != -1) {
     clearTimeout(timeout);
     show.value = false;
     const elm = document.querySelector(route.hash);

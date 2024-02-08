@@ -46,7 +46,22 @@ const routes: Array<RouteRecordRaw> = [
         "#gameSettings": "Game Settings",
         "#menu": "Menu",
       }
-    }
+    },
+    children: [
+      {
+        path: 'settings',
+        name: 'menuSettings',
+        component: GamePlayView,
+        meta: {
+          hash: {
+            "#appearance": "Appearance",
+            "#sound": "Sound",
+            "#animation": "Animation",
+            "#behaviour": "Behaviour"
+          },
+        }
+      }
+    ],
   },
 ];
 
@@ -66,7 +81,7 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const store = useStore();
 
-  if (to.name == 'Game Play' && !store.getters.game) {
+  if (to.path.indexOf('game-play') != -1 && !store.getters.game) {
     next({ name: '2 Player' });
   } else {
     next();

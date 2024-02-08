@@ -56,17 +56,19 @@ const sideNav = {
       </setting-section>
 
       <setting-section title="animation">
-        <slider-group :value="parseInt(settings.animationSpeed)" @update="v => setSetting('animationSpeed', v)" name="Speed" unit="%">
+        <slider-group :value="parseInt(settings.animationSpeed)" @update="v => setSetting('animationSpeed', v)"
+          name="Speed" unit="%">
           <option value="0" label="0%"></option>
           <option value="100" label="100%"></option>
         </slider-group>
-        <slider-group :value="parseInt(settings.animationLevel)" @update="v => setSetting('animationLevel', v)" name="Style" :max="4" :options="{
-          0: 'None',
-          1: 'Less',
-          2: 'Standard',
-          3: 'More',
-          4: 'Fancy'
-        }">
+        <slider-group :value="parseInt(settings.animationLevel)" @update="v => setSetting('animationLevel', v)"
+          name="Style" :max="4" :options="{
+            0: 'None',
+            1: 'Less',
+            2: 'Standard',
+            3: 'More',
+            4: 'Fancy'
+          }">
           <option value="0" label="None"></option>
           <option value="50" label="Standard"></option>
           <option value="100" label="Fancy"></option>
@@ -75,18 +77,43 @@ const sideNav = {
 
       <setting-section title="behaviour">
         <switch-group @update="v => setSetting('positionAid', v)" :def="settings.positionAid">Position Aid</switch-group>
-        <switch-group @update="v => setSetting('stalemateAid', v)" :def="settings.stalemateAid">Stalemate Aid</switch-group>
+        <switch-group @update="v => setSetting('stalemateAid', v)" :def="settings.stalemateAid">Stalemate
+          Aid</switch-group>
       </setting-section>
     </div>
     <nav id="settingsSideNav">
-      <icon-button-main v-for="(value, key) in sideNav" :active="route.hash == value" :key="key" :to="value"
-        :icon="key" class="sideNav"/>
+      <icon-button-main v-for="(value, key) in sideNav" :active="route.hash == value" :key="key" :to="value" :icon="key"
+        class="sideNav" />
     </nav>
   </div>
 </template>
 
 
 <style>
+#settings {
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  left: 0px;
+  top: 0px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#settingsScreen {
+  height: 100vh;
+  max-width: 300px;
+  width: calc(100% - 120px);
+  margin: 0 60px;
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+}
+
+#settingsScreen::-webkit-scrollbar {
+  width: 0px;
+}
+
 .colour {
   width: 35px;
   aspect-ratio: 1;
@@ -103,16 +130,6 @@ const sideNav = {
   background-color: grey;
 }
 
-#settingsScreen {
-  height: 100vh;
-  overflow-y: scroll;
-  scroll-snap-type: y mandatory;
-}
-
-#settingsScreen::-webkit-scrollbar {
-  width: 0px;
-}
-
 nav#settingsSideNav {
   display: flex;
   flex-direction: column;
@@ -123,10 +140,10 @@ nav#settingsSideNav {
   top: 0px;
 }
 
-nav#settingsSideNav svg {
+/* nav#settingsSideNav svg {
   height: 35px;
   width: 35px;
-}
+} */
 
 nav#settingsSideNav path {
   transition: var(--transition-m);
@@ -136,5 +153,4 @@ nav#settingsSideNav path {
 .v-leave-to a.sideNav {
   transform: scale(.9);
   opacity: 0;
-}
-</style>
+}</style>

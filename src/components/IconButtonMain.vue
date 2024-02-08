@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { defineProps, defineEmits, ref } from 'vue';
+import { defineProps, defineEmits } from 'vue';
 import IconMain from './IconMain.vue';
 
 const props = defineProps<{
   name?: string,
   icon: string,
+  big?: boolean,
   to?: string,
   active?: 'route' | boolean,
   type?: 'router' | 'button',
@@ -15,35 +16,46 @@ const emits = defineEmits<{
   (e: "click"): void,
 }>();
 
-const svg = ref();
-
 const rotate = ["cross", "restart", "settings 1", "undo"];
 </script>
 
 <template>
-  <button v-if="type == 'button'" :onclick="() => emits('click')" :disable="!!props.disable" :to="to ? to : ''" class="iconButton">
+  <button v-if="type == 'button'" :onclick="() => emits('click')" :disable="!!props.disable" class="iconButton">
     <icon-main :icon="icon" :active="String(props.active) != 'route' ? !!props.active : ''"
-      :class="`routerLinkIcon ${rotate.indexOf(props.icon) != -1 ? 'rotate' : ''}`" ref="svg"/>
+      :class="`buttonIcon ${rotate.indexOf(props.icon) != -1 ? 'rotate' : ''} ${big ? 'big' : ''}`" ref="svg" />
   </button>
   <router-link v-else :disable="!!props.disable" :to="to ? to : ''" class="iconButton">
     <icon-main :icon="icon" :active="String(props.active) != 'route' ? !!props.active : ''"
-      :class="`routerLinkIcon ${rotate.indexOf(props.icon) != -1 ? 'rotate' : ''}`" ref="svg"/>
+      :class="`${rotate.indexOf(props.icon) != -1 ? 'rotate' : ''} ${big ? 'big' : ''}`" ref="svg" />
 
   </router-link>
 </template>
 
-<style>
+<style scoped>
 .iconButton {
   margin: 5px;
   color: var(--text);
-  opacity: 0.8;
+  opacity: 0.6;
   text-shadow: var(--icon-shadow);
   background: none;
 }
 
-svg.routerLinkIcon path {
+svg path {
   stroke: var(--text);
   stroke-opacity: 1;
+}
+
+svg.big {
+  height: 12vw;
+  max-height: 60px;
+  min-height: 30px;
+  width: 12vw;
+  max-width: 60px;
+  min-width: 30px;
+}
+
+svg.big>>>path {
+  stroke-width: 1.5px;
 }
 
 .iconButton:hover {
@@ -58,16 +70,21 @@ svg.routerLinkIcon path {
 }
 
 .iconButton[disable="true"] {
-  opacity: .45;
+  opacity: .3;
 }
 
-svg[active="true"].routerLinkIcon,
+svg[active="true"],
 a.router-link-exact-active svg:not([active="false"]) {
   filter: drop-shadow(var(--icon-glow));
 }
 
-svg[active="true"].routerLinkIcon path,
-a.router-link-exact-active svg:not([active="false"]) path {
+a.router-link-exact-active:not(:has(svg[active="false"])) {
+  opacity: 1;
+}
+
+/* svg.buttonIcon:active path, */
+svg[active="true"]>>>path,
+a.router-link-exact-active svg:not([active="false"])>>>path {
   stroke: var(--secondary);
 }
 

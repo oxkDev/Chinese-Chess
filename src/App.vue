@@ -1,8 +1,33 @@
 <script setup lang="ts">
 import IconButtonMain from "@/components/IconButtonMain.vue";
+import { ref, watch } from "vue";
 import { useRoute } from "vue-router";
+import { useStore } from "vuex";
+import { Settings } from "./store";
 
 const route = useRoute();
+const store = useStore();
+
+const settings = ref(store.state.settings as Settings);
+
+const styleElm = document.createElement("style");
+document.head.appendChild(styleElm);
+styleElm.id = "variables";
+const styleElmSheet = styleElm.sheet;
+
+function setSettingsRules() {
+  styleElmSheet?.insertRule(`:root {
+    --animation-speed: ${settings.value.animationSpeed / 100};
+  }`, 0);
+  for (let i = 1; i < 5; i++) document.body.classList.toggle(`animate-${i}`, i <= settings.value.animationLevel);
+}
+
+setSettingsRules();
+
+watch(store.state.settings, () => {
+  styleElmSheet?.deleteRule(0);
+  setSettingsRules();
+});
 
 function getTitle(): string | undefined {
   if (route.meta.title) return route.meta.title?.toString();
@@ -23,7 +48,7 @@ function getTitle(): string | undefined {
     <router-view v-slot="{ Component }">
       <transition :enter-from-class="`v-enter-from ${route.meta.transition?.toString()}`"
         :leave-to-class="`v-leave-to ${route.meta.transition?.toString()}`" mode="out-in"
-        :duration="{ enter: 1000, leave: route.meta.fast ? 400 : 700 }">
+        :duration="{ enter: 10*settings.animationSpeed, leave: route.meta.fast ? 4*settings.animationSpeed : 7*settings.animationSpeed }">
         <component :is="Component" />
       </transition>
     </router-view>
@@ -81,9 +106,13 @@ function getTitle(): string | undefined {
   --font-heading-1: 300 16px/30px Roboto;
   --font-subtitle: 300 14px/20px Roboto;
 
-  --transition-s: all .2s ease;
-  --transition-m: all .4s ease;
-  --transition-l: all .7s ease;
+  --transition-s: all calc(0.2s * var(--animation-speed)) ease;
+  --transition-m: all calc(0.4s * var(--animation-speed)) ease;
+  --transition-l: all calc(0.7s * var(--animation-speed)) ease;
+
+  /* --transition-s: all .1s ease;
+  --transition-m: all .2s ease;
+  --transition-l: all .4s ease; */
 }
 
 html {
@@ -158,7 +187,7 @@ button:hover {
   height: 100%;
   max-width: 300px;
   margin: auto;
-  padding: 0 60px;
+  padding: 0 30px;
 }
 
 #title {

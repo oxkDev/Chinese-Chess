@@ -23,20 +23,20 @@ defineProps({
 </div>
 </template>
 
-<style scoped>
-.v-enter-active.sequenceTransition *:nth-child(1) * {
-  transition-delay: calc(v-bind(interval) * 1s);
+<style>
+.v-enter-active.sequenceTransition > *:nth-child(1) * {
+  transition-delay: calc(v-bind(interval) * var(--animation-speed) * 1s);
 }
-.v-enter-active.sequenceTransition *:nth-child(2) * {
-  transition-delay: calc(v-bind(interval) * 2s);
+.v-enter-active.sequenceTransition > *:nth-child(2) * {
+  transition-delay: calc(v-bind(interval) * var(--animation-speed) * 2s);
 }
-.v-enter-active.sequenceTransition *:nth-child(3) * {
-  transition-delay: calc(v-bind(interval) * 3s);
+.v-enter-active.sequenceTransition > *:nth-child(3) * {
+  transition-delay: calc(v-bind(interval) * var(--animation-speed) * 3s);
 }
-.v-enter-active.sequenceTransition *:nth-child(4) * {
-  transition-delay: calc(v-bind(interval) * 4s);
+.v-enter-active.sequenceTransition > *:nth-child(4) * {
+  transition-delay: calc(v-bind(interval) * var(--animation-speed) * 4s);
 }
-.v-enter-active.sequenceTransition *:nth-child(5) * {
-  transition-delay: calc(v-bind(interval) * 5s);
+.v-enter-active.sequenceTransition > *:nth-child(5) * {
+  transition-delay: calc(v-bind(interval) * var(--animation-speed) * 5s);
 }
 </style>

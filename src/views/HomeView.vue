@@ -2,8 +2,13 @@
 import { useRouter } from 'vue-router';
 import { onMounted, ref } from 'vue';
 import ButtonMain from '@/components/mains/ButtonMain.vue'; // @ is an alias to /src
+import { useStore } from 'vuex';
+import { Settings } from '@/store';
 
 const router = useRouter();
+const store = useStore();
+
+const settings = store.state.settings as Settings;
 
 const home = ref();
 
@@ -11,7 +16,7 @@ function twoPlayer() { router.push("/two-player") }
 
 function transitiondelays() {
   for (let i = 0; i < home.value.children.length; i++) {
-    home.value.children[i].style.transitionDelay = `${i * 0.1}s`;
+    home.value.children[i].style.transitionDelay = `${i * 0.001 * settings.animationSpeed}s`;
   }
 }
 

@@ -18,7 +18,7 @@ export class Settings {
     game = false,
     atmos = false,
     haptic = false,
-    animationSpeed = 50,
+    animationSpeed = 100,
     animationLevel = 2,
     positionAid = true,
     stalemateAid = false,

@@ -50,10 +50,10 @@ function start() {
 }
 
 .v-enter-active #startButton {
-  transition-delay: .4s;
+  transition-delay: calc(var(--animation-speed) * 0.3s);
 }
 
 .v-leave-active #startButton {
-  transition-delay: .2s;
+  transition-delay: calc(var(--animation-speed) * 0.2s);
 }
 </style>

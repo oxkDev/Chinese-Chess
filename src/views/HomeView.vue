@@ -8,11 +8,9 @@ import { Settings } from '@/store';
 const router = useRouter();
 const store = useStore();
 
-const settings = store.state.settings as Settings;
+const settings = store.getters.settings as Settings;
 
 const home = ref();
-
-function twoPlayer() { router.push("/two-player") }
 
 function transitiondelays() {
   for (let i = 0; i < home.value.children.length; i++) {
@@ -20,14 +18,14 @@ function transitiondelays() {
   }
 }
 
-// onBeforeUnmount(transitiondelays);
 onMounted(transitiondelays);
 
 </script>
 
 <template>
   <div id="home" ref="home">
-    <button-main @click="twoPlayer">2 Player</button-main>
+    <button-main @click="if (store.getters.isPlaying) router.push('/game-play'); else router.push('/two-player'); ">2
+      Player</button-main>
     <button-main>Online</button-main>
     <button-main>Computer</button-main>
   </div>

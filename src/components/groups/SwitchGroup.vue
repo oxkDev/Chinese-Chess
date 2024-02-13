@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { defineProps, defineEmits } from 'vue';
 import SwitchMain from '@/components/mains/SwitchMain.vue';
 
 defineProps<{
@@ -26,6 +25,10 @@ const emits = defineEmits<{
   align-items: center;
   justify-content: space-between;
   margin: 15px 0;
+  overflow: visible;
+}
+
+label.switchLabel {
   overflow: hidden;
 }
 

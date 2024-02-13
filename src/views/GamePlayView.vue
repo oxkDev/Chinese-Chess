@@ -3,21 +3,25 @@ import IconButtonMain from "@/components/IconButtonMain.vue";
 import GameSettingsView from "./GameSettingsView.vue";
 import GameMenuView from "./GameMenuView.vue";
 import RequestGroup from "@/components/groups/RequestGroup.vue";
-import Board, { GameSettings } from "@/store/chinese chess";
+import Board from "@/store/chinese chess";
 import { onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from "vue-router";
 import { useStore } from 'vuex';
 import ChessBoardGroup from "@/components/groups/ChessBoardGroup.vue";
+import { GameData } from "@/store";
 
 const store = useStore();
 const route = useRoute();
 const router = useRouter();
 
-const settings: GameSettings = store.getters.settings;
-const gamePlay = ref(new Board(settings));
+const gameData: GameData = store.getters.game;
+const gameSettings = gameData.settings;
+const gamePlay = ref(new Board(gameSettings));
+const boardDisplay = ref(0);
+
+
 const actions = ref(gamePlay.value.checkmateCheck(gamePlay.value.turn.player));
 const stalemate = ref(gamePlay.value.stalemateCheck(gamePlay.value.turn.player));
-const boardDisplay = ref(0);
 
 const requests = ref({
   0: 0,
@@ -26,8 +30,8 @@ const requests = ref({
 } as { [key: number | string]: number });
 
 const timings = ref({
-  0: { game: formatTimings(settings.gameDuration), turn: formatTimings(settings.turnDuration) },
-  1: { game: formatTimings(settings.gameDuration), turn: formatTimings(settings.turnDuration) },
+  0: { game: formatTimings(gameSettings.gameDuration), turn: formatTimings(gameSettings.turnDuration) },
+  1: { game: formatTimings(gameSettings.gameDuration), turn: formatTimings(gameSettings.turnDuration) },
 } as { [key: number]: { game: string, turn: string } });
 
 // let menuOverlay = route.hash != "" || route.name != "Game Play";
@@ -40,24 +44,37 @@ watch(route, () => {
   if (route.name == "menuSettings") menuPage.value = "settings";
 });
 
-watch(settings, () => {
-  gamePlay.value.update(settings);
+watch(gameSettings, () => {
+  gamePlay.value.updateSettings(gameSettings);
 });
 
 function requestUndo(player: number) {
   if (requests.value[player] != 0) requests.value[player] = 2;
 }
 
+function update(turn: 0 | 1 | number = gamePlay.value.turn.player) {
+  actions.value = gamePlay.value.checkmateCheck(turn);
+  stalemate.value = gamePlay.value.stalemateCheck(turn);
+  requests.value[turn] = Number(gamePlay.value.turn.iteration > 0);
+  requests.value[1 - turn] = 0;
+  boardDisplay.value = gamePlay.value.turn.iteration;
+  store.commit("updateGame", gamePlay.value.getGame());
+}
+
+
+function move(piece: string, coord: number[]) {
+  gamePlay.value.move(piece, coord);
+  update();
+
+  if (JSON.stringify(actions.value.moves) == '{}') gamePlay.value.win(1 - gamePlay.value.turn.player);
+}
+
 function undo(to = gamePlay.value.turn.iteration - 1) {
   gamePlay.value.pause(true);
   gamePlay.value.winner = undefined;
   gamePlay.value.undo(to);
-  actions.value = gamePlay.value.checkmateCheck(gamePlay.value.turn.player);
-  stalemate.value = gamePlay.value.stalemateCheck(gamePlay.value.turn.player);
-  requests.value[gamePlay.value.turn.player] = Number(gamePlay.value.turn.iteration > 0);
-  requests.value[1 - gamePlay.value.turn.player] = 0;
   requests.value["win"] = 1;
-  boardDisplay.value = to;
+  update();
   gamePlay.value.pause(false);
 }
 
@@ -69,33 +86,27 @@ function formatTimings(t: number) {
   return `${gameTime.length == 1 ? '0' + gameTime : gameTime} : ${turnTime.length == 1 ? '0' + turnTime : turnTime}`;
 }
 
-
-function move(piece: string, coord: number[]) {
-  gamePlay.value.move(piece, coord);
-  actions.value = gamePlay.value.checkmateCheck(gamePlay.value.turn.player);
-  stalemate.value = gamePlay.value.stalemateCheck(gamePlay.value.turn.player);
-
-  boardDisplay.value = gamePlay.value.turn.iteration;
-  requests.value[gamePlay.value.turn.player] = 1;
-  requests.value[1 - gamePlay.value.turn.player] = 0;
-
-  if (JSON.stringify(actions.value.moves) == '{}') gamePlay.value.win(1 - gamePlay.value.turn.player);
-}
-
 onMounted(() => {
   gamePlay.value.start();
+  if (gameData.play) {
+    gamePlay.value.pause(true);
+    gamePlay.value.updateGame(gameData.play);
+    console.log(gamePlay.value.boardHist[boardDisplay.value]);
+    update();
+    gamePlay.value.pause(false);
+  }
 
   for (const i in gamePlay.value.timer) {
     gamePlay.value.timer[parseInt(i)].onUpdate(v => {
-      if (settings.gameDuration > 0) timings.value[parseInt(i)].game = formatTimings(settings.gameDuration - v);
+      if (gameSettings.gameDuration > 0) timings.value[parseInt(i)].game = formatTimings(gameSettings.gameDuration - v);
       else timings.value[parseInt(i)].game = formatTimings(v);
     });
   }
 
   gamePlay.value.turn.timer.onUpdate(v => {
-    if (settings.turnDuration > 0) {
-      timings.value[gamePlay.value.turn.player].turn = formatTimings(settings.turnDuration - v);
-      timings.value[1 - gamePlay.value.turn.player].turn = formatTimings(settings.turnDuration);
+    if (gameSettings.turnDuration > 0) {
+      timings.value[gamePlay.value.turn.player].turn = formatTimings(gameSettings.turnDuration - v);
+      timings.value[1 - gamePlay.value.turn.player].turn = formatTimings(gameSettings.turnDuration);
     } else {
       timings.value[gamePlay.value.turn.player].turn = formatTimings(v);
     }
@@ -112,10 +123,12 @@ onMounted(() => {
 <template>
   <div id="gamePlay">
     <div id="gameScreen">
-      <request-group class="top" :show="requests[1] == 2" @update="c => { requests[1] = Number(c); if (c) undo() }"
-        :options="['Decline', 'Accept']"><b>Undo</b> request</request-group>
-      <request-group class="bottom" :show="requests[0] == 2" @update="c => { requests[0] = Number(c); if (c) undo() }"
-        :options="['Decline', 'Accept']"><b>Undo</b> request</request-group>
+      <request-group class="requestGroup top" :show="requests[1] == 2"
+        @update="c => { requests[1] = Number(c); if (c) undo() }" :options="['Decline', 'Accept']"><b>Undo</b>
+        request</request-group>
+      <request-group class="requestGroup bottom" :show="requests[0] == 2"
+        @update="c => { requests[0] = Number(c); if (c) undo() }" :options="['Decline', 'Accept']"><b>Undo</b>
+        request</request-group>
       <div class="timing top">
         <h2>{{ timings[1].game }}</h2>
         <h2>{{ timings[1].turn }}</h2>
@@ -176,8 +189,9 @@ onMounted(() => {
           <nav class="navbar main">
             <transition-group name="footerNav" :duration="500">
               <icon-button-main v-if="route.name != 'Game Play' || menuPage != ''" type="button"
-                @click="router.push('/game-play#menu'); menuPage = '';" icon="back 1" key="back 1"/>
-              <icon-button-main type="button" @click="router.push('/game-play'); menuPage = '';" icon="cross" key="cross"/>
+                @click="router.push('/game-play#menu'); menuPage = '';" icon="back 1" key="back 1" />
+              <icon-button-main type="button" @click="router.push('/game-play'); menuPage = '';" icon="cross"
+                key="cross" />
             </transition-group>
           </nav>
         </div>

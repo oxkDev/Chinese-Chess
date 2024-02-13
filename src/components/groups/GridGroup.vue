@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, defineProps, onMounted } from 'vue';
+import { ref, onMounted } from 'vue';
 
 const props = defineProps<{
   name: string,
@@ -22,7 +22,9 @@ onMounted(transitiondelays);
 
 <template>
   <div class="gridGroupWrap">
-    <h3 class="gridTitle">{{ name }}</h3>
+    <div class="gridGroupHeader">
+      <h3 class="gridTitle">{{ name }}</h3>
+    </div>
     <div class="grid" ref="grid">
       <slot></slot>
     </div>
@@ -33,6 +35,10 @@ onMounted(transitiondelays);
 .gridGroupWrap {
   width: 100%;
   margin: 15px 0;
+  overflow: visible;
+}
+
+.gridGroupHeader {
   overflow: hidden;
 }
 

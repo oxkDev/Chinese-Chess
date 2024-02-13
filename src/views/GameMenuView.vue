@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import { ref, defineEmits, defineProps } from 'vue';
 import IconButtonMain from '@/components/IconButtonMain.vue';
 import SettingsView from './SettingsView.vue';
 import ButtonMain from '@/components/mains/ButtonMain.vue';
 import { useRouter } from 'vue-router';
+import { useStore } from 'vuex';
 
 const router = useRouter();
+const store = useStore();
 
 defineProps<{
   subPage: ("home" | "settings" | "restart" | ""),
 }>();
-
 
 const emits = defineEmits<{
   (e: "action", act: "restart" | ""): void,
@@ -34,8 +34,8 @@ const emits = defineEmits<{
 
   <transition :duration="300" mode="out-in">
     <div v-if="subPage == 'home'" class="subPage">
-      <button-main @click="router.push('/')">End Match</button-main>
-      <button-main>Save Match</button-main>
+      <button-main @click="router.push('/').then(() => store.commit('endGame'));">End Match</button-main>
+      <button-main v-if="store.getters.isPlaying" @click="router.push('/');">Leave Match</button-main>
     </div>
     <settings-view v-else-if="subPage == 'settings'" class="subPage" />
     <div v-else-if="subPage == 'restart'" class="subPage">

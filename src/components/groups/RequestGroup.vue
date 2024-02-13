@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import SequenceTransition from '../SequenceTransition.vue';
 import ButtonMain from '../mains/ButtonMain.vue';
-import { defineProps, defineEmits } from 'vue';
 
 defineProps<{
   options: string[] | ["decline", "accept"] | ["cancel", "ok"],
@@ -14,7 +12,7 @@ const emits = defineEmits<{
 </script>
 
 <template>
-  <transition class="requestGroup">
+  <transition>
     <div class="requestGroupWrap" v-if="show" :key="show.toString()">
       <h3 class="requestTitle">
         <slot />
@@ -70,7 +68,7 @@ const emits = defineEmits<{
 .v-enter-active .requestAccept,
 .requestChoice,
 .v-leave-to.requestGroupWrap {
-  transition-delay: 0.1s;
+  transition-delay: calc(var(--animation-speed) * 0.1s);
 }
 
 .v-enter-from .requestTitle,

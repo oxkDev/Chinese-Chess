@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, defineProps, defineEmits, onMounted } from 'vue';
+import { ref, onMounted } from 'vue';
 
 const props = defineProps<{
   type: "B0" |
@@ -95,7 +95,7 @@ onMounted(() => {
 }
 
 .chessPieceWrap[isPiece="true"][player="1"] {
-  background: var(--secondary);
+  background: var(--piece-rival-background);
   /* outline: solid var(--generic) 3px;
   outline-offset: -7px; */
 }
@@ -105,7 +105,7 @@ onMounted(() => {
 }
 
 .chessPieceWrap[isPiece="true"][player="0"] {
-  background: var(--generic);
+  background: var(--piece-home-background);
   /* outline: solid var(--primary) 3px;
   outline-offset: -7px; */
 }
@@ -123,7 +123,7 @@ onMounted(() => {
 }
 
 .chessPieceWrap[isPiece="true"][player="0"] svg {
-  stroke: var(--secondary);
+  stroke: var(--piece-home-colour);
 }
 
 svg {
@@ -137,6 +137,6 @@ svg {
   /* padding: 7px; */
   /* margin: 5px; */
   filter: drop-shadow(var(--type-shadow));
-  stroke: var(--generic);
+  stroke: var(--piece-rival-colour);
 }
 </style>

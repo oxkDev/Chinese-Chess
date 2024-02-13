@@ -6,11 +6,14 @@ import GameSettingsGroup from '@/components/groups/GameSettingsGroup.vue';
 import { ref } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
+import { GameSettings } from '@/store/chinese chess';
+import { GameData } from '@/store';
 
 const router = useRouter();
 const store = useStore();
+const gameSettings = (store.getters.game as GameData).settings;
 
-const settings = ref();
+const settingsGroup = ref();
 const gameOptions = {
   names: ["home", "rival"],
   gameDuration: 0,
@@ -19,11 +22,11 @@ const gameOptions = {
 };
 
 function start() {
-  const durations = settings.value.duration;
-  gameOptions.gameDuration = parseInt(durations.game)*60000;
-  gameOptions.turnDuration = parseInt(durations.turn)*60000;
+  const durations = settingsGroup.value.duration;
+  gameOptions.gameDuration = parseInt(durations.game) * 60000;
+  gameOptions.turnDuration = parseInt(durations.turn) * 60000;
   gameOptions.starter = (gameOptions.starter == 1) ? Math.round(Math.random()) : Number(gameOptions.starter == 2)
-  store.commit("setGame", gameOptions);
+  store.commit("setGame", gameOptions as GameSettings);
   router.push('/game-play');
 }
 
@@ -32,8 +35,10 @@ function start() {
 
 <template>
   <sequence-transition id="twoPlayer">
-    <game-settings-group ref="settings"/>
-    <options-group @update="v => { gameOptions.starter = v }" :options="['Home', 'Random', 'Rival']">Starter</options-group>
+    <game-settings-group :game-duration="gameSettings.gameDuration / 60000" :turn-duration="gameSettings.turnDuration / 60000"
+      ref="settingsGroup" />
+    <options-group @update="v => { gameOptions.starter = v }"
+      :options="['Home', 'Random', 'Rival']">Starter</options-group>
     <button-main @click="start" id="startButton">Start</button-main>
   </sequence-transition>
 </template>
@@ -44,9 +49,10 @@ function start() {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  min-height: 100vh;
+  min-height: min(70vh, calc(85vh - 75px));
   scroll-snap-align: start;
   overflow-y: visible;
+  padding: 15vh 0 max(15vh, 75px);
 }
 
 .v-enter-active #startButton {

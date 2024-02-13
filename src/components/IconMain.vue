@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, defineProps, defineExpose } from 'vue';
+import { ref } from 'vue';
 
 defineProps<{
   icon: "account" |
@@ -146,5 +146,6 @@ svg {
 
 path {
   stroke-width: 2px;
+  stroke: var(--text);
 }
 </style>

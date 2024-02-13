@@ -4,16 +4,19 @@ import SliderGroup from '@/components/groups/SliderGroup.vue';
 import GridGroup from '@/components/groups/GridGroup.vue';
 import SwitchGroup from '@/components/groups/SwitchGroup.vue';
 import IconButtonMain from '@/components/IconButtonMain.vue';
+import ColourThemeIcon from '@/components/ColourThemeIcon.vue';
 import { useRoute } from 'vue-router';
 import { useStore } from 'vuex';
 import { ref } from 'vue';
+import { ColourTheme, colourThemes } from '@/store/colour themes';
+import { Settings } from '@/store';
 
 const route = useRoute();
 const store = useStore();
-const settings = ref(store.state.settings);
+const settings = ref(store.state.settings as Settings);
 
-function setSetting(key: string, value: boolean | number) {
-  settings.value[key] = value;
+function setSetting(key: string, value: boolean | number | ColourTheme) {
+  (settings.value as { [key: string]: boolean | number | ColourTheme})[key] = value;
   store.commit("setSettings", settings.value);
 }
 
@@ -31,14 +34,7 @@ const sideNav = {
     <div id="settingsScreen">
       <setting-section title="appearance">
         <grid-group margin="20px" name="Colour Palette">
-          <div class="colour">a</div>
-          <div class="colour">b</div>
-          <div class="colour">c</div>
-          <div class="colour">d</div>
-          <div class="colour">d</div>
-          <div class="colour">d</div>
-          <div class="colour">d</div>
-          <div class="colour">d</div>
+          <colour-theme-icon v-for="(theme, k) in colourThemes" :key="k" :theme="theme" :selected="JSON.stringify(theme) == JSON.stringify(settings.colourTheme)" @click="setSetting('colourTheme', theme)"/>
         </grid-group>
         <grid-group margin="20px" name="Design Theme">
           <div class="theme">e</div>
@@ -46,6 +42,7 @@ const sideNav = {
           <div class="theme">g</div>
           <div class="theme">h</div>
         </grid-group>
+        <switch-group>Blur</switch-group>
       </setting-section>
 
       <setting-section title="sound">
@@ -56,20 +53,20 @@ const sideNav = {
       </setting-section>
 
       <setting-section title="animation">
-        <slider-group :value="parseInt(settings.animationSpeed)" @update="v => setSetting('animationSpeed', v)"
+        <slider-group :value="parseInt(settings.animationSpeed.toString())" @update="v => setSetting('animationSpeed', v)"
           name="Speed" unit="%">
           <option value="0" label="0%"></option>
           <option value="100" label="100%"></option>
         </slider-group>
-        <slider-group :value="parseInt(settings.animationLevel)" @update="v => setSetting('animationLevel', v)"
+        <slider-group :value="parseInt(settings.animationLevel.toString())" @update="v => setSetting('animationLevel', v)"
           name="Style" :max="4" :options="{
-            0: 'None',
+            0: 'Minimal',
             1: 'Less',
             2: 'Standard',
             3: 'More',
             4: 'Fancy'
           }">
-          <option value="0" label="None"></option>
+          <option value="0" label="Minimal"></option>
           <option value="50" label="Standard"></option>
           <option value="100" label="Fancy"></option>
         </slider-group>
@@ -105,21 +102,13 @@ const sideNav = {
   height: 100vh;
   max-width: 300px;
   width: calc(100% - 120px);
-  margin: 0 60px;
+  padding: 0 60px;
   overflow-y: scroll;
   scroll-snap-type: y mandatory;
 }
 
 #settingsScreen::-webkit-scrollbar {
   width: 0px;
-}
-
-.colour {
-  width: 35px;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  color: black;
-  background: white;
 }
 
 .theme {

@@ -1,6 +1,5 @@
 <script setup lang="ts">
-// import { Options, Vue } from 'vue-class-component';
-import { defineProps, defineEmits, onMounted, ref } from 'vue';
+import { onMounted, ref } from 'vue';
 
 const input = ref();
 
@@ -85,7 +84,7 @@ input {
 .switch:has(input:checked):before,
 .switch:has(input:not(:checked)):after {
   width: 100%;
-  transition-delay: .1s;
+  transition-delay: calc(var(--animation-speed) * .1s);
 }
 
 .v-enter-from .switch,

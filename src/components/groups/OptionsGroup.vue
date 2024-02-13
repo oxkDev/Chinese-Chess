@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { defineProps, defineEmits } from 'vue';
 import OptionsMain from '@/components/mains/OptionsMain.vue';
 
 defineProps<{
@@ -14,18 +13,24 @@ const emits = defineEmits<{
 </script>
 
 <template>
-  <div class="OptionsGroupWrap">
-    <h3 class="OptionsTitle">
-      <slot></slot>
-    </h3>
+  <div class="optionsGroupWrap">
+    <div class="optionsHeading">
+      <h3 class="OptionsTitle">
+        <slot></slot>
+      </h3>
+    </div>
     <options-main class="options" @on-input="val => emits('update', val)" :options="options" :def="def"></options-main>
   </div>
 </template>
 
 <style scoped>
-.OptionsGroupWrap {
+.optionsGroupWrap {
   width: 100%;
   margin: 15px 0;
+  /* overflow: visible; */
+}
+
+.optionsHeading {
   overflow: hidden;
 }
 

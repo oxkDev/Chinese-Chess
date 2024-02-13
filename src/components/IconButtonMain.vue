@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { defineProps, defineEmits } from 'vue';
 import IconMain from './IconMain.vue';
 
 const props = defineProps<{
@@ -20,13 +19,15 @@ const rotate = ["cross", "restart", "settings 1", "undo"];
 </script>
 
 <template>
-  <button v-if="type == 'button'" :onclick="() => emits('click')" :disable="!!props.disable" class="iconButton">
-    <icon-main :icon="icon" :active="String(props.active) != 'route' ? !!props.active : ''"
-      :class="`buttonIcon ${rotate.indexOf(props.icon) != -1 ? 'rotate' : ''} ${big ? 'big' : ''}`" ref="svg" />
+  <button v-if="type == 'button'" :onclick="() => emits('click')"
+    :active="String(props.active) != 'route' ? !!props.active : ''" :disable="!!props.disable" class="iconButton">
+    <icon-main :icon="icon" :class="`buttonIcon ${rotate.indexOf(props.icon) != -1 ? 'rotate' : ''} ${big ? 'big' : ''}`"
+      ref="svg" />
   </button>
-  <router-link v-else :disable="!!props.disable" :to="to ? to : ''" class="iconButton">
-    <icon-main :icon="icon" :active="String(props.active) != 'route' ? !!props.active : ''"
-      :class="`${rotate.indexOf(props.icon) != -1 ? 'rotate' : ''} ${big ? 'big' : ''}`" ref="svg" />
+  <router-link v-else :active="String(props.active) != 'route' ? !!props.active : ''" :disable="!!props.disable"
+    :to="to ? to : ''" class="iconButton">
+    <icon-main :icon="icon" :class="`${rotate.indexOf(props.icon) != -1 ? 'rotate' : ''} ${big ? 'big' : ''}`"
+      ref="svg" />
 
   </router-link>
 </template>
@@ -35,9 +36,12 @@ const rotate = ["cross", "restart", "settings 1", "undo"];
 .iconButton {
   margin: 5px;
   color: var(--text);
-  opacity: 0.6;
   text-shadow: var(--icon-shadow);
   background: none;
+}
+
+.iconButton:not([active="true"]) {
+  opacity: 0.7;
 }
 
 svg path {
@@ -54,17 +58,17 @@ svg.big {
   min-width: 30px;
 }
 
-svg.big>>>path {
+svg.big:deep(path) {
   stroke-width: 1.5px;
 }
 
-.iconButton:hover {
+.iconButton[active="false"]:not([disable="true"]):hover {
   opacity: 1;
   filter: drop-shadow(var(--icon-shadow));
 }
 
-.iconButton:has(> svg[active="true"]),
-.iconButton.router-link-exact-active:not(:has(> svg[active="false"])),
+.iconButton[active="true"],
+.iconButton.router-link-exact-active:not([active="false"]),
 .iconButton[disable="true"] {
   pointer-events: none;
 }
@@ -73,18 +77,20 @@ svg.big>>>path {
   opacity: .3;
 }
 
-svg[active="true"],
-a.router-link-exact-active svg:not([active="false"]) {
+.iconButton[active="true"] svg,
+a.router-link-exact-active:not([active="false"]) svg {
   filter: drop-shadow(var(--icon-glow));
 }
 
-a.router-link-exact-active:not(:has(svg[active="false"])) {
+
+.iconButton[active="true"],
+a.router-link-exact-active.iconButton:not([active="false"]) {
   opacity: 1;
 }
 
 /* svg.buttonIcon:active path, */
-svg[active="true"]>>>path,
-a.router-link-exact-active svg:not([active="false"])>>>path {
+.iconButton[active="true"] svg:deep(path),
+a.router-link-exact-active.iconButton:not([active="false"]) svg:deep(path) {
   stroke: var(--secondary);
 }
 

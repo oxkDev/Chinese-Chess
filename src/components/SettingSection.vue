@@ -1,10 +1,15 @@
 <script setup lang="ts">
 import SequenceTransition from '@/components/SequenceTransition.vue';
-import { ref, defineProps, onMounted, watch } from 'vue';
+import { Settings } from '@/store';
+import { ref, onMounted, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import { useStore } from 'vuex';
 
 const router = useRouter();
 const route = useRoute();
+const store = useStore();
+
+const settings = store.state.settings as Settings;
 
 const props = defineProps<{
   title: string,
@@ -15,11 +20,11 @@ const show = ref(false);
 let timeout = 0;
 
 watch(route, () => {
-  if (route.hash && route.hash != `#${props.title}` && show.value && route.path.indexOf("/settings") != -1) {
+  if (route.hash != `#${props.title}` && show.value && route.path.indexOf("/settings") != -1) {
     clearTimeout(timeout);
     show.value = false;
     const elm = document.querySelector(route.hash);
-    if (elm) timeout = setTimeout(() => elm?.scrollIntoView({ behavior: "auto", inline: "nearest", block: "end" }), 500);
+    if (elm) timeout = setTimeout(() => elm?.scrollIntoView({ behavior: "auto", inline: "nearest", block: "end" }), 5*settings.animationSpeed);
   }
 });
 
@@ -42,7 +47,7 @@ onMounted(() => {
 
 <template>
   <section :id="title" ref="section">
-    <transition :duration="500">
+    <transition :duration="5*settings.animationSpeed">
       <sequence-transition :key="show.toString()">
         <slot v-if="show" />
       </sequence-transition>
@@ -58,7 +63,7 @@ section {
   min-height: 100vh;
   width: 100%;
   scroll-snap-align: start;
-  overflow-y: hidden;
+  overflow: visible;
 }
 
 div {

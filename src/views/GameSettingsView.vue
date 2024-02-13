@@ -13,11 +13,9 @@ const gameSettings = store.getters.settings as GameSettings;
 const durations = ref({ game: gameSettings.gameDuration, turn: gameSettings.turnDuration });
 
 function save() {
-  const d = {
-    gameDuration: durations.value.game*60000,
-    turnDuration: durations.value.turn*60000
-  }
-  store.commit("editGame", d);
+  gameSettings.gameDuration = durations.value.game*60000;
+  gameSettings.turnDuration = durations.value.turn*60000;
+  store.commit("setGame", gameSettings);
   router.push('');
 }
 

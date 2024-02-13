@@ -1,7 +1,4 @@
-
 <script setup lang="ts">
-import { defineProps } from 'vue';
-
 defineProps({
   interval: {type: Number, default: 0.1},
 });

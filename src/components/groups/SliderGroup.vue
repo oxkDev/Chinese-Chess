@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { defineProps, defineEmits, onBeforeUnmount, ref } from 'vue';
+import { onBeforeUnmount, ref } from 'vue';
 import SliderMain from '@/components/mains/SliderMain.vue';
+import { Settings } from '@/store';
+import { useStore } from 'vuex';
 
 const props = defineProps({
   name: String,
@@ -17,7 +19,9 @@ const emits = defineEmits<{
 }>();
 
 const output = ref(0);
-// const duration = props.duration * props.step / props.max;
+const store = useStore();
+
+const settings = store.state.settings as Settings;
 
 let interv = 0;
 
@@ -27,6 +31,13 @@ function update(newValue: number, intervalDuration: number = Math.round(props.du
 
   let step = props.step;
   newValue = parseInt(newValue.toString());
+
+  if (settings.animationSpeed == 0) {
+    output.value = newValue;
+    return;
+  } else {
+    intervalDuration *= settings.animationSpeed/100;
+  }
 
   if (intervalDuration < 10 && intervalDuration > 0) {
     step *= Math.ceil(10 / intervalDuration);

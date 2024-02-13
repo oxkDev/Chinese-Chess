@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import SliderGroup from '@/components/groups/SliderGroup.vue';
-import { ref, defineProps, defineEmits, defineExpose } from 'vue';
+import { ref } from 'vue';
 
 const props = defineProps({
   gameDuration: { type: Number, default: 60 },

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, defineProps, defineEmits } from 'vue';
+import { ref } from 'vue';
 import ChessPieceIcons from '@/components/ChessPieceIcons.vue';
 
 const props = defineProps<{
@@ -201,9 +201,9 @@ function onFocus(f: boolean, p: string) {
 }
 
 .movesCheck[kill="true"]>.movesCheckIndicator {
-  outline: solid var(--contrast) 3px;
+  outline: solid var(--dark) 3px;
   outline-offset: 5px;
-  background: var(--contrast);
+  background: var(--dark);
 }
 
 .blockedMove {

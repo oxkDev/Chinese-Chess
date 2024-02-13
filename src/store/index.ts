@@ -1,8 +1,9 @@
 import { createStore } from 'vuex'
+import { ColourTheme } from './colour themes';
+import { GamePlayData, GameSettings } from './chinese chess';
 
 export class Settings {
-  colour: number;
-  design: number;
+  colourTheme: ColourTheme;
   music: boolean;
   game: boolean;
   atmos: boolean;
@@ -12,19 +13,17 @@ export class Settings {
   positionAid: boolean;
   stalemateAid: boolean;
   constructor(
-    colour = 1,
-    design = 1,
-    music = true,
+    colourTheme: ColourTheme = new ColourTheme(),
+    music = false,
     game = false,
     atmos = false,
-    haptic = false,
+    haptic = true,
     animationSpeed = 100,
     animationLevel = 2,
     positionAid = true,
-    stalemateAid = false,
+    stalemateAid = true,
   ) {
-    this.colour = colour;
-    this.design = design;
+    this.colourTheme = colourTheme;
     this.music = music;
     this.game = game;
     this.atmos = atmos;
@@ -36,66 +35,53 @@ export class Settings {
   }
 }
 
-interface Pieces { [key: string]: number[] }
-
-interface GameSettings {
-  names: string[],
-  gameDuration: number,
-  turnDuration: number,
-  starter: 0 | 1,
-}
-
-interface GameData {
+export interface GameData {
   settings: GameSettings,
-  play: {
-    turn: 0 | 1,
-    boardHist: { [key: number]: Pieces },
-    timer: {
-      0: number,
-      1: number,
-    }
-    turnTimer: number,
-  }
+  play?: GamePlayData,
 }
 
 export default createStore({
-  state: {
-    // settings: {
-    settings: new Settings(),
-    // },
-    game: {} as GameData,
+  state: () => {
+    const settings = localStorage.getItem("settings");
+    const game = localStorage.getItem("game");
+    return {
+      // settings: {
+      settings: settings ? JSON.parse(settings) as Settings : new Settings(),
+      // },
+      game: (game ? JSON.parse(game) : {}) as GameData,
+    }
   },
   mutations: {
     setSettings(state, settings: Settings) {
       state.settings = settings;
+      localStorage.setItem("settings", JSON.stringify(settings));
     },
     setGame(state, settings: GameSettings) {
-      const gameData: GameData = {
-        settings: settings,
-        play: {
-          turn: settings.starter,
-          boardHist: {},
-          timer: {
-            0: settings.gameDuration,
-            1: settings.gameDuration,
-          },
-          turnTimer: settings.turnDuration,
-        }
-      }
-      state.game = gameData;
+      state.game.settings = settings;
+      localStorage.setItem("game", JSON.stringify(state.game));
     },
-    editGame(state, settings: {gameDuration: number, turnDuration: number}) {
-      state.game.settings.gameDuration = settings.gameDuration;
-      state.game.settings.turnDuration = settings.turnDuration;
-    }
+    updateGame(state, playData: GamePlayData) {
+      state.game.play = playData;
+      localStorage.setItem("game", JSON.stringify(state.game));
+    },
+    endGame(state) {
+      state.game.play = undefined;
+      localStorage.setItem("game", JSON.stringify(state.game));
+    },
+    // localSave(state, type: "game" | "settings") {
+    //   localStorage.setItem(type, JSON.stringify(state[type]));
+    // }
   },
   getters: {
+    isPlaying(state) {
+      return !!state.game.play;
+    },
     game(state) {
-      if (state.game.settings && state.game.play) return state.game;
+      if (state.game.settings) return state.game;
       else return false;
     },
     settings(state) {
-      if (state.game.settings) return state.game.settings;
+      if (state.settings) return state.settings;
       else return false;
       // return { ...state.game.settings };
     },
@@ -104,4 +90,4 @@ export default createStore({
   },
   modules: {
   }
-})
+});

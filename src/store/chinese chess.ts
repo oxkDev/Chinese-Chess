@@ -8,6 +8,15 @@ export interface GameSettings {
   starter: 0 | 1,
 }
 
+export interface GamePlayData {
+  turn: 0 | 1,
+  boardHist: { [key: string]: { board: Pieces, time: { 0: number, 1: number }, turn: number } },
+  timer: {
+    0: number,
+    1: number,
+  }
+}
+
 export class Game {
   defPieces: Pieces;
   pieces: Pieces;
@@ -41,7 +50,7 @@ export class Game {
     }
   }
 
-  movesCheck(pieceDat: { type: string, player: number }, pieces = this.pieces): { positions: number[][], attacks: string[] } {
+  movesCheck(pieceDat: { type: string, player: number }, pieces: Pieces = this.pieces): { positions: number[][], attacks: string[] } {
     const { type, player } = pieceDat;
     const pieceKey = `${pieceDat.type} ${pieceDat.player}`;
     const coord = pieces[`${pieceDat.type} ${pieceDat.player}`];
@@ -206,25 +215,33 @@ export class Game {
             se: [x + 1, y - 1],
             sw: [x - 1, y - 1],
           },
-          attacked: string[] = [];
+          attacks: { [key: string]: string } = {};
+
 
         for (const i in blocks) for (const secKey in pieces) {
           const secCoord = pieces[secKey], secPlayer = parseInt(secKey.split(" ")[1]);
-          if (String(secCoord) == String(blocks[i])) delete positions[i];
-          else if (String(secCoord) == String(positions[i])) {
-            if (secPlayer != player) attacked.push(secKey);
-            else delete positions[i];
+          if (String(secCoord) == String(blocks[i])) {
+            delete positions[i];
             break;
+          } else if (String(secCoord) == String(positions[i])) {
+            if (secPlayer != player) attacks[i] = secKey;
+            else {
+              delete positions[i];
+              break;
+            }
           }
         }
 
-        const unblockedPos = [];
+        const unblockedPos = [], attacked: string[] = [];
         const limits: { [key: number]: number[] } = {
           0: [0, 4],
           1: [5, 9],
         }
         for (const i in positions) {
-          if (positions[i][0] >= 0 && positions[i][0] <= 8 && positions[i][1] >= limits[player][0] && positions[i][1] <= limits[player][1]) unblockedPos.push(positions[i]);
+          if (positions[i][0] >= 0 && positions[i][0] <= 8 && positions[i][1] >= limits[player][0] && positions[i][1] <= limits[player][1]) {
+            unblockedPos.push(positions[i]);
+            attacked.push(attacks[i]);
+          }
         }
 
         return { positions: unblockedPos, attacks: attacked };
@@ -315,12 +332,12 @@ export class Game {
         const unblockedPos = [], attacked = [];
         for (const i in positions) {
           if (positions[i][0] < limits[0][0] || positions[i][0] > limits[0][1] || positions[i][1] < limits[1][0] || positions[i][1] > limits[1][1]) continue;
-          let valid = true;
+          // let valid = true;
           for (const secKey in pieces) {
             const secCoord = pieces[secKey], secPlayer = parseInt(secKey.split(" ")[1]);
             if (String(secCoord) == String(positions[i])) {
-              if (secPlayer == player) valid = false;
-              else attacked.push(secKey);
+              // if (secPlayer == player) valid = false;
+              if (secPlayer != player) attacked.push(secKey);
               break;
             }
           }
@@ -345,7 +362,7 @@ export class Game {
         (!(coord[0] == general.coord[0] || coord[1] == general.coord[1]) && (coord[1] < zone[0] || coord[1] > zone[1]))
       ) continue;
 
-      const pieceDat = this.movesCheck({ type: piece, player: 1 - checkPlayer }, { ...pieces } as Pieces);
+      const pieceDat = this.movesCheck({ type: piece, player: 1 - checkPlayer }, pieces);
       // console.log(pieceDat)
       if (pieceDat.attacks.indexOf(general.key) > -1) attackers.push(key);
 
@@ -495,10 +512,32 @@ export default class Board extends Game {
     this.winner;
   }
 
-  update(settings: GameSettings) {
+  updateSettings(settings: GameSettings) {
     this.names = [settings.names[0], settings.names[0] == settings.names[1] ? settings.names[1] + "2" : settings.names[1]];
     if (settings.turnDuration <= this.turn.timer.getRunning() && settings.turnDuration > 0) this.turn.timer.start();
     this.durations = { game: settings.gameDuration, turn: settings.turnDuration };
+  }
+
+  updateGame(gameData: GamePlayData) {
+    this.boardHist = Object(gameData.boardHist) as { [key: string]: { board: Pieces, time: { 0: number, 1: number }, turn: number } };
+    this.turn.iteration = Object.keys(this.boardHist).length - 1;
+    this.pieces = this.boardHist[this.turn.iteration].board as Pieces;
+    this.turn.player = gameData.turn;
+    this.timer[0].set(gameData.timer[0]);
+    this.timer[1].set(gameData.timer[1]);
+    this.turn.timer.set(0);
+    console.log(this.boardHist[this.turn.iteration], this.turn.iteration);
+  }
+
+  getGame(): GamePlayData {
+    return {
+      turn: this.turn.player as (0 | 1),
+      boardHist: this.boardHist,
+      timer: {
+        0: this.timer[0].getRunning(),
+        1: this.timer[1].getRunning(),
+      }
+    }
   }
 
   start() {

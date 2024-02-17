@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ColourTheme } from '@/store/colour themes';
+import { ColourTheme } from '@/store/themes';
 
 defineProps<{
 	theme: ColourTheme;
@@ -40,6 +40,7 @@ const emits = defineEmits<{
 	box-shadow: var(--default-glow);
 	outline: v-bind("theme.backgroundSecondary") solid 15px;
 	outline-offset: -18px;
+	pointer-events: none;
 }
 
 .sub {
@@ -49,4 +50,26 @@ const emits = defineEmits<{
 	width: 50%;
 	display: inline-block;
 }
-</style>
+
+.main[selected="false"]:hover {
+	outline-width: 3px;
+	outline-offset: -3px;
+	transform: rotate(45deg);
+}
+
+.main[selected="false"]:active {
+	outline-width: 10px;
+	outline-offset: -10px;
+}
+
+.v-enter-from .main,
+.v-leave-to .main {
+	outline-width: 1px;
+	outline-offset: -1px;
+	transform: rotate(90deg);
+}
+
+.v-leave-to .main {
+	transform: rotate(-90deg);
+}
+</style>@/store/themes

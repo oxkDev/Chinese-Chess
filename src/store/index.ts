@@ -1,9 +1,11 @@
 import { createStore } from 'vuex'
-import { ColourTheme } from './colour themes';
+import { ColourTheme } from './themes';
 import { GamePlayData, GameSettings } from './chinese chess';
 
 export class Settings {
   colourTheme: ColourTheme;
+  designTheme: "default" | "subtle" | "square";
+  blur: number;
   music: boolean;
   game: boolean;
   atmos: boolean;
@@ -14,6 +16,8 @@ export class Settings {
   stalemateAid: boolean;
   constructor(
     colourTheme: ColourTheme = new ColourTheme(),
+    designTheme: "default" | "subtle" | "square" = "default",
+    blur = 2,
     music = false,
     game = false,
     atmos = false,
@@ -24,6 +28,8 @@ export class Settings {
     stalemateAid = true,
   ) {
     this.colourTheme = colourTheme;
+    this.designTheme = designTheme;
+    this.blur = blur;
     this.music = music;
     this.game = game;
     this.atmos = atmos;

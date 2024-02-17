@@ -8,12 +8,13 @@ import { onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from "vue-router";
 import { useStore } from 'vuex';
 import ChessBoardGroup from "@/components/groups/ChessBoardGroup.vue";
-import { GameData } from "@/store";
+import { GameData, Settings } from "@/store";
 
 const store = useStore();
 const route = useRoute();
 const router = useRouter();
 
+const settings = store.getters.settings as Settings;
 const gameData: GameData = store.getters.game;
 const gameSettings = gameData.settings;
 const gamePlay = ref(new Board(gameSettings));
@@ -59,6 +60,9 @@ function update(turn: 0 | 1 | number = gamePlay.value.turn.player) {
   requests.value[1 - turn] = 0;
   boardDisplay.value = gamePlay.value.turn.iteration;
   store.commit("updateGame", gamePlay.value.getGame());
+  if (settings.haptic)
+    if (stalemate.value.length) navigator.vibrate([10, 150, 10]);
+    else navigator.vibrate(10);
 }
 
 
@@ -86,36 +90,37 @@ function formatTimings(t: number) {
   return `${gameTime.length == 1 ? '0' + gameTime : gameTime} : ${turnTime.length == 1 ? '0' + turnTime : turnTime}`;
 }
 
-onMounted(() => {
-  gamePlay.value.start();
-  if (gameData.play) {
-    gamePlay.value.pause(true);
-    gamePlay.value.updateGame(gameData.play);
-    console.log(gamePlay.value.boardHist[boardDisplay.value]);
-    update();
-    gamePlay.value.pause(false);
-  }
 
-  for (const i in gamePlay.value.timer) {
-    gamePlay.value.timer[parseInt(i)].onUpdate(v => {
-      if (gameSettings.gameDuration > 0) timings.value[parseInt(i)].game = formatTimings(gameSettings.gameDuration - v);
-      else timings.value[parseInt(i)].game = formatTimings(v);
-    });
-  }
-
-  gamePlay.value.turn.timer.onUpdate(v => {
-    if (gameSettings.turnDuration > 0) {
-      timings.value[gamePlay.value.turn.player].turn = formatTimings(gameSettings.turnDuration - v);
-      timings.value[1 - gamePlay.value.turn.player].turn = formatTimings(gameSettings.turnDuration);
-    } else {
-      timings.value[gamePlay.value.turn.player].turn = formatTimings(v);
-    }
+for (const i in gamePlay.value.timer) {
+  gamePlay.value.timer[parseInt(i)].onUpdate(v => {
+    if (gameSettings.gameDuration > 0) timings.value[parseInt(i)].game = formatTimings(gameSettings.gameDuration - v);
+    else timings.value[parseInt(i)].game = formatTimings(v);
   });
+}
 
-  gamePlay.value.onWin = w => {
-    actions.value = { moves: {}, blocks: {} };
-    console.log("win:", w);
+gamePlay.value.turn.timer.onUpdate(v => {
+  if (gameSettings.turnDuration > 0) {
+    timings.value[gamePlay.value.turn.player].turn = formatTimings(gameSettings.turnDuration - v);
+    timings.value[1 - gamePlay.value.turn.player].turn = formatTimings(gameSettings.turnDuration);
+  } else {
+    timings.value[gamePlay.value.turn.player].turn = formatTimings(v);
   }
+});
+
+gamePlay.value.onWin = w => {
+  actions.value = { moves: {}, blocks: {} };
+  console.log("win:", w);
+
+  if (settings.haptic) navigator.vibrate([10, 150, 10, 150, 10]);
+}
+
+onMounted(() => {
+  gamePlay.value.start(gameData.play);
+  if (gameData.play) {
+    update();
+    if (JSON.stringify(actions.value.moves) == '{}') gamePlay.value.win(1 - gamePlay.value.turn.player);
+  }
+  if (route.hash != '' || route.name != 'Game Play') gamePlay.value.pause(true);
 });
 
 </script>
@@ -129,6 +134,10 @@ onMounted(() => {
       <request-group class="requestGroup bottom" :show="requests[0] == 2"
         @update="c => { requests[0] = Number(c); if (c) undo() }" :options="['Decline', 'Accept']"><b>Undo</b>
         request</request-group>
+      <request-group class="center" :show="gamePlay.winner != undefined && requests['win'] > 0"
+        @update="c => { requests['win'] = Number(c); if (c) undo(0); }" :options="['Cancel', 'Rematch']">
+        <h2><b>{{ gamePlay.names[gamePlay.winner ? gamePlay.winner : 0] }}</b> Wins</h2>
+      </request-group>
       <div class="timing top">
         <h2>{{ timings[1].game }}</h2>
         <h2>{{ timings[1].turn }}</h2>
@@ -141,10 +150,6 @@ onMounted(() => {
         <h2>{{ timings[0].game }}</h2>
         <h2>{{ timings[0].turn }}</h2>
       </div>
-      <request-group class="center" :show="gamePlay.winner != undefined && requests['win'] > 0"
-        @update="c => { requests['win'] = Number(c); if (c) undo(0); }" :options="['Cancel', 'Rematch']">
-        <h2><b>{{ gamePlay.names[gamePlay.winner ? gamePlay.winner : 0] }}</b> Wins</h2>
-      </request-group>
     </div>
     <div class="footer top">
       <nav class="navbar main" id="oFooter">
@@ -274,8 +279,13 @@ onMounted(() => {
   justify-content: center;
   align-items: center;
   transition: var(--transition-l);
+  background: var(--background-primary);
+  backdrop-filter: none;
+}
+
+.blur-l #gameOverlay {
   background: var(--background-primary-translucent);
-  backdrop-filter: blur(var(--blur-l));
+  backdrop-filter: var(--blur-l);
 }
 
 .overlayContent {

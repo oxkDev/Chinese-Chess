@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 
+
 const props = defineProps<{
   type: "B0" |
   "B1" |
@@ -44,8 +45,8 @@ onMounted(() => {
 </script>
 
 <template>
-  <button class="chessPieceWrap" :isPiece="type != ''" :rotate="rotate"
-    :class="`${focus ? 'active' : ''} ${(danger && active && type[0] == 'J') || attacker ? 'mark' : ''}`"
+  <button class="chessPieceWrap" :isPiece="type != ''"
+    :class="{active: focus, mark: (danger && active && type[0] == 'J') || attacker, rotate}"
     :player="type[type.length - 1]" :draggable="type != ''" ref="piece">
     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" ref="Svg">
       <path v-if="type == 'B0'" id="B0"
@@ -100,7 +101,7 @@ onMounted(() => {
   outline-offset: -7px; */
 }
 
-.chessPieceWrap[player="1"][rotate="true"] {
+.chessPieceWrap.rotate[player="1"] {
   transform: rotate(180deg);
 }
 

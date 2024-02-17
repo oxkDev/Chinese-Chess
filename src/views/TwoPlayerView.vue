@@ -35,8 +35,8 @@ function start() {
 
 <template>
   <sequence-transition id="twoPlayer">
-    <game-settings-group :game-duration="gameSettings.gameDuration / 60000" :turn-duration="gameSettings.turnDuration / 60000"
-      ref="settingsGroup" />
+    <game-settings-group :game-duration="gameSettings ? gameSettings.gameDuration / 60000 : undefined"
+      :turn-duration="gameSettings ? gameSettings.turnDuration / 60000 : undefined" ref="settingsGroup" />
     <options-group @update="v => { gameOptions.starter = v }"
       :options="['Home', 'Random', 'Rival']">Starter</options-group>
     <button-main @click="start" id="startButton">Start</button-main>

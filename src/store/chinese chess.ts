@@ -380,7 +380,7 @@ export class Game {
       // console.log("checking:", piece, pieceDat, String(this.pieces["J 0"]), this.pieces)
 
       for (const i in pieceDat.positions) {
-        const pieces = Object({ ...this.pieces }) as Pieces, newCoord = pieceDat.positions[i];
+        const pieces = { ...this.pieces } as Pieces, newCoord = pieceDat.positions[i];
         pieces[key] = newCoord;
 
         for (const k in pieceDat.attacks) if (String(newCoord) == String(pieces[pieceDat.attacks[k]])) {
@@ -423,13 +423,14 @@ class Timer {
   }
 
   start(from = 0) {
-    this.pauser = { status: false, time: 0 };
+    this.pauser = { status: false, time: from };
     this.set(from);
 
   }
 
   set(from = 0) {
     this.startTime = this.date.now() - from;
+    if (this.pauser.status) this.pauser.time = from;
     if (this.timeout) {
       clearTimeout(this.timeout);
       this.iterate();
@@ -490,7 +491,7 @@ export default class Board extends Game {
 
     this.boardHist = {
       0: {
-        board: Object({ ...this.pieces } as Pieces),
+        board: { ...this.pieces },
         turn: settings.starter,
         time: {
           0: settings.gameDuration,
@@ -519,14 +520,15 @@ export default class Board extends Game {
   }
 
   updateGame(gameData: GamePlayData) {
-    this.boardHist = Object(gameData.boardHist) as { [key: string]: { board: Pieces, time: { 0: number, 1: number }, turn: number } };
+    this.boardHist = { ...gameData.boardHist } as { [key: string]: { board: Pieces, time: { 0: number, 1: number }, turn: number } };
     this.turn.iteration = Object.keys(this.boardHist).length - 1;
     this.pieces = this.boardHist[this.turn.iteration].board as Pieces;
     this.turn.player = gameData.turn;
     this.timer[0].set(gameData.timer[0]);
     this.timer[1].set(gameData.timer[1]);
+
+    console.log(this.timer[0].getRunning(), this.timer[1].getRunning());
     this.turn.timer.set(0);
-    console.log(this.boardHist[this.turn.iteration], this.turn.iteration);
   }
 
   getGame(): GamePlayData {
@@ -540,11 +542,21 @@ export default class Board extends Game {
     }
   }
 
-  start() {
+  start(gameData: GamePlayData = {
+    turn: this.turn.player as 0 | 1,
+    boardHist: this.boardHist,
+    timer: {
+      0: 0,
+      1: 0
+    }
+  }) {
+    this.turn.player = gameData.turn;
+
+    this.boardHist = { ...gameData.boardHist };
+    this.turn.iteration = Object.keys(this.boardHist).length - 1;
+    this.pieces = { ...this.boardHist[this.turn.iteration].board } as Pieces;
 
     for (const i in this.timer) {
-      this.timer[parseInt(i)].start();
-
       this.timer[parseInt(i)].onUpdate(t => {
         if (this.winner != undefined) return false;
         if (t >= this.durations.game && this.durations.game > 0) {
@@ -553,7 +565,12 @@ export default class Board extends Game {
         }
       });
     }
+
+    this.timer[this.turn.player].start(gameData.timer[this.turn.player as 0 | 1]);
+
     this.timer[1 - this.turn.player].pause(true);
+
+    this.timer[1 - this.turn.player].set(gameData.timer[(1 - this.turn.player) as 0 | 1]);
 
     this.turn.timer.start();
 
@@ -570,13 +587,13 @@ export default class Board extends Game {
   move(piece: string | number, coord: number[], nextTurn = true) {
     this.timer[this.turn.player].pause(true);
 
-
     for (const i in this.pieces) if (String(this.pieces[i]) == String(coord)) delete this.pieces[i];
-    // console.log(piece)
     this.pieces[piece] = coord;
     this.turn.iteration++;
+    if (nextTurn) this.turn.player = 1 - this.turn.player;
+
     this.boardHist[this.turn.iteration] = {
-      board: Object({ ...this.pieces } as Pieces),
+      board: { ...this.pieces } as Pieces,
       turn: this.turn.player,
       time: {
         0: this.timer[0].getRunning(),
@@ -584,7 +601,6 @@ export default class Board extends Game {
       }
     };
 
-    if (nextTurn) this.turn.player = 1 - this.turn.player;
     this.timer[this.turn.player].pause(false);
     this.turn.timer.start();
   }
@@ -596,16 +612,19 @@ export default class Board extends Game {
     if (to == 0) {
       this.resetPieces();
       for (const i in this.timer) {
-        this.timer[i].start();
-        this.timer[i].pause(true);
+        this.timer[i].set(0);
       }
+      this.boardHist = { 0: this.boardHist[0] };
     } else {
       const boardHist = this.boardHist[to];
-      this.turn.player = 1 - boardHist.turn;
-      this.pieces = Object({ ...boardHist.board } as Pieces);
+      this.turn.player = boardHist.turn;
+      this.pieces = { ...boardHist.board } as Pieces;
       for (const i in this.timer) {
         this.timer[i].set(boardHist.time[parseInt(i) as (0 | 1)]);
-        // this.timer[i].pause(true);
+      }
+
+      for (let i = to + 1; i < Object.keys(this.boardHist).length; i++) {
+        delete this.boardHist[i];
       }
     }
     this.turn.timer.start();
@@ -616,6 +635,7 @@ export default class Board extends Game {
     if (this.winner == undefined) {
       this.turn.timer.pause(set);
       this.timer[this.turn.player].pause(set);
+      this.timer[1 - this.turn.player].pause(true);
     }
   }
 

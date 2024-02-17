@@ -23,7 +23,7 @@ watch(route, () => {
   if (route.hash != `#${props.title}` && show.value && route.path.indexOf("/settings") != -1) {
     clearTimeout(timeout);
     show.value = false;
-    const elm = document.querySelector(route.hash);
+    const elm = document.querySelector(`${route.hash}.settingSection`);
     if (elm) timeout = setTimeout(() => elm?.scrollIntoView({ behavior: "auto", inline: "nearest", block: "end" }), 5*settings.animationSpeed);
   }
 });
@@ -33,6 +33,7 @@ onMounted(() => {
     show.value = e[0].isIntersecting;
     if (show.value) {
       router.push(`#${props.title}`);
+      if (settings.haptic) navigator.vibrate(5);
     }
   }, {
     root: section.value.parentElement,
@@ -46,9 +47,9 @@ onMounted(() => {
 </script>
 
 <template>
-  <section :id="title" ref="section">
+  <section :id="title" class="settingSection" ref="section">
     <transition :duration="5*settings.animationSpeed">
-      <sequence-transition :key="show.toString()">
+      <sequence-transition :key="show.toString()" class="innerWrap">
         <slot v-if="show" />
       </sequence-transition>
     </transition>
@@ -60,18 +61,19 @@ section {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  min-height: 100vh;
+  min-height: calc(70vh - 20px);
+  padding: calc(15vh + 10px) 0;
   width: 100%;
   scroll-snap-align: start;
   overflow: visible;
 }
 
-div {
+.innerWrap {
   display: flex;
   flex-direction: column;
 }
 
-div * {
+.innerWrap * {
   transition-delay: inherit;
 }
 </style>

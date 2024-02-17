@@ -15,10 +15,15 @@ document.head.appendChild(styleElm);
 styleElm.id = "variables";
 const styleElmSheet = styleElm.sheet;
 
+const headerElm = document.querySelector("meta[name='theme-color']");
+
 function setSettingsRules() {
   const colourTheme = settings.value.colourTheme;
+  headerElm?.setAttribute("content", colourTheme.backgroundPrimary);
 
   styleElmSheet?.insertRule(`:root {
+    color-scheme: ${colourTheme.type};
+
     --primary: ${colourTheme.primary};
     --secondary: ${colourTheme.secondary};
     --background-primary: ${colourTheme.backgroundPrimary};
@@ -40,6 +45,7 @@ function setSettingsRules() {
     --default-glow: 0 0 15px ${colourTheme.glow.default};
     --icon-shadow: 0 0 5px ${colourTheme.shadow.icon};
     --icon-glow: 0 0 5px ${colourTheme.glow.icon};
+    --inner-shadow: inset 0 0 10px ${colourTheme.shadow.default};
 
     --piece-home-background: ${colourTheme.pieceHome.background};
     --piece-home-colour: ${colourTheme.pieceHome.colour};
@@ -49,6 +55,8 @@ function setSettingsRules() {
     --animation-speed: ${settings.value.animationSpeed / 100};
   }`, 0);
   for (let i = 1; i < 5; i++) document.body.classList.toggle(`animate-${i}`, i <= settings.value.animationLevel);
+  document.body.classList.toggle("blur-m", settings.value.blur >= 1);
+  document.body.classList.toggle("blur-l", settings.value.blur >= 2);
 }
 
 setSettingsRules();
@@ -96,6 +104,8 @@ function getTitle(): string | undefined {
 
 <style>
 :root {
+  color-scheme: dark;
+
   --primary: #3D68A9;
   --secondary: #2A8FAF;
   --background-primary: #232527;
@@ -121,15 +131,20 @@ function getTitle(): string | undefined {
   --secondary-translucent: #2a90af4d;
   /* 25% */
 
+  --piece-home-background: var(--light);
+  --piece-home-colour: var(--background-primary);
+  --piece-rival-background: var(--background-secondary);
+  --piece-rival-colour: var(--light);
+
   --default-shadow: 0 0 20px var(--contrast-translucent);
   --default-glow: 0 0 15px var(--primary-translucent);
-  --icon-shadow: 0 0 10px var(--contrast-translucent-less);
-  --icon-glow: 0 0 10px var(--secondary-translucent);
+  --icon-shadow: 0 0 5px var(--contrast-translucent-less);
+  --icon-glow: 0 0 5px var(--secondary-translucent);
   --inner-shadow: inset 0 0 10px var(--contrast-translucent);
   --overlay-shadow: 0 0 20px var(--background-primary-translucent);
 
-  --blur-l: 20px;
-  --blur-m: 10px;
+  --blur-l: blur(25px);
+  --blur-m: blur(10px);
 
   --font-title: 700 20px/30px Roboto;
   --font-label: 300 18px/30px Roboto;
@@ -162,6 +177,7 @@ body {
   appearance: none;
   color: var(--text);
   transition: var(--transition-m);
+  -webkit-tap-highlight-color: transparent;
 }
 
 h1 {
@@ -251,7 +267,10 @@ nav.navbar {
   justify-content: space-around;
   border-radius: 20px;
   background-color: var(--background-primary-translucent);
-  backdrop-filter: blur(30px);
+}
+
+body.blur-m nav.navbar {
+  backdrop-filter: var(--blur-m);
 }
 
 nav.navbar.main {
@@ -285,7 +304,7 @@ nav.navbar.main {
 
 .v-enter-from.blur,
 .v-leave-to.blur {
-  filter: blur(var(--blur-l));
+  filter: var(--blur-l);
   opacity: 0;
 }
 
@@ -298,5 +317,110 @@ nav.navbar.main {
   height: 0px;
   opacity: 0;
   transform: translateY(30px);
+}
+
+/* Roboto */
+@font-face {
+  font-family: "Roboto";
+  src: url("@/assets/fonts/roboto/Roboto-700.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Roboto";
+  src: url("@/assets/fonts/roboto/Roboto-700-Italic.ttf") format("truetype");
+  font-weight: 700;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Roboto";
+  src: url("@/assets/fonts/roboto/Roboto-400.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Roboto";
+  src: url("@/assets/fonts/roboto/Roboto-400-Italic.ttf") format("truetype");
+  font-weight: 400;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "Roboto";
+  src: url("@/assets/fonts/roboto/Roboto-300.ttf") format("truetype");
+  font-weight: 300;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Roboto";
+  src: url("@/assets/fonts/roboto/Roboto-300-Italic.ttf") format("truetype");
+  font-weight: 300;
+  font-style: italic;
+}
+
+/* Roboto Mono */
+@font-face {
+  font-family: "Roboto-Mono";
+  src: url("@/assets/fonts/roboto-mono/RobotoMono.ttf") format("truetype");
+  font-weight: 1 999;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Roboto-Mono";
+  src: url("@/assets/fonts/roboto-mono/RobotoMono-Italic.ttf") format("truetype");
+  font-weight: 1 999;
+  font-style: italic;
+}
+
+/* Raleway */
+@font-face {
+  font-family: "Raleway";
+  src: url("@/assets/fonts/raleway/Raleway.ttf") format("truetype");
+  font-weight: 1 999;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Raleway";
+  src: url("@/assets/fonts/raleway/Raleway-Italic.ttf") format("truetype");
+  font-weight: 1 999;
+  font-style: italic;
+}
+
+
+/* Lexend-Deca */
+@font-face {
+  font-family: "Lexend-Deca";
+  src: url("@/assets/fonts/lexend-deca/LexendDeca.ttf") format("truetype");
+  font-weight: 1 999;
+  font-style: normal;
+}
+
+/* Montserrat */
+@font-face {
+  font-family: "Montserrat";
+  src: url("@/assets/fonts/montserrat/Montserrat.ttf") format("truetype");
+  font-weight: 1 999;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Montserrat";
+  src: url("@/assets/fonts/montserrat/Montserrat-Italic.ttf") format("truetype");
+  font-weight: 1 999;
+  font-style: italic;
+}
+
+/* Handjet */
+@font-face {
+  font-family: "Handjet";
+  src: url("@/assets/fonts/handjet/Handjet.ttf") format("truetype");
+  font-weight: 1 999;
+  font-style: normal;
 }
 </style>

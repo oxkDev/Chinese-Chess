@@ -24,12 +24,12 @@ const emits = defineEmits<{
 
     <icon-button-main v-if="subPage == 'home' || !subPage" :active="subPage == 'home'" type="button" key="home"
       icon="home" :big="true" @click="emits('update', 'home')"
-      :class="`menuButton ${subPage == 'home' ? 'active' : ''}`" />
+      class="menuButton" :class="{active: subPage == 'home'}" />
     <icon-button-main v-if="!subPage" type="button" key="settings 1" icon="settings 1" :big="true"
       @click="emits('update', 'settings'); router.push('/game-play/settings');" class="menuButton" />
     <icon-button-main v-if="subPage == 'restart' || !subPage" :active="subPage == 'restart'" type="button" key="restart"
       icon="restart" :big="true" @click="emits('update', 'restart')"
-      :class="`menuButton ${subPage == 'restart' ? 'active' : ''}`" />
+      class="menuButton" :class="{active: subPage == 'restart'}" />
   </transition-group>
 
   <transition :duration="300" mode="out-in">

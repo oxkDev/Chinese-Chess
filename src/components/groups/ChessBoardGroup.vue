@@ -1,6 +1,11 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import ChessPieceIcons from '@/components/ChessPieceIcons.vue';
+import { useStore } from 'vuex';
+import { Settings } from '@/store';
+
+const store = useStore();
+const settings = store.getters.settings as Settings;
 
 const props = defineProps<{
   pieces: { [key: string]: number[] },
@@ -16,15 +21,12 @@ const emits = defineEmits<{
 const checkDisplay = ref({ piece: "", moves: [], blocks: [] } as { piece: string, moves: string[], blocks: string[] });
 
 function getPositions() {
-  // const pos: string[][] = [];
   const pos: string[] = [];
   for (let i = 0; i < 90; i++) {
-    // pos[i] = ["", "", "", "", "", "", "", "", ""];
     pos[i] = "";
   }
   for (const p in props.pieces) {
     const coord = props.pieces[p];
-    // pos[9 - coord[1]][coord[0]] = p;
     pos[(9 - coord[1]) * 9 + coord[0]] = p;
   }
 
@@ -44,6 +46,7 @@ function onFocus(f: boolean, p: string) {
   if (f) {
     checkDisplay.value.piece = p;
     pieceCheck(p);
+    if (settings.haptic) navigator.vibrate(5);
   } else if (checkDisplay.value.piece == p) {
     checkDisplay.value = { piece: "", moves: [], blocks: [] }
   }
@@ -53,37 +56,21 @@ function onFocus(f: boolean, p: string) {
 
 <template>
   <div class="chessBoardWrap" ref="boardWrap">
-    <!-- <div class="chessGridWrap" ref="piecesPosElm">
-      <div v-for="(row, y) in getPositions()" :key="y" class="chessRowWrap">
-        <div v-for="(piece, x) in row" :key="x" :coord="`${x} ${y}`" class="position">
-          <chess-piece-icons v-if="piece != ''" :type="piece[0] + piece[piece.length - 1]" :coord="[y, x]"
-          :rotate="true" :active="turn.toString() == piece[piece.length - 1]" @focus="f => onFocus(f, piece)"
-              class="chessPiece" />
-              <transition :duration="200" mode="out-in">
-                <div v-if="checkDisplay.moves.indexOf(`${x},${9 - y}`) + 1" :kill="piece != ''"
-                :key="turn" :onclick="() => {
-                  emits('move', checkDisplay.piece, [x, 9 - y]); checkDisplay = { piece: '', moves: [] };
-                }" class="movesCheck">
-                <div class="movesCheckIndicator"></div>
-              </div>
-            </transition>
-          </div>
-        </div>
-    </div> -->
     <transition-group name="pieces" tag="div" class="chessGridWrap">
       <div v-for="(piece, i) in getPositions()" :key="piece ? piece : i" class="position">
         <chess-piece-icons v-if="piece != ''" :type="piece[0] + piece[piece.length - 1]"
           :coord="[Math.floor(i / 9), i % 9]" :rotate="true" :active="turn.toString() == piece[piece.length - 1]"
-          :danger="stalemate.length > 0" :attacker="stalemate.indexOf(piece) != -1" @focus="f => onFocus(f, piece)"
-          :class="`chessPiece`" />
+          :danger="stalemate.length > 0 && settings.stalemateAid"
+          :attacker="stalemate.indexOf(piece) != -1 && settings.stalemateAid" @focus="f => onFocus(f, piece)"
+          class="chessPiece" />
         <transition :duration="200" mode="out-in" :key="turn">
           <div v-if="checkDisplay.moves.indexOf(`${i % 9},${9 - Math.floor(i / 9)}`) + 1" :kill="piece != ''"
             :onclick="() => { emits('move', checkDisplay.piece, [i % 9, 9 - Math.floor(i / 9)]); checkDisplay = { piece: '', moves: [], blocks: [] }; }"
             class="movesCheck">
-            <div class="movesCheckIndicator"></div>
+            <div v-if="settings.positionAid" class="movesCheckIndicator"></div>
           </div>
-          <div v-else-if="checkDisplay.blocks.indexOf(`${i % 9},${9 - Math.floor(i / 9)}`) + 1" :kill="piece != ''"
-            class="blockedMove"></div>
+          <div v-else-if="checkDisplay.blocks.indexOf(`${i % 9},${9 - Math.floor(i / 9)}`) + 1 && settings.positionAid"
+            :kill="piece != ''" class="blockedMove"></div>
         </transition>
       </div>
     </transition-group>
@@ -157,8 +144,6 @@ function onFocus(f: boolean, p: string) {
 .pieces-leave-active.position {
   position: absolute !important;
   transition: none;
-  /* width: calc(100%/9 - 4px);
-  height: calc(10% - 4px); */
   opacity: 0 !important;
 }
 

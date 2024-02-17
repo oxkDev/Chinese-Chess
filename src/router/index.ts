@@ -79,6 +79,9 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
+
+  document.title = `Chinese Chess | ${to.name?.toString()}`;
+
   const store = useStore();
 
   if (to.path.indexOf('game-play') != -1 && !store.getters.game) {

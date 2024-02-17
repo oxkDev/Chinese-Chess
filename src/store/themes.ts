@@ -184,3 +184,17 @@ export const colourThemes: { [key: string]: ColourTheme } = {
 		}
 	}),
 }
+
+// Design Themes
+
+// export interface DesignTheme {
+// 	radius: {
+// 		s: number,
+// 		m: number,
+// 		x: number,
+// 	},
+// 	pieceRadius: number,
+
+// }
+
+// export const designThemes: []

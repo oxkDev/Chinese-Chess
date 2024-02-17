@@ -39,10 +39,14 @@ const emits = defineEmits<{
   position: absolute;
   left: -15px;
   border-radius: 35px;
-  background: var(--background-primary-translucent);
-  backdrop-filter: blur(var(--blur-m));
   box-shadow: var(--overlay-shadow);
+  background: var(--background-primary);
   z-index: 10;
+}
+
+.blur-m .requestGroupWrap {
+  background: var(--background-primary-translucent);
+  backdrop-filter: var(--blur-m);
 }
 
 .requestTitle {

@@ -8,16 +8,20 @@ import ColourThemeIcon from '@/components/ColourThemeIcon.vue';
 import { useRoute } from 'vue-router';
 import { useStore } from 'vuex';
 import { ref } from 'vue';
-import { ColourTheme, colourThemes } from '@/store/colour themes';
+import { ColourTheme, colourThemes } from '@/store/themes';
 import { Settings } from '@/store';
 
 const route = useRoute();
 const store = useStore();
-const settings = ref(store.state.settings as Settings);
+const settings = ref(store.getters.settings as Settings);
 
-function setSetting(key: string, value: boolean | number | ColourTheme) {
-  (settings.value as { [key: string]: boolean | number | ColourTheme})[key] = value;
+function setSetting(key: string, value: boolean | number | string | ColourTheme) {
+  (settings.value as { [key: string]: boolean | number | string | ColourTheme })[key] = value;
   store.commit("setSettings", settings.value);
+}
+
+function vibrate(t: (number[] | number) = 5) {
+  if (settings.value.haptic) navigator.vibrate(t);
 }
 
 const sideNav = {
@@ -34,7 +38,9 @@ const sideNav = {
     <div id="settingsScreen">
       <setting-section title="appearance">
         <grid-group margin="20px" name="Colour Palette">
-          <colour-theme-icon v-for="(theme, k) in colourThemes" :key="k" :theme="theme" :selected="JSON.stringify(theme) == JSON.stringify(settings.colourTheme)" @click="setSetting('colourTheme', theme)"/>
+          <colour-theme-icon v-for="(theme, k) in colourThemes" :key="k" :theme="theme"
+            :selected="JSON.stringify(theme) == JSON.stringify(settings.colourTheme)"
+            @click="() => { setSetting('colourTheme', theme); vibrate([10, 200, 2]); }" />
         </grid-group>
         <grid-group margin="20px" name="Design Theme">
           <div class="theme">e</div>
@@ -42,7 +48,16 @@ const sideNav = {
           <div class="theme">g</div>
           <div class="theme">h</div>
         </grid-group>
-        <switch-group>Blur</switch-group>
+        <slider-group :value="parseInt(String(settings.blur))" @update="v => setSetting('blur', v)" name="Blur" :max="2"
+          :options="{
+            0: 'None',
+            1: 'Minimal',
+            2: 'Fancy',
+          }">
+          <option value="0" label="None"></option>
+          <option value="1" label="Minimal"></option>
+          <option value="2" label="Fancy"></option>
+        </slider-group>
       </setting-section>
 
       <setting-section title="sound">
@@ -59,13 +74,12 @@ const sideNav = {
           <option value="100" label="100%"></option>
         </slider-group>
         <slider-group :value="parseInt(settings.animationLevel.toString())" @update="v => setSetting('animationLevel', v)"
-          name="Style" :max="4" :options="{
+          name="Style" :max="2" :options="{
             0: 'Minimal',
-            1: 'Less',
-            2: 'Standard',
-            3: 'More',
-            4: 'Fancy'
-          }">
+            1: 'Standard',
+            2: 'Fancy'
+          }
+            ">
           <option value="0" label="Minimal"></option>
           <option value="50" label="Standard"></option>
           <option value="100" label="Fancy"></option>
@@ -73,14 +87,15 @@ const sideNav = {
       </setting-section>
 
       <setting-section title="behaviour">
-        <switch-group @update="v => setSetting('positionAid', v)" :def="settings.positionAid">Position Aid</switch-group>
+        <switch-group @update="v => setSetting('positionAid', v)" :def="settings.positionAid">Position
+          Aid</switch-group>
         <switch-group @update="v => setSetting('stalemateAid', v)" :def="settings.stalemateAid">Stalemate
           Aid</switch-group>
       </setting-section>
     </div>
     <nav id="settingsSideNav">
-      <icon-button-main v-for="(value, key) in sideNav" :active="route.hash == value" :key="key" :to="value" :icon="key"
-        class="sideNav" />
+      <icon-button-main v-for="( value, key ) in  sideNav " :active="route.hash == value" :key="key" :to="value"
+        :icon="key" class="sideNav" />
     </nav>
   </div>
 </template>
@@ -142,4 +157,5 @@ nav#settingsSideNav path {
 .v-leave-to a.sideNav {
   transform: scale(.9);
   opacity: 0;
-}</style>
+}
+</style>@/store/themes

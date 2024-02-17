@@ -1,5 +1,9 @@
 <script setup lang="ts">
+import { Settings } from '@/store';
 import { ref, onMounted } from 'vue';
+import { useStore } from 'vuex';
+
+const settings = useStore().getters.settings as Settings;
 
 const props = defineProps<{
   options: string[],
@@ -19,12 +23,16 @@ function setPosition() {
   emits("onInput", parseInt(input.value.value));
   position.value = gap * input.value.value;
   selected.value = input.value.value;
+
 }
 
 onMounted(() => {
   input.value.value = props.def ? props.def : props.options.length - 2;
   setPosition();
-  input.value.addEventListener("input", setPosition);
+  input.value.addEventListener("input", () => {
+    setPosition();
+    if (settings.haptic) navigator.vibrate(5);
+  });
 })
 
 </script>
@@ -50,11 +58,12 @@ onMounted(() => {
   box-shadow: var(--inner-shadow);
 }
 
-.optionsTrack:hover, input:hover {
+.optionsTrack:hover,
+input:hover {
   cursor: pointer;
 }
 
-input:hover + .selector {
+input:hover+.selector {
   box-shadow: var(--default-glow);
 }
 

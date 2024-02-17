@@ -1,15 +1,19 @@
 <script setup lang="ts">
+import { Settings } from '@/store';
 import { onMounted, ref, watch } from 'vue';
+import { useStore } from 'vuex';
+
+const settings = useStore().state.settings as Settings;
 
 const input = ref();
 
 const width = ref(36);
 
 const props = defineProps({
-  id: {type: String, default: "options"},
-  max: {type: Number, default: 100},
-  value: {type: Number, default: -1},
-  step: {type: Number, defualt: 1},
+  id: { type: String, default: "options" },
+  max: { type: Number, default: 100 },
+  value: { type: Number, default: -1 },
+  step: { type: Number, defualt: 1 },
 });
 
 const emits = defineEmits<{
@@ -26,13 +30,21 @@ watch(props, () => {
 function setPosition() {
   emits("onInput", input.value.value);
   // status.value = input.value.value;
-  width.value = input.value.value/props.max;
+  width.value = input.value.value / props.max;
 }
 
+let timeout = 0;
+
 onMounted(() => {
-  input.value.value = props.value == -1 ? props.max/2 : props.value;
+  input.value.value = props.value == -1 ? props.max / 2 : props.value;
   setPosition();
-  input.value.addEventListener("input", setPosition);
+  input.value.addEventListener("input", () => {
+    if (settings.haptic) {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => navigator.vibrate(5), 10);
+    }
+    setPosition();
+  });
 });
 
 </script>
@@ -45,7 +57,8 @@ onMounted(() => {
 </template>
 
 <style scoped>
-.progress, input::-webkit-slider-thumb {
+.progress,
+input::-webkit-slider-thumb {
   transition: var(--transition-s);
 }
 
@@ -81,7 +94,7 @@ input:hover {
   align-items: center;
 }
 
-.progress > .knob {
+.progress>.knob {
   height: 26px;
   min-width: 26px;
   margin: 5px;
@@ -119,11 +132,12 @@ input::-webkit-slider-thumb {
   transform: scale(1.1);
 }
 
-.v-enter-from .progress, .v-leave-to .progress {
+.v-enter-from .progress,
+.v-leave-to .progress {
   width: 36px;
 }
 
-.v-enter-active .progress, .v-leave-active .progress {
+.v-enter-active .progress,
+.v-leave-active .progress {
   transition: var(--transition-m);
-}
-</style>
+}</style>

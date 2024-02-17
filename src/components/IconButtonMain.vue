@@ -1,5 +1,10 @@
 <script setup lang="ts">
+import { Settings } from '@/store';
+import { useStore } from 'vuex';
 import IconMain from './IconMain.vue';
+
+const settings = useStore().getters.settings as Settings;
+
 
 const props = defineProps<{
   name?: string,
@@ -15,17 +20,21 @@ const emits = defineEmits<{
   (e: "click"): void,
 }>();
 
+function vibrate() {
+  if (settings.haptic) navigator.vibrate(5);
+}
+
 const rotate = ["cross", "restart", "settings 1", "undo"];
 </script>
 
 <template>
-  <button v-if="type == 'button'" :onclick="() => emits('click')"
+  <button v-if="type == 'button'" :onclick="() => { emits('click'); vibrate(); }"
     :active="String(props.active) != 'route' ? !!props.active : ''" :disable="!!props.disable" class="iconButton">
     <icon-main :icon="icon" :class="`buttonIcon ${rotate.indexOf(props.icon) != -1 ? 'rotate' : ''} ${big ? 'big' : ''}`"
       ref="svg" />
   </button>
-  <router-link v-else :active="String(props.active) != 'route' ? !!props.active : ''" :disable="!!props.disable"
-    :to="to ? to : ''" class="iconButton">
+  <router-link v-else :onclick="vibrate" :active="String(props.active) != 'route' ? !!props.active : ''"
+    :disable="!!props.disable" :to="to ? to : ''" class="iconButton">
     <icon-main :icon="icon" :class="`${rotate.indexOf(props.icon) != -1 ? 'rotate' : ''} ${big ? 'big' : ''}`"
       ref="svg" />
 
@@ -62,7 +71,7 @@ svg.big:deep(path) {
   stroke-width: 1.5px;
 }
 
-.iconButton[active="false"]:not([disable="true"]):hover {
+.iconButton[disable="false"]:not([active="true"]):hover {
   opacity: 1;
   filter: drop-shadow(var(--icon-shadow));
 }

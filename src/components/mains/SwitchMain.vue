@@ -1,5 +1,9 @@
 <script setup lang="ts">
+import { Settings } from '@/store';
 import { onMounted, ref } from 'vue';
+import { useStore } from 'vuex';
+
+const settings = useStore().getters.settings as Settings;
 
 const input = ref();
 
@@ -14,7 +18,9 @@ const emits = defineEmits<{
 
 onMounted(() => {
   input.value.checked = props.def;
-  input.value.addEventListener("change", () => emits("click", input.value.checked));
+  input.value.addEventListener("change", () => {
+  if (settings.haptic) navigator.vibrate(5);
+    emits("click", input.value.checked)});
 });
 
 </script>

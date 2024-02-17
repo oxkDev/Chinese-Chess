@@ -1,4 +1,13 @@
 <script setup lang="ts">
+import { Settings } from '@/store';
+import { useStore } from 'vuex';
+
+const settings = useStore().getters.settings as Settings;
+
+function vibrate() {
+  if (settings.haptic) navigator.vibrate(10);
+}
+
 defineProps<{
   name?: string,
   small?: boolean,
@@ -12,8 +21,8 @@ const emits = defineEmits<{
 </script>
 
 <template>
-  <button :disabled="!!disable" :class="small ? 'small' : ''"
-    :onclick="(e: MouseEvent) => { if (!disable) emits('click', e) }">
+  <button :disabled="!!disable" :class="{ small }"
+    :onclick="(e: MouseEvent) => { if (!disable) { emits('click', e); vibrate(); } }">
     <h2 id="text">
       <slot></slot>
     </h2>
@@ -109,4 +118,5 @@ button[disabled] {
 
 button[disabled] #text {
   opacity: .5;
-}</style>
+}
+</style>

@@ -50,11 +50,14 @@ export default createStore({
   state: () => {
     const settings = localStorage.getItem("settings");
     const game = localStorage.getItem("game");
+    // localStorage.setItem("saves", "");
+    const saves = localStorage.getItem("saves");
     return {
       // settings: {
       settings: settings ? JSON.parse(settings) as Settings : new Settings(),
       // },
       game: (game ? JSON.parse(game) : {}) as GameData,
+      saves: (saves ? JSON.parse(saves) : {}) as { [key: string]: { settings: GameSettings, play: GamePlayData } },
     }
   },
   mutations: {
@@ -67,20 +70,41 @@ export default createStore({
       localStorage.setItem("game", JSON.stringify(state.game));
     },
     updateGame(state, playData: GamePlayData) {
-      state.game.play = playData;
+      if (playData && Object.keys(playData.boardHist).length > 1) {
+        state.game.play = playData;
+        if (Object.keys(state.saves).indexOf(playData.start) != -1) state.saves[playData.start].play = playData;
+      } else {
+        state.game.play = undefined;
+        if (Object.keys(state.saves).indexOf(playData.start) != -1) delete state.saves[playData.start];
+      }
+      localStorage.setItem("saves", JSON.stringify(state.saves));
       localStorage.setItem("game", JSON.stringify(state.game));
     },
     endGame(state) {
+      if (state.game.play) {
+        if (Object.keys(state.saves).indexOf(state.game.play.start) != -1) delete state.saves[state.game.play.start];
+        localStorage.setItem("saves", JSON.stringify(state.saves));
+        state.game.play = undefined;
+        localStorage.setItem("game", JSON.stringify(state.game));
+      }
+    },
+    saveGame(state, game: GameData = state.game) {
+      if (game.play) state.saves[game.play.start] = { ...game } as { settings: GameSettings, play: GamePlayData };
       state.game.play = undefined;
       localStorage.setItem("game", JSON.stringify(state.game));
+      localStorage.setItem("saves", JSON.stringify(state.saves));
     },
-    // localSave(state, type: "game" | "settings") {
-    //   localStorage.setItem(type, JSON.stringify(state[type]));
-    // }
+    playSavedGame(state, key: string) {
+      if (Object.keys(state.saves).indexOf(key) != -1) {
+        state.game = { ...state.saves[key] } as GameData;
+        console.log(state.game);
+      } else
+        console.log("game not found")
+    }
   },
   getters: {
     isPlaying(state) {
-      return !!state.game.play;
+      return !!state.game.play && Object.keys(state.game.play.boardHist).length > 1;
     },
     game(state) {
       if (state.game.settings) return state.game;
@@ -91,6 +115,9 @@ export default createStore({
       else return false;
       // return { ...state.game.settings };
     },
+    savedGames(state) {
+      return state.saves;
+    }
   },
   actions: {
   },

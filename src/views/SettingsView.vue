@@ -78,8 +78,7 @@ const sideNav = {
             0: 'Minimal',
             1: 'Standard',
             2: 'Fancy'
-          }
-            ">
+          }">
           <option value="0" label="Minimal"></option>
           <option value="50" label="Standard"></option>
           <option value="100" label="Fancy"></option>
@@ -94,8 +93,8 @@ const sideNav = {
       </setting-section>
     </div>
     <nav id="settingsSideNav">
-      <icon-button-main v-for="( value, key ) in  sideNav " :active="route.hash == value" :key="key" :to="value"
-        :icon="key" class="sideNav" />
+      <icon-button-main v-for="( value, key ) in sideNav " :active="route.hash == value" :key="key" :to="value"
+        :icon="key" class="side-nav" />
     </nav>
   </div>
 </template>
@@ -153,8 +152,8 @@ nav#settingsSideNav path {
   transition: var(--transition-m);
 }
 
-.v-enter-from a.sideNav,
-.v-leave-to a.sideNav {
+.v-enter-from a.side-nav,
+.v-leave-to a.side-nav {
   transform: scale(.9);
   opacity: 0;
 }

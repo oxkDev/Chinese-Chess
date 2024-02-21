@@ -13,16 +13,16 @@ const emits = defineEmits<{
 
 <template>
   <transition>
-    <div class="requestGroupWrap" v-if="show" :key="show.toString()">
-      <h3 class="requestTitle">
+    <div class="request-group" v-if="show" :key="show.toString()">
+      <h3 class="request-title">
         <slot />
       </h3>
-      <div class="requestButtons">
-        <button-main class="requestDeny"
-          @click="(e: MouseEvent) => { (e.target as Element).classList.add('requestChoice'); emits('update', false) }">{{
+      <div class="request-buttons">
+        <button-main class="request-deny"
+          @click="(e: MouseEvent) => { (e.target as Element).classList.add('request-choice'); emits('update', false) }">{{
             options[0] }}</button-main>
-        <button-main class="requestAccept"
-          @click="(e: MouseEvent) => { (e.target as Element).classList.add('requestChoice'); emits('update', true) }">{{
+        <button-main class="request-accept"
+          @click="(e: MouseEvent) => { (e.target as Element).classList.add('request-choice'); emits('update', true) }">{{
             options[1] }}</button-main>
       </div>
     </div>
@@ -30,7 +30,7 @@ const emits = defineEmits<{
 </template>
 
 <style>
-.requestGroupWrap {
+.request-group {
   width: 100%;
   max-width: 300px;
   margin: 5px 0;
@@ -44,39 +44,39 @@ const emits = defineEmits<{
   z-index: 10;
 }
 
-.blur-m .requestGroupWrap {
+.blur-m .request-group {
   background: var(--background-primary-translucent);
   backdrop-filter: var(--blur-m);
 }
 
-.requestTitle {
+.request-title {
   margin-bottom: 15px;
   text-align: center;
 }
 
-.requestButtons {
+.request-buttons {
   display: flex;
   margin: 0 -10px;
 }
 
-.requestButtons button {
+.request-buttons button.button-main {
   margin: 0 10px;
 }
 
-.v-enter-from.requestGroupWrap,
-.v-leave-to.requestGroupWrap {
+.v-enter-from.request-group,
+.v-leave-to.request-group {
   opacity: 0;
 }
 
 
-.v-enter-active .requestAccept,
-.requestChoice,
-.v-leave-to.requestGroupWrap {
+.v-enter-active .request-accept,
+.request-choice,
+.v-leave-to.request-group {
   transition-delay: calc(var(--animation-speed) * 0.1s);
 }
 
-.v-enter-from .requestTitle,
-.v-leave-to .requestTitle {
+.v-enter-from .request-title,
+.v-leave-to .request-title {
   transform: translateY(-5px);
 }
 </style>

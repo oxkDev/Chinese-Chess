@@ -14,7 +14,7 @@ const home = ref();
 
 function transitiondelays() {
   for (let i = 0; i < home.value.children.length; i++) {
-    home.value.children[i].style.transitionDelay = `${i * 0.001 * settings.animationSpeed}s`;
+    home.value.children[i].style.setProperty("--main-delay", `${i * 0.001 * settings.animationSpeed}s`);
   }
 }
 
@@ -24,10 +24,11 @@ onMounted(transitiondelays);
 
 <template>
   <div id="home" ref="home">
-    <button-main @click="if (store.getters.isPlaying) router.push('/game-play'); else router.push('/two-player'); ">2
+    <button-main @click="if (store.getters.isPlaying) router.push('/game-play'); else router.push('/two-player');">2
       Player</button-main>
     <button-main>Online</button-main>
     <button-main>Computer</button-main>
+    <button-main @click="router.push('/saved');">Saved Games</button-main>
   </div>
 </template>
 
@@ -38,5 +39,10 @@ onMounted(transitiondelays);
   flex-direction: column;
   justify-content: center;
   align-items: center;
+}
+
+#home.v-enter-active>*,
+#home.v-leave-active>* {
+  transition-delay: var(--main-delay);
 }
 </style>

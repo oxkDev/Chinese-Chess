@@ -23,7 +23,7 @@ watch(route, () => {
   if (route.hash != `#${props.title}` && show.value && route.path.indexOf("/settings") != -1) {
     clearTimeout(timeout);
     show.value = false;
-    const elm = document.querySelector(`${route.hash}.settingSection`);
+    const elm = document.querySelector(`${route.hash}.setting-section`);
     if (elm) timeout = setTimeout(() => elm?.scrollIntoView({ behavior: "auto", inline: "nearest", block: "end" }), 5*settings.animationSpeed);
   }
 });
@@ -47,7 +47,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <section :id="title" class="settingSection" ref="section">
+  <section :id="title" class="setting-section" ref="section">
     <transition :duration="5*settings.animationSpeed">
       <sequence-transition :key="show.toString()" class="innerWrap">
         <slot v-if="show" />

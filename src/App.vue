@@ -94,7 +94,7 @@ function getTitle(): string | undefined {
   <transition :duration="500" enter-from-class="footer v-enter-from" leave-to-class="footer v-enter-from">
     <footer v-if="String(route.meta.footer) != 'undefined'" :key="route.meta.footer?.toString()">
       <nav class="navbar main" id="footer">
-        <transition-group name="footerNav" :duration="500">
+        <transition-group name="footer-nav" :duration="500">
           <icon-button-main v-for="(value, key) in route.meta.footer" active="route" :key="key" :to="value" :icon="key" />
         </transition-group>
       </nav>
@@ -286,13 +286,13 @@ nav.navbar.main {
 
 .v-leave-active *,
 .title-leave-active *,
-.footerNav-enter-active,
-.footerNav-leave-active,
-.footerNav-move {
+.footer-nav-enter-active,
+.footer-nav-leave-active,
+.footer-nav-move {
   transition: var(--transition-m);
 }
 
-.footerNav-leave-active {
+.footer-nav-leave-active {
   position: absolute;
 }
 

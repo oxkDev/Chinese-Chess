@@ -64,16 +64,16 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="sliderWrap">
-    <label class="sliderHeading">
-      <h3 class="sliderTitle">{{ name }}</h3>
-      <p v-if="props.options[output]" class="sliderReading"><b>{{ props.options[output] }}</b></p>
-      <p v-else class="sliderReading"><b>{{ output }}</b> {{ unit }}</p>
+  <div class="slider-group">
+    <label class="slider-heading">
+      <h3 class="slider-title">{{ name }}</h3>
+      <p v-if="props.options[output]" class="slider-reading"><b>{{ props.options[output] }}</b></p>
+      <p v-else class="slider-reading"><b>{{ output }}</b> {{ unit }}</p>
     </label>
     <slider-main class="slider" :id="name?.toLowerCase()" :max="max" :value="value" @on-input="update"
       :step="step"></slider-main>
-    <p class="sliderLabelWrap">
-      <datalist :id="name?.toLowerCase()" class="sliderLabels">
+    <p class="slider-label-wrap">
+      <datalist :id="name?.toLowerCase()" class="slider-labels">
         <slot></slot>
       </datalist>
     </p>
@@ -81,12 +81,12 @@ onBeforeUnmount(() => {
 </template>
 
 <style>
-.sliderWrap {
+.slider-group {
   width: 100%;
   margin: 15px 0;
 }
 
-.sliderHeading {
+.slider-heading {
   width: 100%;
   display: flex;
   justify-content: space-between;
@@ -94,12 +94,12 @@ onBeforeUnmount(() => {
   overflow: hidden;
 }
 
-.sliderLabelWrap {
+.slider-label-wrap {
   height: 30px;
   overflow: hidden;
 }
 
-datalist.sliderLabels {
+datalist.slider-labels {
   /* margin-top: 10px; */
   display: flex;
   width: 100%;
@@ -110,24 +110,24 @@ datalist.sliderLabels {
   /* font-weight: 200; */
 }
 
-datalist.sliderLabels * {
+datalist.slider-labels * {
   min-width: 30px;
 }
 
-.v-enter-from h3.sliderTitle,
-.v-leave-to h3.sliderTitle {
+.v-enter-from h3.slider-title,
+.v-leave-to h3.slider-title {
   transform: translateX(-50%);
   opacity: 0;
 }
 
-.v-enter-from .sliderReading,
-.v-leave-to .sliderReading {
+.v-enter-from .slider-reading,
+.v-leave-to .slider-reading {
   transform: translateX(50%);
   opacity: 0;
 }
 
-.v-enter-from .sliderLabels>*,
-.v-leave-to .sliderLabels>* {
+.v-enter-from .slider-labels>*,
+.v-leave-to .slider-labels>* {
   transform: scale(.9);
   opacity: 0;
 }

@@ -8,6 +8,8 @@ import { useStore } from 'vuex';
 const router = useRouter();
 const store = useStore();
 
+const isPlaying = store.getters.isPlaying;
+
 defineProps<{
   subPage: ("home" | "settings" | "restart" | ""),
 }>();
@@ -20,32 +22,32 @@ const emits = defineEmits<{
 </script>
 
 <template>
-  <transition-group name="menu" tag="div" class="menuButtonsWrap">
+  <transition-group name="menu" tag="div" class="menu-screen">
 
     <icon-button-main v-if="subPage == 'home' || !subPage" :active="subPage == 'home'" type="button" key="home"
-      icon="home" :big="true" @click="emits('update', 'home')"
-      class="menuButton" :class="{active: subPage == 'home'}" />
+      icon="home" :big="true" @click="emits('update', 'home')" class="menu-button"
+      :class="{ active: subPage == 'home' }" />
     <icon-button-main v-if="!subPage" type="button" key="settings 1" icon="settings 1" :big="true"
-      @click="emits('update', 'settings'); router.push('/game-play/settings');" class="menuButton" />
+      @click="emits('update', 'settings'); router.push('/game-play/settings');" class="menu-button" />
     <icon-button-main v-if="subPage == 'restart' || !subPage" :active="subPage == 'restart'" type="button" key="restart"
-      icon="restart" :big="true" @click="emits('update', 'restart')"
-      class="menuButton" :class="{active: subPage == 'restart'}" />
+      icon="restart" :big="true" @click="emits('update', 'restart')" class="menu-button"
+      :class="{ active: subPage == 'restart' }" />
   </transition-group>
 
   <transition :duration="300" mode="out-in">
-    <div v-if="subPage == 'home'" class="subPage">
-      <button-main @click="router.push('/').then(() => store.commit('endGame'));">End Match</button-main>
-      <button-main v-if="store.getters.isPlaying" @click="router.push('/');">Leave Match</button-main>
+    <div v-if="subPage == 'home'" class="sub-page">
+      <button-main @click="store.commit('endGame'); router.push('/');">End Match</button-main>
+      <button-main :disable="!isPlaying" @click="store.commit('saveGame'); router.push('/')">Save Match</button-main>
     </div>
-    <settings-view v-else-if="subPage == 'settings'" class="subPage" />
-    <div v-else-if="subPage == 'restart'" class="subPage">
+    <settings-view v-else-if="subPage == 'settings'" class="sub-page" />
+    <div v-else-if="subPage == 'restart'" class="sub-page">
       <button-main @click="emits('action', 'restart'); router.push('')">Rematch</button-main>
     </div>
   </transition>
 </template>
 
 <style>
-.menuButtonsWrap {
+.menu-screen {
   position: absolute;
   height: 100%;
   display: flex;
@@ -54,19 +56,19 @@ const emits = defineEmits<{
   align-items: center;
 }
 
-.iconButton.menuButton {
+.icon-button-main.menu-button {
   margin: 2vh 0;
   z-index: 1;
   transition: var(--transition-l);
 }
 
-.menuButton.active {
+.menu-button.active {
   position: absolute;
   top: 25vh;
   transform: scale(1.2);
 }
 
-.subPage {
+.sub-page {
   width: 100%;
   display: flex;
   flex-direction: column;

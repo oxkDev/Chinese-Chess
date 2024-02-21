@@ -1,16 +1,26 @@
 
-interface Pieces { [key: string]: number[] }
+export interface Pieces { [key: string]: number[] }
 
 export interface GameSettings {
+  type: "2 Player" | "Computer" | "Online",
   names: string[],
   gameDuration: number,
   turnDuration: number,
   starter: 0 | 1,
 }
 
+export interface BoardHist {
+  [key: string]: {
+    board: Pieces,
+    time: { 0: number, 1: number },
+    turn: number
+  }
+}
+
 export interface GamePlayData {
+  start: string,
   turn: 0 | 1,
-  boardHist: { [key: string]: { board: Pieces, time: { 0: number, 1: number }, turn: number } },
+  boardHist: BoardHist,
   timer: {
     0: number,
     1: number,
@@ -477,7 +487,8 @@ class Timer {
 
 export default class Board extends Game {
   names: [string, string];
-  boardHist: { [key: string]: { board: Pieces, time: { 0: number, 1: number }, turn: number } };
+  startTime: string;
+  boardHist: BoardHist;
   durations: { game: number, turn: number };
   timer: { [key: number]: Timer };
   turn: { player: number, timer: Timer, iteration: number };
@@ -488,6 +499,7 @@ export default class Board extends Game {
     super();
 
     this.names = [settings.names[0], settings.names[0] == settings.names[1] ? settings.names[1] + "2" : settings.names[1]];
+    this.startTime = Date.now().toString();
 
     this.boardHist = {
       0: {
@@ -520,7 +532,7 @@ export default class Board extends Game {
   }
 
   updateGame(gameData: GamePlayData) {
-    this.boardHist = { ...gameData.boardHist } as { [key: string]: { board: Pieces, time: { 0: number, 1: number }, turn: number } };
+    this.boardHist = { ...gameData.boardHist } as BoardHist;
     this.turn.iteration = Object.keys(this.boardHist).length - 1;
     this.pieces = this.boardHist[this.turn.iteration].board as Pieces;
     this.turn.player = gameData.turn;
@@ -533,6 +545,7 @@ export default class Board extends Game {
 
   getGame(): GamePlayData {
     return {
+      start: this.startTime,
       turn: this.turn.player as (0 | 1),
       boardHist: this.boardHist,
       timer: {
@@ -543,6 +556,7 @@ export default class Board extends Game {
   }
 
   start(gameData: GamePlayData = {
+    start: Date.now().toString(),
     turn: this.turn.player as 0 | 1,
     boardHist: this.boardHist,
     timer: {
@@ -550,6 +564,7 @@ export default class Board extends Game {
       1: 0
     }
   }) {
+    this.startTime = gameData.start;
     this.turn.player = gameData.turn;
 
     this.boardHist = { ...gameData.boardHist };
@@ -611,6 +626,7 @@ export default class Board extends Game {
 
     if (to == 0) {
       this.resetPieces();
+      this.startTime = Date.now().toString();
       for (const i in this.timer) {
         this.timer[i].set(0);
       }

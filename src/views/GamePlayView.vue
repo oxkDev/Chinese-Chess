@@ -85,9 +85,9 @@ function undo(to = gamePlay.value.turn.iteration - 1) {
 function formatTimings(t: number) {
   if (t < 0) t = 0;
   const trnd = Math.round(t / 1000);
-  const gameTime = String(Math.floor(trnd / 60)),
-    turnTime = String(Math.floor(trnd % 60));
-  return `${gameTime.length == 1 ? '0' + gameTime : gameTime} : ${turnTime.length == 1 ? '0' + turnTime : turnTime}`;
+  const minutesTime = String(Math.floor(trnd / 60)),
+    secondsTime = String(Math.floor(trnd % 60));
+  return `${minutesTime.length == 1 ? '0' + minutesTime : minutesTime} : ${secondsTime.length == 1 ? '0' + secondsTime : secondsTime}`;
 }
 
 
@@ -128,10 +128,10 @@ onMounted(() => {
 <template>
   <div id="gamePlay">
     <div id="gameScreen">
-      <request-group class="requestGroup top" :show="requests[1] == 2"
+      <request-group class="top" :show="requests[1] == 2"
         @update="c => { requests[1] = Number(c); if (c) undo() }" :options="['Decline', 'Accept']"><b>Undo</b>
         request</request-group>
-      <request-group class="requestGroup bottom" :show="requests[0] == 2"
+      <request-group class="bottom" :show="requests[0] == 2"
         @update="c => { requests[0] = Number(c); if (c) undo() }" :options="['Decline', 'Accept']"><b>Undo</b>
         request</request-group>
       <request-group class="center" :show="gamePlay.winner != undefined && requests['win'] > 0"
@@ -145,7 +145,7 @@ onMounted(() => {
       <chess-board-group :pieces="gamePlay.boardHist[boardDisplay].board" :turn="gamePlay.turn.player as (0 | 1)"
         :actions="boardDisplay == gamePlay.turn.iteration ? actions : { moves: {}, blocks: {} }" :stalemate="stalemate"
         @move="(piece, coord) => move(piece, coord)"
-        :onclick="() => { if (gamePlay.winner == undefined) boardDisplay = gamePlay.turn.iteration; }" />
+        :onclick="() => { if (!gamePlay.winner) boardDisplay = gamePlay.turn.iteration; }" />
       <div class="timing">
         <h2>{{ timings[0].game }}</h2>
         <h2>{{ timings[0].turn }}</h2>
@@ -154,27 +154,27 @@ onMounted(() => {
     <div class="footer top">
       <nav class="navbar main" id="oFooter">
         <icon-button-main type="button" icon="back 2"
-          :disable="boardDisplay <= 0 || (gamePlay.turn.player != 1 && gamePlay.winner == undefined)"
+          :disable="boardDisplay <= 0 || (gamePlay.turn.player != 1 && !gamePlay.winner)"
           @click="boardDisplay--;" />
         <icon-button-main type="button" :disable="requests[0] == 0" :active="requests[0] == 2" icon="undo"
           @click="requestUndo(0)" />
         <icon-button-main type="button" icon="forward 2"
-          :disable="boardDisplay >= gamePlay.turn.iteration || (gamePlay.turn.player != 1 && gamePlay.winner == undefined)"
+          :disable="boardDisplay >= gamePlay.turn.iteration || (gamePlay.turn.player != 1 && !gamePlay.winner)"
           @click="boardDisplay++;" />
       </nav>
     </div>
     <div class="footer bottom">
       <nav class="navbar">
-        <icon-button-main to="#gameSettings" icon="settings 2" />
+        <icon-button-main :disable="!!gamePlay.winner" to="#gameSettings" icon="settings 2" />
       </nav>
       <nav class="navbar main" id="hFooter">
         <icon-button-main type="button" icon="back 2"
-          :disable="boardDisplay <= 0 || (gamePlay.turn.player != 0 && gamePlay.winner == undefined)"
+          :disable="boardDisplay <= 0 || (gamePlay.turn.player != 0 && !gamePlay.winner)"
           @click="boardDisplay--;" />
         <icon-button-main type="button" :disable="requests[1] == 0" :active="requests[1] == 2" icon="undo"
           @click="requestUndo(1)" />
         <icon-button-main type="button" icon="forward 2"
-          :disable="boardDisplay >= gamePlay.turn.iteration || (gamePlay.turn.player != 0 && gamePlay.winner == undefined)"
+          :disable="boardDisplay >= gamePlay.turn.iteration || (gamePlay.turn.player != 0 && !gamePlay.winner)"
           @click="boardDisplay++;" />
       </nav>
       <nav class="navbar">
@@ -184,7 +184,7 @@ onMounted(() => {
     <transition :duration="{ enter: 700, leave: 500 }" mode="out-in">
       <div :key="String(route.hash != '' || route.name != 'Game Play')" id="gameOverlay"
         v-if="route.hash != '' || route.name != 'Game Play'">
-        <section class="overlayContent">
+        <section class="overlay-content">
           <game-settings-view v-if="route.hash == '#gameSettings'" />
           <game-menu-view v-if="route.hash == '#menu' || route.name == 'menuSettings'" :sub-page="menuPage"
             @action="act => { if (act == 'restart') undo(0); menuPage = '' }" @update="path => { menuPage = path; }"
@@ -192,7 +192,7 @@ onMounted(() => {
         </section>
         <div class="footer bottom">
           <nav class="navbar main">
-            <transition-group name="footerNav" :duration="500">
+            <transition-group name="footer-nav" :duration="500">
               <icon-button-main v-if="route.name != 'Game Play' || menuPage != ''" type="button"
                 @click="router.push('/game-play#menu'); menuPage = '';" icon="back 1" key="back 1" />
               <icon-button-main type="button" @click="router.push('/game-play'); menuPage = '';" icon="cross"
@@ -237,11 +237,11 @@ onMounted(() => {
   margin-right: -3px;
 }
 
-.requestGroup.bottom {
+.request-group.bottom {
   bottom: 80px;
 }
 
-.requestGroup.top {
+.request-group.top {
   top: 80px;
 }
 
@@ -288,7 +288,7 @@ onMounted(() => {
   backdrop-filter: var(--blur-l);
 }
 
-.overlayContent {
+.overlay-content {
   max-width: 300px;
   width: 100vw;
   display: flex;

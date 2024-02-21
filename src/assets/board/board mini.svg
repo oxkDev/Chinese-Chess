@@ -1,0 +1,43 @@
+<svg width="90" height="100" viewBox="0 0 90 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect x="5" y="5" width="80" height="90" rx="4.5" stroke="white" stroke-opacity="0.6"/>
+<path d="M35 5V25" stroke="white" stroke-opacity="0.6" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M55 5V25" stroke="white" stroke-opacity="0.6" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M35 75L35 95" stroke="white" stroke-opacity="0.6" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M55 75L55 95" stroke="white" stroke-opacity="0.6" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M35 25L55 25" stroke="white" stroke-opacity="0.6" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M5 45L85 45" stroke="white" stroke-opacity="0.6" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M5 55L85 55" stroke="white" stroke-opacity="0.6" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M35 75H55" stroke="white" stroke-opacity="0.6" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="5" cy="5" r="4.5" fill="#2A8FAF"/>
+<circle cx="35" cy="5" r="4.5" fill="#2A8FAF"/>
+<circle cx="45" cy="5" r="4.5" fill="#2A8FAF"/>
+<circle cx="15" cy="5" r="4.5" fill="#2A8FAF"/>
+<circle cx="25" cy="5" r="4.5" fill="#2A8FAF"/>
+<circle cx="55" cy="5" r="4.5" fill="#2A8FAF"/>
+<circle cx="75" cy="5" r="4.5" fill="#2A8FAF"/>
+<circle cx="65" cy="5" r="4.5" fill="#2A8FAF"/>
+<circle cx="85" cy="5" r="4.5" fill="#2A8FAF"/>
+<circle cx="15" cy="25" r="4.5" fill="#2A8FAF"/>
+<circle cx="75" cy="25" r="4.5" fill="#2A8FAF"/>
+<circle cx="5" cy="35" r="4.5" fill="#2A8FAF"/>
+<circle cx="45" cy="35" r="4.5" fill="#2A8FAF"/>
+<circle cx="25" cy="35" r="4.5" fill="#2A8FAF"/>
+<circle cx="65" cy="35" r="4.5" fill="#2A8FAF"/>
+<circle cx="85" cy="35" r="4.5" fill="#2A8FAF"/>
+<circle cx="5" cy="95" r="4.5" fill="white"/>
+<circle cx="35" cy="95" r="4.5" fill="white"/>
+<circle cx="45" cy="95" r="4.5" fill="white"/>
+<circle cx="15" cy="95" r="4.5" fill="white"/>
+<circle cx="25" cy="95" r="4.5" fill="white"/>
+<circle cx="55" cy="95" r="4.5" fill="white"/>
+<circle cx="75" cy="95" r="4.5" fill="white"/>
+<circle cx="65" cy="95" r="4.5" fill="white"/>
+<circle cx="85" cy="95" r="4.5" fill="white"/>
+<circle cx="15" cy="75" r="4.5" fill="white"/>
+<circle cx="75" cy="75" r="4.5" fill="white"/>
+<circle cx="5" cy="65" r="4.5" fill="white"/>
+<circle cx="45" cy="65" r="4.5" fill="white"/>
+<circle cx="25" cy="65" r="4.5" fill="white"/>
+<circle cx="65" cy="65" r="4.5" fill="white"/>
+<circle cx="85" cy="65" r="4.5" fill="white"/>
+</svg>

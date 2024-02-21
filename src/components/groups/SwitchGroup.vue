@@ -20,14 +20,14 @@ function vibrate() {
 </script>
 
 <template>
-  <div class="switchGroupWrap">
-    <label class="switchLabel"><h3 class="switchTitle"><slot></slot></h3></label>
+  <div class="switch-group">
+    <label class="switch-label"><h3 class="switch-title"><slot></slot></h3></label>
     <switch-main @click="val => {vibrate(); emits('update', val);}" :def="def"></switch-main>
   </div>
 </template>
 
 <style scoped>
-.switchGroupWrap {
+.switch-group {
   width: 100%;
   display: flex;
   align-items: center;
@@ -36,18 +36,18 @@ function vibrate() {
   overflow: visible;
 }
 
-label.switchLabel {
+label.switch-label {
   overflow: hidden;
 }
 
-.v-enter-from h3.switchTitle,
-.v-leave-to h3.switchTitle {
+.v-enter-from h3.switch-title,
+.v-leave-to h3.switch-title {
   transform: translateX(-50%);
   opacity: 0;
 }
 
-.v-enter-from .switch,
-.v-leave-to .switch {
+.v-enter-from .switch-main,
+.v-leave-to .switch-main {
   opacity: 0;
 }
 </style>

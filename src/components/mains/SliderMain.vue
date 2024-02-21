@@ -50,7 +50,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="sliderTrack">
+  <div class="slider-main">
     <input type="range" min="0" :max="max" :list="id" :step="step" ref="input">
     <div class="progress"><span class="knob"></span></div>
   </div>
@@ -62,7 +62,7 @@ input::-webkit-slider-thumb {
   transition: var(--transition-s);
 }
 
-.sliderTrack {
+.slider-main {
   height: 36px;
   max-width: 300px;
   margin: 10px 0 0;
@@ -72,7 +72,7 @@ input::-webkit-slider-thumb {
   box-shadow: var(--inner-shadow);
 }
 
-.sliderTrack:hover,
+.slider-main:hover,
 input:hover {
   cursor: pointer;
 }
@@ -104,7 +104,7 @@ input:hover {
   display: block;
 }
 
-.sliderTrack:hover .progress {
+.slider-main:hover .progress {
   box-shadow: var(--default-glow);
 }
 
@@ -128,7 +128,7 @@ input::-webkit-slider-thumb {
   margin: none;
 }
 
-.sliderTrack:hover .knob {
+.slider-main:hover .knob {
   transform: scale(1.1);
 }
 

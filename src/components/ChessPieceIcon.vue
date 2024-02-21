@@ -45,7 +45,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <button class="chessPieceWrap" :isPiece="type != ''"
+  <button class="chess-piece-icon" :isPiece="type != ''"
     :class="{active: focus, mark: (danger && active && type[0] == 'J') || attacker, rotate}"
     :player="type[type.length - 1]" :draggable="type != ''" ref="piece">
     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" ref="Svg">
@@ -82,7 +82,7 @@ onMounted(() => {
 </template>
 
 <style scoped>
-.chessPieceWrap {
+.chess-piece-icon {
   width: calc(100% - 6px);
   max-width: 100px;
   margin: 3px;
@@ -95,35 +95,35 @@ onMounted(() => {
   outline: transparent solid 5px;
 }
 
-.chessPieceWrap[isPiece="true"][player="1"] {
+.chess-piece-icon[isPiece="true"][player="1"] {
   background: var(--piece-rival-background);
   /* outline: solid var(--generic) 3px;
   outline-offset: -7px; */
 }
 
-.chessPieceWrap.rotate[player="1"] {
+.chess-piece-icon.rotate[player="1"] {
   transform: rotate(180deg);
 }
 
-.chessPieceWrap[isPiece="true"][player="0"] {
+.chess-piece-icon[isPiece="true"][player="0"] {
   background: var(--piece-home-background);
   /* outline: solid var(--primary) 3px;
   outline-offset: -7px; */
 }
 
-.chessPieceWrap.active[isPiece="true"],
-.chessPieceWrap.mark {
+.chess-piece-icon.active[isPiece="true"],
+.chess-piece-icon.mark {
   box-shadow: var(--default-glow);
   outline-color: var(--translucent-less);
   outline-offset: 3px;
 }
 
-.chessPieceWrap.mark:not(.active) {
+.chess-piece-icon.mark:not(.active) {
   outline-offset: 5px;
   outline-width: 3px;
 }
 
-.chessPieceWrap[isPiece="true"][player="0"] svg {
+.chess-piece-icon[isPiece="true"][player="0"] svg {
   stroke: var(--piece-home-colour);
 }
 

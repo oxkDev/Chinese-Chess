@@ -1,12 +1,15 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
+import AccountView from '@/views/AccountView.vue';
 import HomeView from '@/views/HomeView.vue';
 import SettingsView from '@/views/SettingsView.vue';
 import TwoPlayerView from '@/views/TwoPlayerView.vue';
+import SavedGamesView from '@/views/SavedGamesView.vue';
 import GamePlayView from '@/views/GamePlayView.vue';
 import { useStore } from 'vuex';
 
 const homeFooter = {
-  "home": '/',
+  "account": "/account",
+  "home": "/",
   "settings 1": "/settings",
 }
 
@@ -15,6 +18,11 @@ const routes: Array<RouteRecordRaw> = [
     path: '/',
     name: 'Home',
     component: HomeView,
+    meta: { footer: homeFooter },
+  },{
+    path: '/account',
+    name: 'Account',
+    component: AccountView,
     meta: { footer: homeFooter },
   },
   {
@@ -36,6 +44,12 @@ const routes: Array<RouteRecordRaw> = [
     name: '2 Player',
     component: TwoPlayerView,
     meta: { title: '2 Player', transition: 'blur', fast: true, footer: { 'cross': '/' } },
+  },
+  {
+    path: '/saved',
+    name: 'Saved Games',
+    component: SavedGamesView,
+    meta: { title: 'Saved Games', transition: 'blur', fast: true, footer: { 'cross': '/' } },
   },
   {
     path: '/game-play',
@@ -84,11 +98,13 @@ router.beforeEach((to, from, next) => {
 
   const store = useStore();
 
-  if (to.path.indexOf('game-play') != -1 && !store.getters.game) {
+  if (store.getters.isPlaying && to.path.indexOf('game-play') == -1)
+    next({ name: 'Game Play' });
+  else if (to.path.indexOf('game-play') != -1 && !store.getters.game)
     next({ name: '2 Player' });
-  } else {
+  else
     next();
-  }
+
 })
 
 export default router

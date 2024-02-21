@@ -12,6 +12,7 @@ module.exports = defineConfig({
       favicon16: 'img/icons/favicon-jiang (light) (16x16).png',
       favicon32: 'img/icons/favicon-jiang (light) (32x32).png',
       appleTouchIcon: 'img/icons/favicon-jiang (light) (152x152).png',
+      maskIcon: 'img/icons/safari-pinned-tab.svg',
       msTileImage: 'img/icons/favicon-jiang (light) (144x144).png',
     }
   }

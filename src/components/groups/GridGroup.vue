@@ -1,5 +1,9 @@
 <script setup lang="ts">
+import { Settings } from '@/store';
 import { ref, onMounted } from 'vue';
+import { useStore } from 'vuex';
+
+const settings = useStore().getters.settings as Settings;
 
 const props = defineProps<{
   name: string,
@@ -12,7 +16,7 @@ const grid = ref();
 function transitiondelays() {
   let d = Math.round((props.duration ? props.duration : 200) / grid.value.children.length);
   for (let i = 0; i < grid.value.children.length; i++) {
-    grid.value.children[i].style.transitionDelay = `${i * d}ms`;
+    grid.value.children[i].style.setProperty("--grid-delay", `${i * d * settings.animationSpeed / 100}ms`);
   }
 }
 
@@ -21,9 +25,9 @@ onMounted(transitiondelays);
 </script>
 
 <template>
-  <div class="gridGroupWrap">
-    <div class="gridGroupHeader">
-      <h3 class="gridTitle">{{ name }}</h3>
+  <div class="grid-group">
+    <div class="grid-group-header">
+      <h3 class="grid-title">{{ name }}</h3>
     </div>
     <div class="grid" ref="grid">
       <slot></slot>
@@ -32,17 +36,17 @@ onMounted(transitiondelays);
 </template>
 
 <style>
-.gridGroupWrap {
+.grid-group {
   width: 100%;
   margin: 15px 0;
   overflow: visible;
 }
 
-.gridGroupHeader {
+.grid-group-header {
   overflow: hidden;
 }
 
-.gridTitle {
+.grid-title {
   margin-bottom: 10px;
 }
 
@@ -53,10 +57,15 @@ onMounted(transitiondelays);
   gap: v-bind(margin);
 }
 
-.v-enter-from h3.gridTitle,
-.v-leave-to h3.gridTitle {
+.v-enter-from h3.grid-title,
+.v-leave-to h3.grid-title {
   transform: translateX(-50%);
   opacity: 0;
+}
+
+.v-enter-active .grid-group > div.grid > *,
+.v-leave-active .grid > * {
+  transition-delay: var(--grid-delay);
 }
 
 .v-enter-from .grid>*,

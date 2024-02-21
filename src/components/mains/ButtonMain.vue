@@ -21,7 +21,7 @@ const emits = defineEmits<{
 </script>
 
 <template>
-  <button :disabled="!!disable" :class="{ small }"
+  <button :disabled="!!disable" class="button-main" :class="{ small }"
     :onclick="(e: MouseEvent) => { if (!disable) { emits('click', e); vibrate(); } }">
     <h2 id="text">
       <slot></slot>
@@ -32,7 +32,7 @@ const emits = defineEmits<{
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-button {
+.button-main {
   width: var(--length);
   width: 100%;
   max-width: 300px;

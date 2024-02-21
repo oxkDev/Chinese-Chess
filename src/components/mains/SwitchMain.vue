@@ -26,7 +26,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <label class="switch">
+  <label class="switch-main">
     <span class="knob">
       <input type="checkbox" ref="input">
     </span>
@@ -40,7 +40,7 @@ input {
   width: 0;
 }
 
-.switch {
+.switch-main {
   height: 36px;
   width: 70px;
   border-radius: 20px;
@@ -49,16 +49,16 @@ input {
   display: flex;
 }
 
-.switch:has(input:checked) {
+.switch-main:has(input:checked) {
   background: var(--primary);
   box-shadow: var(--default-shadow);
 }
 
-.switch:hover {
+.switch-main:hover {
   cursor: pointer;
 }
 
-.switch:has(input:checked):hover {
+.switch-main:has(input:checked):hover {
   box-shadow: var(--default-glow);
 }
 
@@ -72,39 +72,39 @@ input {
   box-shadow: var(--default-shadow);
 }
 
-.switch:hover .knob {
+.switch-main:hover .knob {
   transform: scale(1.1);
 }
 
-.switch:active .knob {
+.switch-main:active .knob {
   width: 200%;
 }
 
-.switch:before,
-.switch:after {
+.switch-main:before,
+.switch-main:after {
   content: "";
   width: 0px;
   transition: var(--transition-s);
 }
 
-.switch:has(input:checked):before,
-.switch:has(input:not(:checked)):after {
+.switch-main:has(input:checked):before,
+.switch-main:has(input:not(:checked)):after {
   width: 100%;
   transition-delay: calc(var(--animation-speed) * .1s);
 }
 
-.v-enter-from .switch,
-.v-leave-to .switch {
+.v-enter-from .switch-main,
+.v-leave-to .switch-main {
   width: 36px;
   margin-right: 34px;
   transform: scale(.9);
 }
 
-/* .v-enter-active .switch {
+/* .v-enter-active .switch-main {
   animation: forwards .5s animate ease;
 }
 
-.v-leave-active .switch {
+.v-leave-active .switch-main {
   animation: forwards reverse .5s animate ease;
 }
 

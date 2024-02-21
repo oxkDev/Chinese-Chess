@@ -15,6 +15,7 @@ const gameSettings = (store.getters.game as GameData).settings;
 
 const settingsGroup = ref();
 const gameOptions = {
+  type: "2 Player",
   names: ["home", "rival"],
   gameDuration: 0,
   turnDuration: 0,
@@ -25,7 +26,7 @@ function start() {
   const durations = settingsGroup.value.duration;
   gameOptions.gameDuration = parseInt(durations.game) * 60000;
   gameOptions.turnDuration = parseInt(durations.turn) * 60000;
-  gameOptions.starter = (gameOptions.starter == 1) ? Math.round(Math.random()) : Number(gameOptions.starter == 2)
+  gameOptions.starter = (gameOptions.starter == 1) ? Math.round(Math.random()) : Number(gameOptions.starter == 2);
   store.commit("setGame", gameOptions as GameSettings);
   router.push('/game-play');
 }

@@ -38,17 +38,17 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="optionsTrack">
+  <div class="options-main">
     <input type="range" min="0" :max="options.length - 1" ref="input">
     <div class="selector"></div>
-    <ul class="optionsList">
+    <ul class="options-list">
       <p v-for="(option, index) in options" :selected="selected == index" :key="option">{{ option }}</p>
     </ul>
   </div>
 </template>
 
 <style scoped>
-.optionsTrack {
+.options-main {
   height: 40px;
   max-width: 300px;
   width: 100%;
@@ -58,7 +58,7 @@ onMounted(() => {
   box-shadow: var(--inner-shadow);
 }
 
-.optionsTrack:hover,
+.options-main:hover,
 input:hover {
   cursor: pointer;
 }
@@ -93,7 +93,7 @@ input {
   z-index: 2;
 }
 
-.optionsList {
+.options-list {
   padding: 0;
   width: 100%;
   height: 100%;
@@ -105,13 +105,13 @@ input {
   z-index: 1;
 }
 
-.optionsList p {
+.options-list p {
   min-width: 33%;
   text-align: center;
   font-size: 16px;
 }
 
-.optionsList p[selected="true"] {
+.options-list p[selected="true"] {
   /* font-weight: 500; */
   transition-delay: .2s;
   letter-spacing: 2px;
@@ -125,7 +125,7 @@ input {
 }
 
 .v-enter-from .selector,
-.v-leave-to .optionsTrack {
+.v-leave-to .options-main {
   transition-delay: .1s;
 }
 </style>

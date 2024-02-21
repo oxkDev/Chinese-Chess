@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import ChessPieceIcons from '@/components/ChessPieceIcons.vue';
+import ChessPieceIcon from '@/components/ChessPieceIcon.vue';
 import { useStore } from 'vuex';
 import { Settings } from '@/store';
 
@@ -55,49 +55,49 @@ function onFocus(f: boolean, p: string) {
 </script>
 
 <template>
-  <div class="chessBoardWrap" ref="boardWrap">
-    <transition-group name="pieces" tag="div" class="chessGridWrap">
+  <div class="chess-board-group" ref="boardWrap">
+    <transition-group name="pieces" tag="div" class="board-grid-wrap">
       <div v-for="(piece, i) in getPositions()" :key="piece ? piece : i" class="position">
-        <chess-piece-icons v-if="piece != ''" :type="piece[0] + piece[piece.length - 1]"
+        <chess-piece-icon v-if="piece != ''" :type="piece[0] + piece[piece.length - 1]"
           :coord="[Math.floor(i / 9), i % 9]" :rotate="true" :active="turn.toString() == piece[piece.length - 1]"
           :danger="stalemate.length > 0 && settings.stalemateAid"
           :attacker="stalemate.indexOf(piece) != -1 && settings.stalemateAid" @focus="f => onFocus(f, piece)"
-          class="chessPiece" />
+          class="chess-piece" />
         <transition :duration="200" mode="out-in" :key="turn">
           <div v-if="checkDisplay.moves.indexOf(`${i % 9},${9 - Math.floor(i / 9)}`) + 1" :kill="piece != ''"
             :onclick="() => { emits('move', checkDisplay.piece, [i % 9, 9 - Math.floor(i / 9)]); checkDisplay = { piece: '', moves: [], blocks: [] }; }"
-            class="movesCheck">
-            <div v-if="settings.positionAid" class="movesCheckIndicator"></div>
+            class="moves-check">
+            <div v-if="settings.positionAid" class="moves-check-indicator"></div>
           </div>
           <div v-else-if="checkDisplay.blocks.indexOf(`${i % 9},${9 - Math.floor(i / 9)}`) + 1 && settings.positionAid"
-            :kill="piece != ''" class="blockedMove"></div>
+            :kill="piece != ''" class="blocked-move"></div>
         </transition>
       </div>
     </transition-group>
-    <div class="chessLines">
+    <div class="board-lines">
       <svg viewBox="0 0 315 350" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path class="vLine opp" d="M52.5 17.5L52.5 157.5" />
-        <path class="vLine opp" d="M87.5 17.5L87.5 157.5" />
-        <path class="vLine opp" d="M122.5 17.5L122.5 157.5" />
-        <path class="vLine opp" d="M157.5 17.5L157.5 157.5" />
-        <path class="vLine opp" d="M192.5 17.5L192.5 157.5" />
-        <path class="vLine opp" d="M227.5 17.5L227.5 157.5" />
-        <path class="vLine opp" d="M262.5 17.5V157.5" />
-        <path class="vLine home" d="M52.5 192.5L52.5 332.5" />
-        <path class="vLine home" d="M87.5 192.5L87.5 332.5" />
-        <path class="vLine home" d="M122.5 192.5L122.5 332.5" />
-        <path class="vLine home" d="M157.5 192.5L157.5 332.5" />
-        <path class="vLine home" d="M192.5 192.5L192.5 332.5" />
-        <path class="vLine home" d="M227.5 192.5L227.5 332.5" />
-        <path class="vLine home" d="M262.5 192.5L262.5 332.5" />
-        <path class="hLine" d="M17.5 52.5L297.5 52.5" />
-        <path class="hLine" d="M17.5 87.5L297.5 87.5" />
-        <path class="hLine" d="M17.5 122.5L297.5 122.5" />
-        <path class="hLine" d="M17.5 157.5H297.5" />
-        <path class="hLine" d="M17.5 192.5H297.5" />
-        <path class="hLine" d="M17.5 227.5H297.5" />
-        <path class="hLine" d="M17.5 262.5H297.5" />
-        <path class="hLine" d="M17.5 297.5H297.5" />
+        <path class="vline opp" d="M52.5 17.5L52.5 157.5" />
+        <path class="vline opp" d="M87.5 17.5L87.5 157.5" />
+        <path class="vline opp" d="M122.5 17.5L122.5 157.5" />
+        <path class="vline opp" d="M157.5 17.5L157.5 157.5" />
+        <path class="vline opp" d="M192.5 17.5L192.5 157.5" />
+        <path class="vline opp" d="M227.5 17.5L227.5 157.5" />
+        <path class="vline opp" d="M262.5 17.5V157.5" />
+        <path class="vline home" d="M52.5 192.5L52.5 332.5" />
+        <path class="vline home" d="M87.5 192.5L87.5 332.5" />
+        <path class="vline home" d="M122.5 192.5L122.5 332.5" />
+        <path class="vline home" d="M157.5 192.5L157.5 332.5" />
+        <path class="vline home" d="M192.5 192.5L192.5 332.5" />
+        <path class="vline home" d="M227.5 192.5L227.5 332.5" />
+        <path class="vline home" d="M262.5 192.5L262.5 332.5" />
+        <path class="hline" d="M17.5 52.5L297.5 52.5" />
+        <path class="hline" d="M17.5 87.5L297.5 87.5" />
+        <path class="hline" d="M17.5 122.5L297.5 122.5" />
+        <path class="hline" d="M17.5 157.5H297.5" />
+        <path class="hline" d="M17.5 192.5H297.5" />
+        <path class="hline" d="M17.5 227.5H297.5" />
+        <path class="hline" d="M17.5 262.5H297.5" />
+        <path class="hline" d="M17.5 297.5H297.5" />
         <path class="cross home"
           d="M192.5 262.5L157.5 297.5M157.5 297.5L122.5 332.5M157.5 297.5L192.5 332.5M157.5 297.5L122.5 262.5" />
         <path class="cross opp"
@@ -110,7 +110,7 @@ function onFocus(f: boolean, p: string) {
 </template>
 
 <style>
-.chessBoardWrap {
+.chess-board-group {
   width: calc(100vw - 20px);
   max-width: 60vh;
   background: var(--background-secondary);
@@ -119,7 +119,7 @@ function onFocus(f: boolean, p: string) {
   position: relative;
 }
 
-.chessGridWrap {
+.board-grid-wrap {
   margin: 5px;
   max-width: 100%;
   display: grid;
@@ -157,12 +157,12 @@ function onFocus(f: boolean, p: string) {
   opacity: 0;
 }
 
-.chessPiece:hover,
-.movesCheck:hover {
+.chess-piece:hover,
+.moves-check:hover {
   cursor: pointer;
 }
 
-.movesCheck {
+.moves-check {
   width: 100%;
   aspect-ratio: 1;
   border-radius: 100%;
@@ -176,8 +176,8 @@ function onFocus(f: boolean, p: string) {
   align-items: center;
 }
 
-.movesCheckIndicator,
-.blockedMove {
+.moves-check-indicator,
+.blocked-move {
   width: 30%;
   aspect-ratio: 1;
   border-radius: 100%;
@@ -185,13 +185,13 @@ function onFocus(f: boolean, p: string) {
   box-shadow: var(--icon-shadow);
 }
 
-.movesCheck[kill="true"]>.movesCheckIndicator {
+.moves-check[kill="true"]>.moves-check-indicator {
   outline: solid var(--dark) 3px;
   outline-offset: 5px;
   background: var(--dark);
 }
 
-.blockedMove {
+.blocked-move {
   width: 50%;
   background: var(--generic);
   opacity: .8;
@@ -204,11 +204,11 @@ function onFocus(f: boolean, p: string) {
   z-index: 3;
 }
 
-.blockedMove[kill="true"] {
+.blocked-move[kill="true"] {
   background: var(--contrast)
 }
 
-.chessLines {
+.board-lines {
   width: calc(100% - 10px);
   height: calc(100% - 10px);
   margin: 5px;
@@ -221,80 +221,80 @@ function onFocus(f: boolean, p: string) {
   z-index: 1;
 }
 
-.chessLines svg {
+.board-lines svg {
   width: 100%;
 }
 
-.chessLines path {
+.board-lines path {
   stroke: var(--generic);
   stroke-width: 2px;
   opacity: .5;
 }
 
-.chessLines path.frame {
+.board-lines path.frame {
   stroke-width: 3px;
 }
 
-.v-enter-from .chessBoardWrap,
-.v-leave-to .chessBoardWrap {
+.v-enter-from .chess-board-group,
+.v-leave-to .chess-board-group {
   transform: scale(.95);
   opacity: 0;
 }
 
-.v-enter-from.movesCheck,
-.v-leave-to.movesCheck,
-.v-enter-from.blockedMove,
-.v-leave-to.blockedMove {
+.v-enter-from.moves-check,
+.v-leave-to.moves-check,
+.v-enter-from.blocked-move,
+.v-leave-to.blocked-move {
   transform: scale(.8);
   opacity: 0;
   box-shadow: none;
 }
 
-.v-enter-from.movesCheck>.movesCheckIndicator,
-.v-leave-to.movesCheck>.movesCheckIndicator {
+.v-enter-from.moves-check>.moves-check-indicator,
+.v-leave-to.moves-check>.moves-check-indicator {
   width: 10%;
   outline-offset: 10px;
 }
 
-.v-enter-active.movesCheck,
-.v-leave-active.movesCheck {
+.v-enter-active.moves-check,
+.v-leave-active.moves-check {
   transition: var(--transition-m);
 }
 
 
-.chessLines path {
+.board-lines path {
   transition-delay: .1s;
 }
 
-.chessLines path.frame {
+.board-lines path.frame {
   transition-delay: .4s;
 }
 
-.v-enter-from .chessLines path.frame {
+.v-enter-from .board-lines path.frame {
   stroke-width: 0px;
 }
 
-.v-enter-from .chessLines path.vLine.home {
+.v-enter-from .board-lines path.vline.home {
   transform: translateY(55%) scaleY(0);
 }
 
-.v-enter-from .chessLines path.vLine.opp {
+.v-enter-from .board-lines path.vline.opp {
   transform: translateY(45%) scaleY(0);
 }
 
-.v-enter-from .chessLines path.hLine {
+.v-enter-from .board-lines path.hline {
   transform: translateX(50%) scaleX(0);
 }
 
-.v-enter-from .chessLines path.cross.home {
+.v-enter-from .board-lines path.cross.home {
   transform: translate(50%, 85%) scale(0);
 }
 
-.v-enter-from .chessLines path.cross.opp {
+.v-enter-from .board-lines path.cross.opp {
   transform: translate(50%, 15%) scale(0);
 }
 
-.chessLines path.cross {
+.board-lines path.cross {
   transition-delay: .2s;
 }
 </style>

@@ -13,9 +13,9 @@ const emits = defineEmits<{
 </script>
 
 <template>
-  <div class="optionsGroupWrap">
-    <div class="optionsHeading">
-      <h3 class="OptionsTitle">
+  <div class="options-group">
+    <div class="options-heading">
+      <h3 class="Options-title">
         <slot></slot>
       </h3>
     </div>
@@ -24,18 +24,18 @@ const emits = defineEmits<{
 </template>
 
 <style scoped>
-.optionsGroupWrap {
+.options-group {
   width: 100%;
   margin: 15px 0;
   /* overflow: visible; */
 }
 
-.optionsHeading {
+.options-heading {
   overflow: hidden;
 }
 
-.v-enter-from h3.OptionsTitle,
-.v-leave-to h3.OptionsTitle {
+.v-enter-from h3.Options-title,
+.v-leave-to h3.Options-title {
   transform: translateX(-50%);
   opacity: 0;
 }

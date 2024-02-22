@@ -14,9 +14,9 @@ export class Settings {
   animationLevel: number;
   positionAid: boolean;
   stalemateAid: boolean;
-  constructor(
-    colourTheme: ColourTheme = new ColourTheme(),
-    designTheme: "default" | "subtle" | "square" = "default",
+  constructor({
+    colourTheme = new ColourTheme(),
+    designTheme = "default" as "default" | "subtle" | "square",
     blur = 2,
     music = false,
     game = false,
@@ -26,7 +26,7 @@ export class Settings {
     animationLevel = 2,
     positionAid = true,
     stalemateAid = true,
-  ) {
+  } = {}) {
     this.colourTheme = colourTheme;
     this.designTheme = designTheme;
     this.blur = blur;
@@ -39,24 +39,37 @@ export class Settings {
     this.positionAid = positionAid;
     this.stalemateAid = stalemateAid;
   }
+
+  vibrate(pattern: number | number[] = 5) {
+    if (this.haptic && navigator.vibrate) navigator.vibrate(pattern);
+  }
 }
 
-export interface GameData {
-  settings: GameSettings,
-  play?: GamePlayData,
+export class GameData {
+  settings?: GameSettings;
+  play?: GamePlayData;
+  constructor({ settings, play }: { settings?: GameSettings, play?: GamePlayData }) {
+    this.settings = settings;
+    this.play = play;
+
+    return {
+      settings: settings,
+      play: play,
+    }
+  }
 }
 
 export default createStore({
   state: () => {
+    // localStorage.setItem("settings", "");
     const settings = localStorage.getItem("settings");
     const game = localStorage.getItem("game");
-    // localStorage.setItem("saves", "");
     const saves = localStorage.getItem("saves");
     return {
       // settings: {
-      settings: settings ? JSON.parse(settings) as Settings : new Settings(),
+      settings: new Settings(JSON.parse(settings ? settings : "{}")),
       // },
-      game: (game ? JSON.parse(game) : {}) as GameData,
+      game: new GameData(JSON.parse(game ? game : "{}")),
       saves: (saves ? JSON.parse(saves) : {}) as { [key: string]: { settings: GameSettings, play: GamePlayData } },
     }
   },
@@ -95,11 +108,8 @@ export default createStore({
       localStorage.setItem("saves", JSON.stringify(state.saves));
     },
     playSavedGame(state, key: string) {
-      if (Object.keys(state.saves).indexOf(key) != -1) {
+      if (Object.keys(state.saves).indexOf(key) != -1)
         state.game = { ...state.saves[key] } as GameData;
-        console.log(state.game);
-      } else
-        console.log("game not found")
     }
   },
   getters: {

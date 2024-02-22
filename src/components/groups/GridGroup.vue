@@ -3,7 +3,7 @@ import { Settings } from '@/store';
 import { ref, onMounted } from 'vue';
 import { useStore } from 'vuex';
 
-const settings = useStore().getters.settings as Settings;
+const settings: Settings = useStore().getters.settings;
 
 const props = defineProps<{
   name: string,

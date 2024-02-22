@@ -3,20 +3,20 @@ import IconButtonMain from "@/components/IconButtonMain.vue";
 import GameSettingsView from "./GameSettingsView.vue";
 import GameMenuView from "./GameMenuView.vue";
 import RequestGroup from "@/components/groups/RequestGroup.vue";
-import Board from "@/store/chinese chess";
+import Board, { GamePlayData, GameSettings } from "@/store/chinese chess";
 import { onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from "vue-router";
 import { useStore } from 'vuex';
 import ChessBoardGroup from "@/components/groups/ChessBoardGroup.vue";
-import { GameData, Settings } from "@/store";
+import { Settings } from "@/store";
 
 const store = useStore();
 const route = useRoute();
 const router = useRouter();
 
-const settings = store.getters.settings as Settings;
-const gameData: GameData = store.getters.game;
-const gameSettings = gameData.settings;
+const settings: Settings = store.getters.settings;
+const gameData: { settings: GameSettings, play?: GamePlayData } = store.getters.game;
+const gameSettings: GameSettings = gameData.settings;
 const gamePlay = ref(new Board(gameSettings));
 const boardDisplay = ref(0);
 
@@ -39,7 +39,6 @@ const timings = ref({
 const menuPage = ref("" as ("home" | "settings" | "restart" | ""));
 
 watch(route, () => {
-  // console.log(menuOverlay);
   if (route.hash != '' || route.name != 'Game Play') gamePlay.value.pause(true);
   else setTimeout(() => gamePlay.value.pause(false), 500);
   if (route.name == "menuSettings") menuPage.value = "settings";
@@ -60,11 +59,10 @@ function update(turn: 0 | 1 | number = gamePlay.value.turn.player) {
   requests.value[1 - turn] = 0;
   boardDisplay.value = gamePlay.value.turn.iteration;
   store.commit("updateGame", gamePlay.value.getGame());
-  if (settings.haptic)
-    if (stalemate.value.length) navigator.vibrate([10, 150, 10]);
-    else navigator.vibrate(10);
+  
+  if (stalemate.value.length) settings.vibrate([10, 150, 10]);
+  else settings.vibrate(5);
 }
-
 
 function move(piece: string, coord: number[]) {
   gamePlay.value.move(piece, coord);
@@ -111,7 +109,7 @@ gamePlay.value.onWin = w => {
   actions.value = { moves: {}, blocks: {} };
   console.log("win:", w);
 
-  if (settings.haptic) navigator.vibrate([10, 150, 10, 150, 10]);
+  settings.vibrate([10, 150, 10, 150, 10]);
 }
 
 onMounted(() => {
@@ -128,11 +126,11 @@ onMounted(() => {
 <template>
   <div id="gamePlay">
     <div id="gameScreen">
-      <request-group class="top" :show="requests[1] == 2"
-        @update="c => { requests[1] = Number(c); if (c) undo() }" :options="['Decline', 'Accept']"><b>Undo</b>
+      <request-group class="top" :show="requests[1] == 2" @update="c => { requests[1] = Number(c); if (c) undo() }"
+        :options="['Decline', 'Accept']"><b>Undo</b>
         request</request-group>
-      <request-group class="bottom" :show="requests[0] == 2"
-        @update="c => { requests[0] = Number(c); if (c) undo() }" :options="['Decline', 'Accept']"><b>Undo</b>
+      <request-group class="bottom" :show="requests[0] == 2" @update="c => { requests[0] = Number(c); if (c) undo() }"
+        :options="['Decline', 'Accept']"><b>Undo</b>
         request</request-group>
       <request-group class="center" :show="gamePlay.winner != undefined && requests['win'] > 0"
         @update="c => { requests['win'] = Number(c); if (c) undo(0); }" :options="['Cancel', 'Rematch']">
@@ -154,8 +152,7 @@ onMounted(() => {
     <div class="footer top">
       <nav class="navbar main" id="oFooter">
         <icon-button-main type="button" icon="back 2"
-          :disable="boardDisplay <= 0 || (gamePlay.turn.player != 1 && !gamePlay.winner)"
-          @click="boardDisplay--;" />
+          :disable="boardDisplay <= 0 || (gamePlay.turn.player != 1 && !gamePlay.winner)" @click="boardDisplay--;" />
         <icon-button-main type="button" :disable="requests[0] == 0" :active="requests[0] == 2" icon="undo"
           @click="requestUndo(0)" />
         <icon-button-main type="button" icon="forward 2"
@@ -169,8 +166,7 @@ onMounted(() => {
       </nav>
       <nav class="navbar main" id="hFooter">
         <icon-button-main type="button" icon="back 2"
-          :disable="boardDisplay <= 0 || (gamePlay.turn.player != 0 && !gamePlay.winner)"
-          @click="boardDisplay--;" />
+          :disable="boardDisplay <= 0 || (gamePlay.turn.player != 0 && !gamePlay.winner)" @click="boardDisplay--;" />
         <icon-button-main type="button" :disable="requests[1] == 0" :active="requests[1] == 2" icon="undo"
           @click="requestUndo(1)" />
         <icon-button-main type="button" icon="forward 2"

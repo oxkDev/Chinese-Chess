@@ -3,7 +3,7 @@ import { Settings } from '@/store';
 import { ref, onMounted } from 'vue';
 import { useStore } from 'vuex';
 
-const settings = useStore().getters.settings as Settings;
+const settings: Settings = useStore().getters.settings;
 
 const props = defineProps<{
   options: string[],
@@ -31,7 +31,7 @@ onMounted(() => {
   setPosition();
   input.value.addEventListener("input", () => {
     setPosition();
-    if (settings.haptic) navigator.vibrate(5);
+    settings.vibrate();
   });
 })
 

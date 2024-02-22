@@ -3,8 +3,7 @@ import { Settings } from '@/store';
 import { useStore } from 'vuex';
 import IconMain from './IconMain.vue';
 
-const settings = useStore().getters.settings as Settings;
-
+const settings: Settings = useStore().getters.settings;
 
 const props = defineProps<{
   name?: string,
@@ -20,20 +19,16 @@ const emits = defineEmits<{
   (e: "click"): void,
 }>();
 
-function vibrate() {
-  if (settings.haptic) navigator.vibrate(5);
-}
-
 const rotate = ["cross", "restart", "settings 1", "undo"];
 </script>
 
 <template>
-  <button v-if="type == 'button'" :onclick="() => { emits('click'); vibrate(); }"
+  <button v-if="type == 'button'" :onclick="() => { emits('click'); settings.vibrate(); }"
     :active="String(props.active) != 'route' ? !!props.active : ''" :disable="!!props.disable" class="icon-button-main">
     <icon-main :icon="icon" :class="`buttonIcon ${rotate.indexOf(props.icon) != -1 ? 'rotate' : ''} ${big ? 'big' : ''}`"
       ref="svg" />
   </button>
-  <router-link v-else :onclick="vibrate" :active="String(props.active) != 'route' ? !!props.active : ''"
+  <router-link v-else :onclick="() => settings.vibrate()" :active="String(props.active) != 'route' ? !!props.active : ''"
     :disable="!!props.disable" :to="to ? to : ''" class="icon-button-main">
     <icon-main :icon="icon" :class="`${rotate.indexOf(props.icon) != -1 ? 'rotate' : ''} ${big ? 'big' : ''}`"
       ref="svg" />
@@ -102,6 +97,7 @@ a.router-link-exact-active.icon-button-main:not([active="false"]) {
 a.router-link-exact-active.icon-button-main:not([active="false"]) svg:deep(path) {
   stroke: var(--secondary);
 }
+
 .icon-button-main[active="true"] svg.rotate,
 a.router-link-exact-active.icon-button-main:not([active="false"]) svg.rotate {
   transform: rotate(-90deg);
@@ -113,6 +109,7 @@ a.router-link-exact-active.icon-button-main:not([active="false"]) svg.rotate {
 .v-leave-to .icon-button-main {
   transform: scale(.9);
 }
+
 .footer-nav-enter-from svg,
 .v-enter-from svg,
 .footer-nav-leave-to svg,

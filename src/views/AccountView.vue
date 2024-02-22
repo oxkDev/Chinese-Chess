@@ -4,9 +4,7 @@ import ButtonMain from '@/components/mains/ButtonMain.vue'; // @ is an alias to 
 import { useStore } from 'vuex';
 import { Settings } from '@/store';
 
-const store = useStore();
-
-const settings = store.getters.settings as Settings;
+const settings: Settings = useStore().getters.settings;
 
 const account = ref();
 

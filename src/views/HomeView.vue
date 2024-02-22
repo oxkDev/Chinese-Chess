@@ -8,7 +8,7 @@ import { Settings } from '@/store';
 const router = useRouter();
 const store = useStore();
 
-const settings = store.getters.settings as Settings;
+const settings: Settings = store.getters.settings;
 
 const home = ref();
 

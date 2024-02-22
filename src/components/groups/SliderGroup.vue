@@ -4,6 +4,8 @@ import SliderMain from '@/components/mains/SliderMain.vue';
 import { Settings } from '@/store';
 import { useStore } from 'vuex';
 
+const settings: Settings = useStore().getters.settings;
+
 const props = defineProps({
   name: String,
   unit: String,
@@ -16,12 +18,10 @@ const props = defineProps({
 
 const emits = defineEmits<{
   (e: "update", value: number): void,
+  (e: "set", value: number): void,
 }>();
 
 const output = ref(0);
-const store = useStore();
-
-const settings = store.state.settings as Settings;
 
 let interv = 0;
 
@@ -36,7 +36,7 @@ function update(newValue: number, intervalDuration: number = Math.round(props.du
     output.value = newValue;
     return;
   } else {
-    intervalDuration *= settings.animationSpeed/100;
+    intervalDuration *= settings.animationSpeed / 100;
   }
 
   if (intervalDuration < 10 && intervalDuration > 0) {
@@ -71,9 +71,9 @@ onBeforeUnmount(() => {
       <p v-else class="slider-reading"><b>{{ output }}</b> {{ unit }}</p>
     </label>
     <slider-main class="slider" :id="name?.toLowerCase()" :max="max" :value="value" @on-input="update"
-      :step="step"></slider-main>
+      @on-set="v => emits('set', v)" :step="step"></slider-main>
     <p class="slider-label-wrap">
-      <datalist :id="name?.toLowerCase()" class="slider-labels">
+      <datalist :id=" name?.toLowerCase() " class="slider-labels">
         <slot></slot>
       </datalist>
     </p>

@@ -2,11 +2,7 @@
 import { Settings } from '@/store';
 import { useStore } from 'vuex';
 
-const settings = useStore().getters.settings as Settings;
-
-function vibrate() {
-  if (settings.haptic) navigator.vibrate(10);
-}
+const settings: Settings = useStore().getters.settings;
 
 defineProps<{
   name?: string,
@@ -22,7 +18,7 @@ const emits = defineEmits<{
 
 <template>
   <button :disabled="!!disable" class="button-main" :class="{ small }"
-    :onclick="(e: MouseEvent) => { if (!disable) { emits('click', e); vibrate(); } }">
+    :onclick="(e: MouseEvent) => { if (!disable) { emits('click', e); settings.vibrate(10); } }">
     <h2 id="text">
       <slot></slot>
     </h2>
@@ -74,8 +70,9 @@ button::after {
   /* backdrop-filter: invert(100%); */
   opacity: 0;
   display: block;
-  position: relative;
-  bottom: 125%;
+  position: absolute;
+  bottom: -25%;
+  left: 20%;
   z-index: 1;
   transition: var(--transition-m);
 }
@@ -86,6 +83,7 @@ button:hover {
 
 button:hover::after {
   width: 120%;
+  left: -10%;
   opacity: 0.15;
 }
 

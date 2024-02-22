@@ -1,9 +1,5 @@
 <script setup lang="ts">
 import SwitchMain from '@/components/mains/SwitchMain.vue';
-import { Settings } from '@/store';
-import { useStore } from 'vuex';
-
-const settings = useStore().getters.settings as Settings;
 
 defineProps<{
   def?: boolean,
@@ -13,16 +9,16 @@ const emits = defineEmits<{
   (e: "update", value: boolean): void,
 }>();
 
-function vibrate() {
-  if (settings.haptic) navigator.vibrate(5);
-}
-
 </script>
 
 <template>
   <div class="switch-group">
-    <label class="switch-label"><h3 class="switch-title"><slot></slot></h3></label>
-    <switch-main @click="val => {vibrate(); emits('update', val);}" :def="def"></switch-main>
+    <label class="switch-label">
+      <h3 class="switch-title">
+        <slot></slot>
+      </h3>
+    </label>
+    <switch-main @click="val => { emits('update', val); }" :def="def"></switch-main>
   </div>
 </template>
 
@@ -49,5 +45,4 @@ label.switch-label {
 .v-enter-from .switch-main,
 .v-leave-to .switch-main {
   opacity: 0;
-}
-</style>
+}</style>

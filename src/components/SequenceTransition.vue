@@ -3,18 +3,17 @@ import { Settings } from '@/store';
 import { ref, onMounted } from 'vue';
 import { useStore } from 'vuex';
 
-
-const settings = useStore().getters.settings as Settings;
+const settings: Settings = useStore().getters.settings;
 
 const props = defineProps({
-  interval: { type: Number, default: 0.001 },
+  interval: { type: Number, default: 0.1 },
 });
 
 const wrap = ref();
 
 function transitiondelays() {
   for (let i = 0; i < wrap.value.children.length; i++) {
-    wrap.value.children[i].style.setProperty("--sequence-delay", `${i * props.interval * 0.01 * settings.animationSpeed}s`);
+    wrap.value.children[i].style.setProperty("--sequence-delay", `${i * props.interval * settings.animationSpeed / 100}s`);
   }
 }
 
@@ -29,9 +28,12 @@ onMounted(transitiondelays);
 
 <style>
 .v-enter-active.sequence-transition>*,
-.v-enter-active.sequence-transition * {
+.v-enter-active.sequence-transition *,
+.v-enter-active .sequence-transition>*,
+.v-enter-active .sequence-transition * {
   transition-delay: var(--sequence-delay);
 }
+
 /* .v-enter-active.sequence-transition>*:nth-child(1),
 .v-enter-active.sequence-transition>*:nth-child(1) * {
   transition-delay: calc(v-bind(interval) * var(--animation-speed) * 1s);

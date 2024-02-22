@@ -8,7 +8,7 @@ import { Settings } from "./store";
 const route = useRoute();
 const store = useStore();
 
-const settings = ref(store.state.settings as Settings);
+const settings = ref(store.getters.settings as Settings);
 
 const styleElm = document.createElement("style");
 document.head.appendChild(styleElm);
@@ -178,6 +178,10 @@ body {
   color: var(--text);
   transition: var(--transition-m);
   -webkit-tap-highlight-color: transparent;
+}
+
+::-webkit-scrollbar {
+  width: 0px;
 }
 
 h1 {

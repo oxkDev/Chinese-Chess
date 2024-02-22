@@ -4,8 +4,7 @@ import ChessPieceIcon from '@/components/ChessPieceIcon.vue';
 import { useStore } from 'vuex';
 import { Settings } from '@/store';
 
-const store = useStore();
-const settings = store.getters.settings as Settings;
+const settings: Settings = useStore().getters.settings;
 
 const props = defineProps<{
   pieces: { [key: string]: number[] },
@@ -46,7 +45,7 @@ function onFocus(f: boolean, p: string) {
   if (f) {
     checkDisplay.value.piece = p;
     pieceCheck(p);
-    if (settings.haptic) navigator.vibrate(5);
+    settings.vibrate();
   } else if (checkDisplay.value.piece == p) {
     checkDisplay.value = { piece: "", moves: [], blocks: [] }
   }

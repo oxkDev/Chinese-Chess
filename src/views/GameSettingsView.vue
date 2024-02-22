@@ -8,7 +8,7 @@ import { useStore } from 'vuex';
 
 const store = useStore();
 
-const gameSettings = store.getters.game.settings as GameSettings;
+const gameSettings: GameSettings = store.getters.game.settings;
 
 const durations = ref({ game: gameSettings.gameDuration, turn: gameSettings.turnDuration });
 

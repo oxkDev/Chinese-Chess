@@ -7,21 +7,18 @@ import IconButtonMain from '@/components/IconButtonMain.vue';
 import ColourThemeIcon from '@/components/ColourThemeIcon.vue';
 import { useRoute } from 'vue-router';
 import { useStore } from 'vuex';
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { ColourTheme, colourThemes } from '@/store/themes';
 import { Settings } from '@/store';
+import router from '@/router';
 
 const route = useRoute();
 const store = useStore();
 const settings = ref(store.getters.settings as Settings);
 
 function setSetting(key: string, value: boolean | number | string | ColourTheme) {
-  (settings.value as { [key: string]: boolean | number | string | ColourTheme })[key] = value;
+  (settings.value as unknown as { [key: string]: boolean | number | string | ColourTheme })[key] = value;
   store.commit("setSettings", settings.value);
-}
-
-function vibrate(t: (number[] | number) = 5) {
-  if (settings.value.haptic) navigator.vibrate(t);
 }
 
 const sideNav = {
@@ -30,6 +27,10 @@ const sideNav = {
   "animation": "#animation",
   "behaviour": "#behaviour",
 }
+
+watch(route, () => {
+  if (Object.values(sideNav).indexOf(route.hash) == -1) router.push(sideNav.appearance);
+});
 
 </script>
 
@@ -40,7 +41,7 @@ const sideNav = {
         <grid-group margin="20px" name="Colour Palette">
           <colour-theme-icon v-for="(theme, k) in colourThemes" :key="k" :theme="theme"
             :selected="JSON.stringify(theme) == JSON.stringify(settings.colourTheme)"
-            @click="() => { setSetting('colourTheme', theme); vibrate([10, 200, 2]); }" />
+            @click="setSetting('colourTheme', theme);" />
         </grid-group>
         <grid-group margin="20px" name="Design Theme">
           <div class="theme">e</div>
@@ -68,7 +69,7 @@ const sideNav = {
       </setting-section>
 
       <setting-section title="animation">
-        <slider-group :value="parseInt(settings.animationSpeed.toString())" @update="v => setSetting('animationSpeed', v)"
+        <slider-group :value="parseInt(settings.animationSpeed.toString())" @set="v => setSetting('animationSpeed', v)"
           name="Speed" unit="%">
           <option value="0" label="0%"></option>
           <option value="100" label="100%"></option>
@@ -121,10 +122,6 @@ const sideNav = {
   scroll-snap-type: y mandatory;
 }
 
-#settingsScreen::-webkit-scrollbar {
-  width: 0px;
-}
-
 .theme {
   width: 55px;
   aspect-ratio: 1;
@@ -142,11 +139,6 @@ nav#settingsSideNav {
   height: 100%;
   top: 0px;
 }
-
-/* nav#settingsSideNav svg {
-  height: 35px;
-  width: 35px;
-} */
 
 nav#settingsSideNav path {
   transition: var(--transition-m);

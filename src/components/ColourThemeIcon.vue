@@ -1,5 +1,9 @@
 <script setup lang="ts">
+import { Settings } from '@/store';
 import { ColourTheme } from '@/store/themes';
+import { useStore } from 'vuex';
+
+const settings: Settings = useStore().getters.settings;
 
 defineProps<{
 	theme: ColourTheme;
@@ -12,7 +16,8 @@ const emits = defineEmits<{
 </script>
 
 <template>
-	<button class="colour-theme-icon" :selected="selected" :onclick="() => emits('click')">
+	<button class="colour-theme-icon" :selected="selected"
+		:onclick="() => { emits('click'); settings.vibrate([10, 200, 2]); }">
 		<div class="sub"></div>
 	</button>
 </template>
@@ -22,7 +27,7 @@ const emits = defineEmits<{
 	height: 35px;
 	padding: 3px;
 	aspect-ratio: 1;
-	border-radius: 50%;
+	border-radius: 100%;
 	background: v-bind("theme.primary");
 	box-shadow: var(--default-shadow);
 	outline: v-bind("theme.backgroundSecondary") solid 5px;

@@ -3,25 +3,26 @@ import SequenceTransition from '@/components/SequenceTransition.vue';
 import { onMounted, ref } from 'vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
-import { BoardHist, Pieces } from '@/store/chinese chess';
-import { GameData, Settings } from '@/store';
+import { BoardHist, GamePlayData, GameSettings, Pieces } from '@/store/chinese chess';
+import { Settings } from '@/store';
 
 const router = useRouter();
 const store = useStore();
 
-const settings = store.getters.settings as Settings;
+const settings: Settings = store.getters.settings;
 
 const saves = ref();
 const games = ref(store.getters.savedGames);
 
 function transitionDelays() {
   let pieces = [];
-  for (const elm of saves.value) {
-    pieces.push(...[...elm.querySelectorAll("g.piece-wrap")].reverse());
-  }
-  console.log(pieces)
-  for (let i = 0; i < pieces.length; i++) {
-    pieces[i].style.setProperty("--piece-delay", `${i * 0.0001 * settings.animationSpeed}s`);
+  if (saves.value) {
+    for (const elm of saves.value) {
+      pieces.push(...[...elm.querySelectorAll("g.piece-wrap")].reverse());
+    }
+    for (let i = 0; i < pieces.length; i++) {
+      pieces[i].style.setProperty("--piece-delay", `${i * 0.0001 * settings.animationSpeed}s`);
+    }
   }
 }
 
@@ -30,9 +31,9 @@ function getBoard(boardHist: BoardHist): Pieces {
   return pieces ? pieces : {};
 }
 
-function formatTimings(gameData: GameData): string[] {
-  const duration = gameData.settings.gameDuration
-  let timer = gameData.play ? gameData.play.timer : { 0: 0, 1: 0 };
+function formatTimings(gameData: { settings: GameSettings, play: GamePlayData }): string[] {
+  const duration = gameData.settings.gameDuration;
+  let timer = gameData.play.timer;
   if (duration > 0) timer = { 0: duration - timer[0], 1: duration - timer[1] };
   let out = [];
   for (const i in timer) {
@@ -48,75 +49,85 @@ function formatTimings(gameData: GameData): string[] {
 function start(gameKey: string) {
   store.commit("playSavedGame", gameKey);
   router.push('/game-play');
+  settings.vibrate(10);
 }
 
-onMounted(() => transitionDelays());
+onMounted(transitionDelays);
 
 </script>
 
 
 <template>
-  <sequence-transition :interval="0.15" id="savedGameView">
-    <button v-for="(gameData, key) in games" :key="key" v-on:click="() => start(key.toString())" class="saved-game"
-      ref="saves">
-      <div class="game-info">
-        <h2 class="game-type">{{ gameData.settings.type }}</h2>
-        <div class="game-timings">
-          <p v-for="timing in formatTimings(gameData)" :key="timing" class="game-timing">{{ timing }}</p>
+  <div id="savedGameView">
+    <sequence-transition :interval="0.15">
+      <button v-for="(gameData, key) in games" :key="key" v-on:click="() => start(key.toString())" class="saved-game"
+        ref="saves">
+        <div class="game-info">
+          <h2 class="game-type">{{ gameData.settings.type }}</h2>
+          <div class="game-timings">
+            <p v-for="timing in formatTimings(gameData)" :key="timing" class="game-timing">{{ timing }}</p>
+          </div>
+          <div class="game-durations">
+            <p class="game-duration-game">
+              <b>{{ Math.round(gameData.settings.gameDuration / 60000) }}</b> min
+            </p>
+            <p class="game-duration-turn">
+              <b>{{ Math.round(gameData.settings.turnDuration / 60000) }}</b> min
+            </p>
+          </div>
         </div>
-        <div class="game-durations">
-          <p class="game-duration-game">
-            <b>{{ Math.round(gameData.settings.gameDuration / 60000) }}</b> min
-          </p>
-          <p class="game-duration-turn">
-            <b>{{ Math.round(gameData.settings.turnDuration / 60000) }}</b> min
-          </p>
-        </div>
-      </div>
-      <svg width="90" height="100" viewBox="0 0 90 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="game-board">
-        <rect x="5" y="5" width="80" height="90" rx="4.5" />
-        <path d="M35 5V25" stroke-linecap="round" stroke-linejoin="round" />
-        <path d="M55 5V25" stroke-linecap="round" stroke-linejoin="round" />
-        <path d="M35 75L35 95" stroke-linecap="round" stroke-linejoin="round" />
-        <path d="M55 75L55 95" stroke-linecap="round" stroke-linejoin="round" />
-        <path d="M35 25L55 25" stroke-linecap="round" stroke-linejoin="round" />
-        <path d="M5 45L85 45" stroke-linecap="round" stroke-linejoin="round" />
-        <path d="M5 55L85 55" stroke-linecap="round" stroke-linejoin="round" />
-        <path d="M35 75H55" stroke-linecap="round" stroke-linejoin="round" />
-        <!-- <circle v-for="(coord, k) in getBoard(gameData.play.boardHist)" :key="k" :cx="5 + 10 * coord[0]"
-          :cy="95 - 10 * coord[1]" r="4.5" :player="k.toString().charAt(k.toString().length - 1)" /> -->
-        <g v-for="(coord, k) in getBoard(gameData.play.boardHist)" :key="k"
-          :player="k.toString().charAt(k.toString().length - 1)" class="piece-wrap">
-          <circle :cx="5 + 10 * coord[0]" :cy="95 - 10 * coord[1]" r="4.5" class="piece-background" />
-          <circle :cx="5 + 10 * coord[0]" :cy="95 - 10 * coord[1]" r="3" class="mark" />
-        </g>
-      </svg>
-    </button>
-  </sequence-transition>
+        <svg width="90" height="100" viewBox="0 0 90 100" fill="none" xmlns="http://www.w3.org/2000/svg"
+          class="game-board">
+          <rect x="5" y="5" width="80" height="90" rx="4.5" />
+          <path d="M35 5V25" stroke-linecap="round" stroke-linejoin="round" />
+          <path d="M55 5V25" stroke-linecap="round" stroke-linejoin="round" />
+          <path d="M35 75L35 95" stroke-linecap="round" stroke-linejoin="round" />
+          <path d="M55 75L55 95" stroke-linecap="round" stroke-linejoin="round" />
+          <path d="M35 25L55 25" stroke-linecap="round" stroke-linejoin="round" />
+          <path d="M5 45L85 45" stroke-linecap="round" stroke-linejoin="round" />
+          <path d="M5 55L85 55" stroke-linecap="round" stroke-linejoin="round" />
+          <path d="M35 75H55" stroke-linecap="round" stroke-linejoin="round" />
+          <g v-for="(coord, k) in getBoard(gameData.play.boardHist)" :key="k"
+            :player="k.toString().charAt(k.toString().length - 1)" class="piece-wrap">
+            <circle :cx="5 + 10 * coord[0]" :cy="95 - 10 * coord[1]" r="4.5" class="piece-background" />
+            <circle :cx="5 + 10 * coord[0]" :cy="95 - 10 * coord[1]" r="3" class="mark" />
+          </g>
+        </svg>
+      </button>
+    </sequence-transition>
+  </div>
 </template>
 
 
 <style>
 #savedGameView {
+  height: 100vh;
+  width: 100%;
+  padding: 0 30px;
+  margin: 0 -30px;
+  overflow-y: scroll;
+}
+
+#savedGameView>.sequence-transition {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  min-height: min(70vh, calc(85vh - 75px));
+  min-height: calc(min(70vh, calc(85vh - 75px)) - 30px);
+  padding: calc(15vh + 30px) 0 max(calc(15vh), 75px);
   scroll-snap-align: start;
   overflow-y: visible;
-  padding: 15vh 0 max(15vh, 75px);
 }
 
 button.saved-game {
-  aspect-ratio: 2;
-  /* opacity: .9; */
+  height: 150px;
   padding: 12px;
-  margin: 10px 0;
+  margin: 15px 0;
   border-radius: 20px;
   background: var(--background-secondary);
   box-shadow: var(--default-shadow);
   display: flex;
   justify-content: space-between;
+  align-items: center;
 }
 
 div.game-info {
@@ -135,7 +146,6 @@ div.game-info {
 }
 
 .game-timing {
-  /* padding-left: 7px; */
   width: 100%;
   text-align: center;
 }
@@ -190,8 +200,7 @@ g[player="1"]>circle.mark {
 
 button.saved-game:hover {
   box-shadow: var(--default-glow);
-  aspect-ratio: 1.9;
-  /* opacity: 1; */
+  padding: 10px;
 }
 
 button.saved-game:hover .game-type {
@@ -204,6 +213,7 @@ button.saved-game:hover g[player]>circle.piece-background {
 
 button.saved-game:active {
   aspect-ratio: 2;
+  padding: 14px;
   filter: contrast(90%);
 }
 

@@ -3,10 +3,9 @@ import { Settings } from '@/store';
 import { onMounted, ref, watch } from 'vue';
 import { useStore } from 'vuex';
 
-const settings = useStore().state.settings as Settings;
+const settings: Settings = useStore().state.settings;
 
 const input = ref();
-
 const width = ref(36);
 
 const props = defineProps({
@@ -18,6 +17,7 @@ const props = defineProps({
 
 const emits = defineEmits<{
   (e: "onInput", newValue: number): void,
+  (e: "onSet", newValue: number): void,
 }>();
 
 watch(props, () => {
@@ -39,11 +39,17 @@ onMounted(() => {
   input.value.value = props.value == -1 ? props.max / 2 : props.value;
   setPosition();
   input.value.addEventListener("input", () => {
+    setPosition();
     if (settings.haptic) {
       clearTimeout(timeout);
-      timeout = setTimeout(() => navigator.vibrate(5), 10);
+      timeout = setTimeout(() => settings.vibrate(), 10);
     }
-    setPosition();
+  });
+  input.value.addEventListener("mouseup", () => {
+    emits("onSet", input.value.value);
+  });
+  input.value.addEventListener("touchend", () => {
+    emits("onSet", input.value.value);
   });
 });
 
@@ -140,4 +146,5 @@ input::-webkit-slider-thumb {
 .v-enter-active .progress,
 .v-leave-active .progress {
   transition: var(--transition-m);
-}</style>
+}
+</style>

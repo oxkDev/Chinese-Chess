@@ -1,15 +1,14 @@
 <script setup lang="ts">
 import SequenceTransition from '@/components/SequenceTransition.vue';
-import { Settings } from '@/store';
 import { ref, onMounted, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { useStore } from 'vuex';
+import { useStore } from '@/store';
 
 const router = useRouter();
 const route = useRoute();
 const store = useStore();
 
-const settings: Settings = store.state.settings;
+const settings = store.getSettings;
 
 const props = defineProps<{
   title: string,
@@ -39,7 +38,7 @@ onMounted(() => {
     show.value = e[0].isIntersecting;
     if (show.value && route.hash != `#${props.title}`) {
       router.push(`#${props.title}`);
-      settings.vibrate();
+      store.feedback();
     }
   }, {
     root: section.value.parentElement,

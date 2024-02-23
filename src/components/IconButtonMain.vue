@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { Settings } from '@/store';
-import { useStore } from 'vuex';
+import { useStore } from '@/store';
 import IconMain from './IconMain.vue';
 
-const settings: Settings = useStore().getters.settings;
+const store = useStore();
 
 const props = defineProps<{
   name?: string,
@@ -23,12 +22,12 @@ const rotate = ["cross", "restart", "settings 1", "undo"];
 </script>
 
 <template>
-  <button v-if="type == 'button'" :onclick="() => { emits('click'); settings.vibrate(); }"
+  <button v-if="type == 'button'" :onclick="() => { emits('click'); store.feedback(); }"
     :active="String(props.active) != 'route' ? !!props.active : ''" :disable="!!props.disable" class="icon-button-main">
     <icon-main :icon="icon" :class="`buttonIcon ${rotate.indexOf(props.icon) != -1 ? 'rotate' : ''} ${big ? 'big' : ''}`"
       ref="svg" />
   </button>
-  <router-link v-else :onclick="() => settings.vibrate()" :active="String(props.active) != 'route' ? !!props.active : ''"
+  <router-link v-else :onclick="() => store.feedback()" :active="String(props.active) != 'route' ? !!props.active : ''"
     :disable="!!props.disable" :to="to ? to : ''" class="icon-button-main">
     <icon-main :icon="icon" :class="`${rotate.indexOf(props.icon) != -1 ? 'rotate' : ''} ${big ? 'big' : ''}`"
       ref="svg" />

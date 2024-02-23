@@ -1,11 +1,11 @@
-import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
+import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router';
 import AccountView from '@/views/AccountView.vue';
 import HomeView from '@/views/HomeView.vue';
 import SettingsView from '@/views/SettingsView.vue';
 import TwoPlayerView from '@/views/TwoPlayerView.vue';
 import SavedGamesView from '@/views/SavedGamesView.vue';
 import GamePlayView from '@/views/GamePlayView.vue';
-import { useStore } from 'vuex';
+import { useStore } from '@/store';
 
 const homeFooter = {
   "account": "/account",
@@ -80,7 +80,7 @@ const routes: Array<RouteRecordRaw> = [
 ];
 
 const router = createRouter({
-  history: createWebHistory(process.env.BASE_URL),
+  history: createWebHistory(import.meta.env.BASE_URL),
   routes,
   scrollBehavior(to, from, savedPosition) {
     if (savedPosition) return savedPosition;
@@ -98,9 +98,9 @@ router.beforeEach((to, from, next) => {
 
   const store = useStore();
 
-  if (store.getters.isPlaying && to.path.indexOf('game-play') == -1)
+  if (store.isPlaying && to.path.indexOf('game-play') == -1)
     next({ name: 'Game Play' });
-  else if (to.path.indexOf('game-play') != -1 && !store.getters.game)
+  else if (to.path.indexOf('game-play') != -1 && !store.getGame)
     next({ name: '2 Player' });
   else
     next();

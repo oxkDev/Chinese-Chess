@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { onBeforeUnmount, ref } from 'vue';
 import SliderMain from '@/components/mains/SliderMain.vue';
-import { Settings } from '@/store';
-import { useStore } from 'vuex';
+import { useStore } from '@/store';
 
-const settings: Settings = useStore().getters.settings;
+const settings = useStore().getSettings;
 
 const props = defineProps({
   name: String,

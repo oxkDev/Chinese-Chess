@@ -1,0 +1,128 @@
+@import './base.css';
+#app {
+  width: 100vw;
+  height: 100vh;
+  text-align: center;
+}
+
+#main {
+  height: 100%;
+  max-width: 300px;
+  margin: auto;
+  padding: 0 30px;
+}
+
+#title {
+  width: 100%;
+  max-width: 300px;
+  height: 30px;
+  margin: auto;
+  overflow: hidden;
+  position: fixed;
+  top: 15%;
+  z-index: 100;
+}
+
+footer {
+  width: 100%;
+  position: fixed;
+  bottom: 0px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 10;
+}
+
+nav.navbar {
+  margin: 10px;
+  display: flex;
+  justify-content: space-around;
+  border-radius: 20px;
+  background-color: var(--background-primary-translucent);
+}
+
+body.blur-m nav.navbar {
+  backdrop-filter: var(--blur-m);
+}
+
+nav.navbar.main {
+  margin: 10px auto;
+}
+
+.v-enter-active *,
+.v-enter-active.blur,
+.v-leave-active.blur,
+.title-enter-active * {
+  transition: var(--transition-l);
+}
+
+.v-leave-active *,
+.title-leave-active *,
+.footer-nav-enter-active,
+.footer-nav-leave-active,
+.footer-nav-move {
+  transition: var(--transition-m);
+}
+
+.footer-nav-leave-active {
+  position: absolute;
+}
+
+.v-enter-from .footer nav,
+.v-leave-to .footer nav {
+  opacity: 0;
+  transform: scale(.9);
+}
+
+.v-enter-from.blur,
+.v-leave-to.blur {
+  filter: var(--blur-l);
+  opacity: 0;
+}
+
+.title-enter-from {
+  opacity: 0;
+  transform: translateY(-30px);
+}
+
+.title-leave-to {
+  height: 0px;
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+h1 {
+  font: var(--font-title);
+  letter-spacing: 5px;
+  /* margin-right: -5px; */
+  text-transform: uppercase;
+  text-align: left;
+}
+
+h2 {
+  height: 30px;
+  font: var(--font-heading-1);
+  letter-spacing: 3px;
+  /* margin-right: -3px; */
+  text-transform: uppercase;
+}
+
+h3 {
+  height: 30px;
+  font: var(--font-label);
+  letter-spacing: 2px;
+  /* margin-right: -2px; */
+  text-transform: capitalize;
+  text-align: left;
+}
+
+p {
+  height: 20px;
+  font: var(--font-subtitle);
+  letter-spacing: 1px;
+  /* margin-right: -1px; */
+}
+
+b {
+  font-weight: 500;
+}

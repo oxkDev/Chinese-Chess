@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { Settings } from '@/store';
 import { onMounted, ref, watch } from 'vue';
-import { useStore } from 'vuex';
+import { useStore } from '@/store';
 
-const settings: Settings = useStore().state.settings;
+const store = useStore();
 
 const input = ref();
 const width = ref(36);
@@ -40,9 +39,9 @@ onMounted(() => {
   setPosition();
   input.value.addEventListener("input", () => {
     setPosition();
-    if (settings.haptic) {
+    if (store.settings.haptic) {
       clearTimeout(timeout);
-      timeout = parseInt(setTimeout(() => settings.vibrate(), 10).toString());
+      timeout = parseInt(setTimeout(() => store.feedback(), 10).toString());
     }
   });
   input.value.addEventListener("mouseup", () => {

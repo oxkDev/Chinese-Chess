@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import ButtonMain from '@/components/mains/ButtonMain.vue'; // @ is an alias to /src
-import { useStore } from 'vuex';
-import { Settings } from '@/store';
+import { useStore } from '@/store';
 
-const settings: Settings = useStore().getters.settings;
+const settings = useStore().getSettings;
 
 const account = ref();
 

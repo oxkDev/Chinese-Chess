@@ -2,13 +2,12 @@
 import { useRouter } from 'vue-router';
 import { onMounted, ref } from 'vue';
 import ButtonMain from '@/components/mains/ButtonMain.vue'; // @ is an alias to /src
-import { useStore } from 'vuex';
-import { Settings } from '@/store';
+import { useStore } from '@/store';
 
 const router = useRouter();
 const store = useStore();
 
-const settings: Settings = store.getters.settings;
+const settings = store.getSettings;
 
 const home = ref();
 
@@ -24,7 +23,7 @@ onMounted(transitiondelays);
 
 <template>
   <div id="home" ref="home">
-    <button-main @click="if (store.getters.isPlaying) router.push('/game-play'); else router.push('/two-player');">2
+    <button-main @click="if (store.isPlaying) router.push('/game-play'); else router.push('/two-player');">2
       Player</button-main>
     <button-main>Online</button-main>
     <button-main>Computer</button-main>

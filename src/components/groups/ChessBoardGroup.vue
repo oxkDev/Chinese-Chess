@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import ChessPieceIcon from '@/components/ChessPieceIcon.vue';
-import { useStore } from 'vuex';
-import { Settings } from '@/store';
+import { useStore } from '@/store';
 
-const settings: Settings = useStore().getters.settings;
+const store = useStore(), settings = store.getSettings;
 
 const props = defineProps<{
   pieces: { [key: string]: number[] },
@@ -45,7 +44,7 @@ function onFocus(f: boolean, p: string) {
   if (f) {
     checkDisplay.value.piece = p;
     pieceCheck(p);
-    settings.vibrate();
+    store.feedback();
   } else if (checkDisplay.value.piece == p) {
     checkDisplay.value = { piece: "", moves: [], blocks: [] }
   }

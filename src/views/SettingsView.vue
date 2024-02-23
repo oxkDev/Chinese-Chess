@@ -6,19 +6,18 @@ import SwitchGroup from '@/components/groups/SwitchGroup.vue';
 import IconButtonMain from '@/components/IconButtonMain.vue';
 import ColourThemeIcon from '@/components/ColourThemeIcon.vue';
 import { useRoute } from 'vue-router';
-import { useStore } from 'vuex';
+import { useStore } from '@/store';
 import { ref, watch } from 'vue';
 import { ColourTheme, colourThemes } from '@/store/themes';
-import { Settings } from '@/store';
 import router from '@/router';
 
 const route = useRoute();
 const store = useStore();
-const settings = ref(store.getters.settings as Settings);
+const settings = ref(store.getSettings);
 
 function setSetting(key: string, value: boolean | number | string | ColourTheme) {
   (settings.value as unknown as { [key: string]: boolean | number | string | ColourTheme })[key] = value;
-  store.commit("setSettings", settings.value);
+  store.setSettings(settings.value);
 }
 
 const sideNav = {

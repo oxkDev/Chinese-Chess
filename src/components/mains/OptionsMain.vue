@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { Settings } from '@/store';
 import { ref, onMounted } from 'vue';
-import { useStore } from 'vuex';
+import { useStore } from '@/store';
 
-const settings: Settings = useStore().getters.settings;
+const store = useStore();
 
 const props = defineProps<{
   options: string[],
@@ -31,7 +30,7 @@ onMounted(() => {
   setPosition();
   input.value.addEventListener("input", () => {
     setPosition();
-    settings.vibrate();
+    store.feedback();
   });
 })
 

@@ -1,18 +1,17 @@
 <script setup lang="ts">
 import SequenceTransition from '@/components/SequenceTransition.vue';
 import { onMounted, ref } from 'vue';
-import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
-import { BoardHist, GamePlayData, GameSettings, Pieces } from '@/store/chinese chess';
-import { Settings } from '@/store';
+import type { BoardHist, GamePlayData, GameSettings, Pieces } from '@/store/chinese chess';
+import { useStore } from '@/store';
 
 const router = useRouter();
 const store = useStore();
 
-const settings: Settings = store.getters.settings;
+const settings = store.getSettings;
 
 const saves = ref();
-const games = ref(store.getters.savedGames);
+const games = ref(store.getSavedGames);
 
 function transitionDelays() {
   let pieces = [];
@@ -47,9 +46,9 @@ function formatTimings(gameData: { settings: GameSettings, play: GamePlayData })
 }
 
 function start(gameKey: string) {
-  store.commit("playSavedGame", gameKey);
+  store.playSavedGame(gameKey);
   router.push('/game-play');
-  settings.vibrate(10);
+  store.feedback(10);
 }
 
 onMounted(transitionDelays);

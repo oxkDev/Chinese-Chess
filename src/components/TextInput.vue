@@ -1,5 +1,8 @@
 <script setup lang="ts">
+import { useStore } from '@/store';
 import { onMounted, ref } from 'vue';
+
+const store = useStore();
 
 defineProps<{
 	name?: string,
@@ -11,11 +14,15 @@ const input = ref();
 const value = ref("");
 
 onMounted(() => {
-	input.value.addEventListener("focusout", () => input.value.toggleAttribute("hasValue", input.value.value != ""));
+	input.value.addEventListener("focusout", () => {
+		input.value.toggleAttribute("hasValue", input.value.value != "");
+		store.feedback();
+	});
 	input.value.addEventListener("input", () => {
 		value.value = input.value.value;
 		input.value?.toggleAttribute("hasValue", value.value != "");
 	});
+	input.value.addEventListener("focusin", store.feedback);
 });
 </script>
 

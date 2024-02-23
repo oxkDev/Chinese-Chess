@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { Settings } from '@/store';
-import { useStore } from 'vuex';
+import { useStore } from '@/store';
 
-const settings: Settings = useStore().getters.settings;
+const store = useStore();
 
 defineProps<{
   name?: string,
@@ -18,7 +17,7 @@ const emits = defineEmits<{
 
 <template>
   <button :disabled="!!disable" class="button-main" :class="{ small }"
-    :onclick="(e: MouseEvent) => { if (!disable) { emits('click', e); settings.vibrate(10); } }">
+    :onclick="(e: MouseEvent) => { if (!disable) { emits('click', e); store.feedback(10); } }">
     <h2 id="text">
       <slot></slot>
     </h2>

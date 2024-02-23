@@ -1,6 +1,6 @@
-import { createStore } from 'vuex'
+import { defineStore } from 'pinia'
 import { ColourTheme } from './themes';
-import { GamePlayData, GameSettings } from './chinese chess';
+import { type GamePlayData, type GameSettings } from './chinese chess';
 
 export class Settings {
   colourTheme: ColourTheme;
@@ -39,10 +39,6 @@ export class Settings {
     this.positionAid = positionAid;
     this.stalemateAid = stalemateAid;
   }
-
-  vibrate(pattern: number | number[] = 5) {
-    if (this.haptic && navigator.vibrate) navigator.vibrate(pattern);
-  }
 }
 
 export class GameData {
@@ -59,7 +55,7 @@ export class GameData {
   }
 }
 
-export default createStore({
+export const useStore = defineStore('preferences', {
   state: () => {
     // localStorage.setItem("settings", "");
     const settings = localStorage.getItem("settings");
@@ -73,64 +69,68 @@ export default createStore({
       saves: (saves ? JSON.parse(saves) : {}) as { [key: string]: { settings: GameSettings, play: GamePlayData } },
     }
   },
-  mutations: {
-    setSettings(state, settings: Settings) {
-      state.settings = settings;
-      localStorage.setItem("settings", JSON.stringify(settings));
-    },
-    setGame(state, settings: GameSettings) {
-      state.game.settings = settings;
-      localStorage.setItem("game", JSON.stringify(state.game));
-    },
-    updateGame(state, playData: GamePlayData) {
-      if (playData && Object.keys(playData.boardHist).length > 1) {
-        state.game.play = playData;
-        if (Object.keys(state.saves).indexOf(playData.start) != -1) state.saves[playData.start].play = playData;
-      } else {
-        state.game.play = undefined;
-        if (Object.keys(state.saves).indexOf(playData.start) != -1) delete state.saves[playData.start];
-      }
-      localStorage.setItem("saves", JSON.stringify(state.saves));
-      localStorage.setItem("game", JSON.stringify(state.game));
-    },
-    endGame(state) {
-      if (state.game.play) {
-        if (Object.keys(state.saves).indexOf(state.game.play.start) != -1) delete state.saves[state.game.play.start];
-        localStorage.setItem("saves", JSON.stringify(state.saves));
-        state.game.play = undefined;
-        localStorage.setItem("game", JSON.stringify(state.game));
-      }
-    },
-    saveGame(state, game: GameData = state.game) {
-      if (game.play) state.saves[game.play.start] = { ...game } as { settings: GameSettings, play: GamePlayData };
-      state.game.play = undefined;
-      localStorage.setItem("game", JSON.stringify(state.game));
-      localStorage.setItem("saves", JSON.stringify(state.saves));
-    },
-    playSavedGame(state, key: string) {
-      if (Object.keys(state.saves).indexOf(key) != -1)
-        state.game = { ...state.saves[key] } as GameData;
-    }
-  },
   getters: {
-    isPlaying(state) {
+    isPlaying(state): boolean {
       return !!state.game.play && Object.keys(state.game.play.boardHist).length > 1;
     },
-    game(state) {
-      if (state.game.settings) return state.game;
-      else return false;
+    getGame(state): { settings: GameSettings, play?: GamePlayData } {
+      if (state.game.settings) return state.game as { settings: GameSettings, play?: GamePlayData };
+      else return { settings: {
+        type: '2 Player',
+        names: ['Home', 'Rival'],
+        gameDuration: 3600000,
+        turnDuration: 300000,
+        starter: Math.round(Math.random()) as 0 | 1,
+      } };
     },
-    settings(state) {
-      if (state.settings) return state.settings;
-      else return false;
-      // return { ...state.game.settings };
+    getSettings(state): Settings {
+      if (state.settings) return { ...state.settings };
+      else throw ("settings not found");
     },
-    savedGames(state) {
+    getSavedGames(state): { [key: string]: { settings: GameSettings, play: GamePlayData } } {
       return state.saves;
     }
   },
   actions: {
-  },
-  modules: {
+    setSettings(settings: Settings) {
+      this.settings = settings;
+      localStorage.setItem("settings", JSON.stringify(settings));
+    },
+    setGame(settings: GameSettings) {
+      this.game.settings = settings;
+      localStorage.setItem("game", JSON.stringify(this.game));
+    },
+    updateGame(playData: GamePlayData) {
+      if (playData && Object.keys(playData.boardHist).length > 1) {
+        this.game.play = playData;
+        if (Object.keys(this.saves).indexOf(playData.start) != -1) this.saves[playData.start].play = playData;
+      } else {
+        this.game.play = undefined;
+        if (Object.keys(this.saves).indexOf(playData.start) != -1) delete this.saves[playData.start];
+      }
+      localStorage.setItem("saves", JSON.stringify(this.saves));
+      localStorage.setItem("game", JSON.stringify(this.game));
+    },
+    endGame() {
+      if (this.game.play) {
+        if (Object.keys(this.saves).indexOf(this.game.play.start) != -1) delete this.saves[this.game.play.start];
+        localStorage.setItem("saves", JSON.stringify(this.saves));
+        this.game.play = undefined;
+        localStorage.setItem("game", JSON.stringify(this.game));
+      }
+    },
+    saveGame() {
+      if (this.game.play) this.saves[this.game.play.start] = { ...this.game } as { settings: GameSettings, play: GamePlayData };
+      this.game.play = undefined;
+      localStorage.setItem("game", JSON.stringify(this.game));
+      localStorage.setItem("saves", JSON.stringify(this.saves));
+    },
+    playSavedGame(key: string) {
+      if (Object.keys(this.saves).indexOf(key) != -1)
+        this.game = { ...this.saves[key] } as GameData;
+    },
+    feedback(pattern: number | number[] = 5) {
+      if (this.settings.haptic && navigator.vibrate) navigator.vibrate(pattern);
+    }
   }
 });

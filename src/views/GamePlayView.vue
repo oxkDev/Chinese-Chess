@@ -3,19 +3,17 @@ import IconButtonMain from "@/components/IconButtonMain.vue";
 import GameSettingsView from "./GameSettingsView.vue";
 import GameMenuView from "./GameMenuView.vue";
 import RequestGroup from "@/components/groups/RequestGroup.vue";
-import Board, { GamePlayData, GameSettings } from "@/store/chinese chess";
+import ChessBoardGroup from "@/components/groups/ChessBoardGroup.vue";
+import Board, { type GamePlayData, type GameSettings } from "@/store/chinese chess";
 import { onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from "vue-router";
-import { useStore } from 'vuex';
-import ChessBoardGroup from "@/components/groups/ChessBoardGroup.vue";
-import { Settings } from "@/store";
+import { useStore } from '@/store';
 
 const store = useStore();
 const route = useRoute();
 const router = useRouter();
 
-const settings: Settings = store.getters.settings;
-const gameData: { settings: GameSettings, play?: GamePlayData } = store.getters.game;
+const gameData: { settings: GameSettings, play?: GamePlayData } = store.getGame;
 const gameSettings: GameSettings = gameData.settings;
 const gamePlay = ref(new Board(gameSettings));
 const boardDisplay = ref(0);
@@ -58,10 +56,10 @@ function update(turn: 0 | 1 | number = gamePlay.value.turn.player) {
   requests.value[turn] = Number(gamePlay.value.turn.iteration > 0);
   requests.value[1 - turn] = 0;
   boardDisplay.value = gamePlay.value.turn.iteration;
-  store.commit("updateGame", gamePlay.value.getGame());
-  
-  if (stalemate.value.length) settings.vibrate([10, 150, 10]);
-  else settings.vibrate(5);
+  store.updateGame(gamePlay.value.getGame());
+
+  if (stalemate.value.length) store.feedback([10, 150, 10]);
+  else store.feedback(5);
 }
 
 function move(piece: string, coord: number[]) {
@@ -109,7 +107,7 @@ gamePlay.value.onWin = w => {
   actions.value = { moves: {}, blocks: {} };
   console.log("win:", w);
 
-  settings.vibrate([10, 150, 10, 150, 10]);
+  store.feedback([10, 150, 10, 150, 10]);
 }
 
 onMounted(() => {

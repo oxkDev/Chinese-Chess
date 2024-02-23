@@ -77,4 +77,4 @@ const emits = defineEmits<{
 .v-leave-to .colour-theme-icon {
 	transform: rotate(-90deg);
 }
-</style>@/store/themes
+</style>

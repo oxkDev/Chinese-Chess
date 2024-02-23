@@ -26,7 +26,7 @@ watch(route, () => {
       if (section.value) timeout = setTimeout(() => {
         section.value.scrollIntoView({ behavior: "auto", inline: "nearest", block: "start" });
         show.value = true;
-      }, 5 * settings.animationSpeed);
+      }, 5 * settings.animationSpeed) as unknown as number;
     } else if (route.hash != `#${props.title}`) {
       show.value = false;
       // if (elm) timeout = setTimeout(() => elm?.scrollIntoView({ behavior: "auto", inline: "nearest", block: "end" }), 5 * settings.animationSpeed);

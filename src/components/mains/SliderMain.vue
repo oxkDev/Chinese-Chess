@@ -33,16 +33,16 @@ function setPosition() {
   width.value = input.value.value / props.max;
 }
 
-let timeout = 0;
 
 onMounted(() => {
+  let timeout: number;
   input.value.value = props.value == -1 ? props.max / 2 : props.value;
   setPosition();
   input.value.addEventListener("input", () => {
     setPosition();
     if (settings.haptic) {
       clearTimeout(timeout);
-      timeout = setTimeout(() => settings.vibrate(), 10);
+      timeout = parseInt(setTimeout(() => settings.vibrate(), 10).toString());
     }
   });
   input.value.addEventListener("mouseup", () => {

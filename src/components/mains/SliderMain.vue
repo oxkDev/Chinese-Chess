@@ -27,21 +27,32 @@ watch(props, () => {
 });
 
 function setPosition() {
-  emits("onInput", input.value.value);
   // status.value = input.value.value;
   width.value = input.value.value / props.max;
 }
 
 
 onMounted(() => {
-  let timeout: number;
+  let timeouts = {
+    fb: 0,
+    pos: 0,
+  };
   input.value.value = props.value == -1 ? props.max / 2 : props.value;
-  setPosition();
+  width.value = input.value.value / props.max;
   input.value.addEventListener("input", () => {
-    setPosition();
-    if (store.settings.haptic) {
-      clearTimeout(timeout);
-      timeout = parseInt(setTimeout(() => store.feedback(), 10).toString());
+    emits("onInput", input.value.value);
+    if (!timeouts.fb && store.getSettings.haptic) {
+      timeouts.fb = setTimeout(() => {
+        timeouts.fb = 0;
+        store.feedback();
+      }, 10);
+    }
+    if (!timeouts.pos) {
+      setPosition();
+      timeouts.pos = setTimeout(() => {
+        timeouts.pos = 0;
+        setPosition();
+      }, 0.5 * store.getSettings.animationSpeed);
     }
   });
   input.value.addEventListener("mouseup", () => {
@@ -62,9 +73,8 @@ onMounted(() => {
 </template>
 
 <style scoped>
-.progress,
-input::-webkit-slider-thumb {
-  transition: var(--transition-s);
+.progress {
+  transition: width var(--transition-s), box-shadow var(--transition-m), background var(--transition-m);
 }
 
 .slider-main {

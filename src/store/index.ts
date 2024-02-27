@@ -47,24 +47,17 @@ export class GameData {
   constructor({ settings, play }: { settings?: GameSettings, play?: GamePlayData }) {
     this.settings = settings;
     this.play = play;
-
-    return {
-      settings: settings,
-      play: play,
-    }
   }
 }
 
-export const useStore = defineStore('preferences', {
+export const useStore = defineStore('localStorage', {
   state: () => {
     // localStorage.setItem("settings", "");
     const settings = localStorage.getItem("settings");
     const game = localStorage.getItem("game");
     const saves = localStorage.getItem("saves");
     return {
-      // settings: {
       settings: new Settings(JSON.parse(settings ? settings : "{}")),
-      // },
       game: new GameData(JSON.parse(game ? game : "{}")),
       saves: (saves ? JSON.parse(saves) : {}) as { [key: string]: { settings: GameSettings, play: GamePlayData } },
     }
@@ -75,30 +68,45 @@ export const useStore = defineStore('preferences', {
     },
     getGame(state): { settings: GameSettings, play?: GamePlayData } {
       if (state.game.settings) return state.game as { settings: GameSettings, play?: GamePlayData };
-      else return { settings: {
-        type: '2 Player',
-        names: ['Home', 'Rival'],
-        gameDuration: 3600000,
-        turnDuration: 300000,
-        starter: Math.round(Math.random()) as 0 | 1,
-      } };
+      else return {
+        settings: {
+          type: '2 Player',
+          names: ['Home', 'Rival'],
+          gameDuration: 3600000,
+          turnDuration: 300000,
+          starter: Math.round(Math.random()) as 0 | 1,
+        }
+      };
     },
     getSettings(state): Settings {
-      if (state.settings) return { ...state.settings };
-      else throw ("settings not found");
+      return state.settings;
     },
     getSavedGames(state): { [key: string]: { settings: GameSettings, play: GamePlayData } } {
       return state.saves;
     }
   },
   actions: {
+    saveLocalStorage(...item: ("settings" | "game" | "saves")[]) {
+      const iterateItems = item ? item : ["settings", "game", "saves"];
+      for (const key of iterateItems)
+        localStorage.setItem(key, JSON.stringify(this[key as "settings" | "game" | "saves"]));
+    },
+    updateLocalStorage() {
+      const settings = localStorage.getItem("settings");
+      const game = localStorage.getItem("game");
+      const saves = localStorage.getItem("saves");
+
+      this.settings = new Settings(JSON.parse(settings ? settings : "{}"));
+      this.game = new GameData(JSON.parse(game ? game : "{}"));
+      this.saves = (saves ? JSON.parse(saves) : {});
+    },
     setSettings(settings: Settings) {
       this.settings = settings;
-      localStorage.setItem("settings", JSON.stringify(settings));
+      this.saveLocalStorage("settings");
     },
     setGame(settings: GameSettings) {
       this.game.settings = settings;
-      localStorage.setItem("game", JSON.stringify(this.game));
+      this.saveLocalStorage("game");
     },
     updateGame(playData: GamePlayData) {
       if (playData && Object.keys(playData.boardHist).length > 1) {
@@ -108,22 +116,19 @@ export const useStore = defineStore('preferences', {
         this.game.play = undefined;
         if (Object.keys(this.saves).indexOf(playData.start) != -1) delete this.saves[playData.start];
       }
-      localStorage.setItem("saves", JSON.stringify(this.saves));
-      localStorage.setItem("game", JSON.stringify(this.game));
+        this.saveLocalStorage("game", "saves");
     },
     endGame() {
       if (this.game.play) {
         if (Object.keys(this.saves).indexOf(this.game.play.start) != -1) delete this.saves[this.game.play.start];
-        localStorage.setItem("saves", JSON.stringify(this.saves));
         this.game.play = undefined;
-        localStorage.setItem("game", JSON.stringify(this.game));
+        this.saveLocalStorage("game", "saves");
       }
     },
     saveGame() {
       if (this.game.play) this.saves[this.game.play.start] = { ...this.game } as { settings: GameSettings, play: GamePlayData };
       this.game.play = undefined;
-      localStorage.setItem("game", JSON.stringify(this.game));
-      localStorage.setItem("saves", JSON.stringify(this.saves));
+      this.saveLocalStorage("game", "saves");
     },
     playSavedGame(key: string) {
       if (Object.keys(this.saves).indexOf(key) != -1)
@@ -134,3 +139,7 @@ export const useStore = defineStore('preferences', {
     }
   }
 });
+
+addEventListener("storage", () => {
+  useStore().updateLocalStorage();
+})

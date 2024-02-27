@@ -45,9 +45,9 @@ onMounted(() => {
 
 <template>
   <div class="chess-piece-icon" :isPiece="type != ''" tabindex="0"
-    :class="{active: focus, mark: (danger && active && type[0] == 'J') || attacker, rotate}"
+    :class="{ active: focus, mark: (danger && active && type[0] == 'J') || attacker, rotate }"
     :player="type[type.length - 1]" :draggable="type != ''" ref="piece">
-    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" ref="Svg">
+    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="piece-icon-svg" ref="Svg">
       <path v-if="type == 'B0'" id="B0"
         d="M4.5 14.5H7M19.5 14.5H12.5M7 9.5V14.5M7 9.5V7.34713C7 6.85829 7.35341 6.4411 7.8356 6.36073L16 5M7 9.5H12.5M12.5 14.5H7M12.5 14.5V9.5M17 9.5H12.5M7 19L9.5 16.5C10 16 10 15.5 10 15.5M17 19L14.5 16.5" />
       <path v-else-if="type == 'B1'" id="B1"
@@ -77,6 +77,9 @@ onMounted(() => {
         d="M7 15L13.5 12.5M12 10.5C12 10.5 13 11 13.5 12.5M11.5 19H13C13.5523 19 14 18.5523 14 18V15M15.5 4L13.5 6M13.5 12.5C13.5 12.5 14 14 14 15M13.5 6.5H9C8.44772 6.5 8 6.94772 8 7.5V8C8 8.55228 8.44772 9 9 9H12.5M13.5 6.5H16.5C17.0523 6.5 17.5 6.94772 17.5 7.5V8C17.5 8.55228 17.0523 9 16.5 9H12.5M13.5 6.5L12.5 9M12.5 9C12.5 9 11.5 11 10 11.5L6 13M10.5 3.5L9.5 4.5M15 4.5H9.5M9.5 4.5C9.5 4.5 8 6 7.5 6.5C7 7 6.5 7.25 5.5 7.5M7 17.5L14 15M19 17.5H18.4117C18.148 17.5 17.8949 17.3958 17.7076 17.2101L14.6809 14.2093C14.2032 13.7358 14.3199 12.9351 14.9129 12.6176L17 11.5" />
       <circle cx="12" cy="12" r="11.5" />
     </svg>
+    <svg viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg" class="outline-svg">
+      <circle cx="15" cy="15" class="outline-circle" />
+    </svg>
   </div>
 </template>
 
@@ -89,15 +92,45 @@ onMounted(() => {
   display: flex;
   justify-content: center;
   align-items: center;
+  position: relative;
   border-radius: 100%;
   box-shadow: var(--icon-shadow);
   outline: transparent solid 5px;
 }
 
+.chess-piece-icon>.outline-svg {
+  width: 100%;
+  height: 100%;
+  transform: scale(1.175);
+  border-radius: 100%;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+}
+
+.chess-piece-icon .outline-circle {
+  r: 10;
+  stroke: transparent;
+  stroke-width: 0px;
+}
+
+.chess-piece-icon.active .outline-circle,
+.chess-piece-icon.mark .outline-circle {
+  r: 14;
+  stroke: var(--translucent-less);
+}
+
+.chess-piece-icon.active>.outline-svg>.outline-circle {
+  stroke-width: 2px;
+  /* stroke: black; */
+}
+
+.chess-piece-icon.mark .outline-circle {
+  stroke-width: 1px;
+}
+
 .chess-piece-icon[isPiece="true"][player="1"] {
   background: var(--piece-rival-background);
-  /* outline: solid var(--generic) 3px;
-  outline-offset: -7px; */
 }
 
 .chess-piece-icon.rotate[player="1"] {
@@ -106,36 +139,20 @@ onMounted(() => {
 
 .chess-piece-icon[isPiece="true"][player="0"] {
   background: var(--piece-home-background);
-  /* outline: solid var(--primary) 3px;
-  outline-offset: -7px; */
 }
 
 .chess-piece-icon.active[isPiece="true"],
 .chess-piece-icon.mark {
   box-shadow: var(--default-glow);
-  outline-color: var(--translucent-less);
-  outline-offset: 3px;
 }
 
-.chess-piece-icon.mark:not(.active) {
-  outline-offset: 5px;
-  outline-width: 3px;
-}
-
-.chess-piece-icon[isPiece="true"][player="0"] svg {
+.chess-piece-icon[isPiece="true"][player="0"] svg.piece-icon-svg {
   stroke: var(--piece-home-colour);
 }
 
-svg {
+svg.piece-icon-svg {
   height: 85%;
   aspect-ratio: 1;
-  /* max-height: calc(60vh/9);
-  min-height: 15px; */
-  /* width: 8vw; */
-  /* max-width: calc(60vh/9); */
-  /* min-width: 15px; */
-  /* padding: 7px; */
-  /* margin: 5px; */
   filter: drop-shadow(var(--type-shadow));
   stroke: var(--piece-rival-colour);
 }

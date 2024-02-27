@@ -14,7 +14,8 @@ const route = useRoute();
 const router = useRouter();
 
 const gameData: { settings: GameSettings, play?: GamePlayData } = store.getGame;
-const gameSettings: GameSettings = gameData.settings;
+const gameSettings = gameData.settings;
+const rotate = ref(gameSettings.type == "2 Player");
 const gamePlay = ref(new Board(gameSettings));
 const boardDisplay = ref(0);
 
@@ -138,7 +139,7 @@ onMounted(() => {
         <h2>{{ timings[1].game }}</h2>
         <h2>{{ timings[1].turn }}</h2>
       </div>
-      <chess-board-group :pieces="gamePlay.boardHist[boardDisplay].board" :turn="gamePlay.turn.player as (0 | 1)"
+      <chess-board-group :pieces="gamePlay.boardHist[boardDisplay].board" :turn="gamePlay.turn.player" :rotateOpponent="rotate"
         :actions="boardDisplay == gamePlay.turn.iteration ? actions : { moves: {}, blocks: {} }" :stalemate="stalemate"
         @move="(piece, coord) => move(piece, coord)"
         :onclick="() => { if (!gamePlay.winner) boardDisplay = gamePlay.turn.iteration; }" />

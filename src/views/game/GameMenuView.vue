@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import IconButtonMain from '@/components/IconButtonMain.vue';
-import SettingsView from './SettingsView.vue';
+import SettingsView from '@/views/SettingsView.vue';
 import ButtonMain from '@/components/mains/ButtonMain.vue';
 import { useRouter } from 'vue-router';
 import { useStore } from '@/store';

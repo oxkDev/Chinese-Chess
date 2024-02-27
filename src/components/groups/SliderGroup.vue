@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeUnmount, ref } from 'vue';
+import { ref } from 'vue';
 import SliderMain from '@/components/mains/SliderMain.vue';
 import { useStore } from '@/store';
 
@@ -24,23 +24,27 @@ const output = ref(0);
 
 let interv = 0;
 
-function update(newValue: number, intervalDuration: number = Math.round(props.duration / Math.abs(output.value - newValue))) {
-  emits("update", newValue);
+function update(newValue: number) {
   clearInterval(interv);
-
-  let step = props.step;
   newValue = parseInt(newValue.toString());
-
+  
   if (settings.animationSpeed == 0) {
     output.value = newValue;
     return;
-  } else {
-    intervalDuration *= settings.animationSpeed / 100;
   }
 
-  if (intervalDuration < 10 && intervalDuration > 0) {
-    step *= Math.ceil(10 / intervalDuration);
-    intervalDuration *= step;
+  let step = props.step;
+  let intervalDuration = Math.round((props.duration * settings.animationSpeed / 100) * step / Math.abs(output.value - newValue) );
+
+  if (intervalDuration <= 0) {
+    output.value = newValue;
+    return;
+  }
+
+  if (intervalDuration < 50) {
+    const multiple = Math.ceil(50 / intervalDuration);
+    step *= multiple;
+    intervalDuration = 50;
   }
 
   const intervFunc = () => {
@@ -56,10 +60,7 @@ function update(newValue: number, intervalDuration: number = Math.round(props.du
   }
 }
 
-onBeforeUnmount(() => {
-  output.value = 0;
-});
-
+update(props.value);
 </script>
 
 <template>
@@ -69,10 +70,10 @@ onBeforeUnmount(() => {
       <p v-if="props.options[output]" class="slider-reading"><b>{{ props.options[output] }}</b></p>
       <p v-else class="slider-reading"><b>{{ output }}</b> {{ unit }}</p>
     </label>
-    <slider-main class="slider" :id="name?.toLowerCase()" :max="max" :value="value" @on-input="update"
-      @on-set="v => emits('set', v)" :step="step"></slider-main>
+    <slider-main class="slider" :id="name?.toLowerCase()" :max="max" :value="value"
+      @on-input="v => { emits('update', v); update(v); }" @on-set="v => emits('set', v)" :step="step"></slider-main>
     <p class="slider-label-wrap">
-      <datalist :id=" name?.toLowerCase() " class="slider-labels">
+      <datalist :id="name?.toLowerCase()" class="slider-labels">
         <slot></slot>
       </datalist>
     </p>
@@ -91,6 +92,10 @@ onBeforeUnmount(() => {
   justify-content: space-between;
   align-items: center;
   overflow: hidden;
+}
+
+.slider-title {
+  min-width: 50%;
 }
 
 .slider-label-wrap {
@@ -121,7 +126,7 @@ datalist.slider-labels * {
 
 .v-enter-from .slider-reading,
 .v-leave-to .slider-reading {
-  transform: translateX(50%);
+  transform: translateX(100%);
   opacity: 0;
 }
 

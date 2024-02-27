@@ -7,9 +7,10 @@ const store = useStore(), settings = store.getSettings;
 
 const props = defineProps<{
   pieces: { [key: string]: number[] },
-  turn: 0 | 1,
+  turn: 0 | 1 | number,
   actions: { moves: { [key: string]: number[][] }, blocks: { [key: string]: number[][] } },
   stalemate: string[],
+  rotateOpponent: boolean,
 }>();
 
 const emits = defineEmits<{
@@ -57,7 +58,7 @@ function onFocus(f: boolean, p: string) {
     <transition-group name="pieces" tag="div" class="board-grid-wrap">
       <div v-for="(piece, i) in getPositions()" :key="piece ? piece : i" class="position">
         <chess-piece-icon v-if="piece != ''" :type="piece[0] + piece[piece.length - 1]"
-          :coord="[Math.floor(i / 9), i % 9]" :rotate="true" :active="turn.toString() == piece[piece.length - 1]"
+          :coord="[Math.floor(i / 9), i % 9]" :rotate="!(rotateOpponent === false)" :active="turn.toString() == piece[piece.length - 1]" :tester="rotateOpponent"
           :danger="stalemate.length > 0 && settings.stalemateAid"
           :attacker="stalemate.indexOf(piece) != -1 && settings.stalemateAid" @focus="f => onFocus(f, piece)"
           class="chess-piece" />
@@ -203,7 +204,7 @@ function onFocus(f: boolean, p: string) {
 }
 
 .blocked-move[kill="true"] {
-  background: var(--contrast)
+  background: var(--contrast);
 }
 
 .board-lines {

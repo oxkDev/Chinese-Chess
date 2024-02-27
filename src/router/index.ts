@@ -4,7 +4,7 @@ import HomeView from '@/views/HomeView.vue';
 import SettingsView from '@/views/SettingsView.vue';
 import TwoPlayerView from '@/views/TwoPlayerView.vue';
 import SavedGamesView from '@/views/SavedGamesView.vue';
-import GamePlayView from '@/views/GamePlayView.vue';
+import GamePlayView from '@/views/game/GamePlayView.vue';
 import { useStore } from '@/store';
 
 const homeFooter = {

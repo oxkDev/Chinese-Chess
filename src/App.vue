@@ -7,7 +7,7 @@ import { useStore } from "./store";
 const route = useRoute();
 const store = useStore();
 
-const settings = ref(store.getSettings);
+let settings = ref({ ...store.getSettings });
 
 const styleElm = document.createElement("style");
 document.head.appendChild(styleElm);
@@ -60,7 +60,10 @@ function setSettingsRules() {
 
 setSettingsRules();
 
-watch(settings.value, () => {
+console.log("reload");
+
+watch(store, () => {
+  settings.value = store.getSettings;
   styleElmSheet?.deleteRule(0);
   setSettingsRules();
 });

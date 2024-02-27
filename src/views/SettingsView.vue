@@ -16,7 +16,7 @@ const store = useStore();
 const settings = ref(store.getSettings);
 
 function setSetting(key: string, value: boolean | number | string | ColourTheme) {
-  (settings.value as unknown as { [key: string]: boolean | number | string | ColourTheme })[key] = value;
+  (settings.value as { [key: string]: boolean | number | string | ColourTheme })[key] = value;
   store.setSettings(settings.value);
 }
 
@@ -30,7 +30,6 @@ const sideNav = {
 watch(route, () => {
   if (Object.values(sideNav).indexOf(route.hash) == -1) router.push(sideNav.appearance);
 });
-
 </script>
 
 <template>

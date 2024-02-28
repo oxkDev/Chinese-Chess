@@ -7,14 +7,14 @@ import ChessBoardGroup from "@/components/groups/ChessBoardGroup.vue";
 import Board, { type GamePlayData, type GameSettings } from "@/store/chinese chess";
 import { onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from "vue-router";
-import { useStore } from '@/store';
+import { useGameStore, useUserStore } from "@/store";
 
-const store = useStore();
+const gameStore = useGameStore(), userStore = useUserStore();
 const route = useRoute();
 const router = useRouter();
 
-const gameData: { settings: GameSettings, play?: GamePlayData } = store.getGame;
-const gameSettings = gameData.settings;
+const playData: { settings: GameSettings, game?: GamePlayData } = gameStore.getGame;
+const gameSettings = playData.settings;
 const rotate = ref(gameSettings.type == "2 Player");
 const gamePlay = ref(new Board(gameSettings));
 const boardDisplay = ref(0);
@@ -57,10 +57,10 @@ function update(turn: 0 | 1 | number = gamePlay.value.turn.player) {
   requests.value[turn] = Number(gamePlay.value.turn.iteration > 0);
   requests.value[1 - turn] = 0;
   boardDisplay.value = gamePlay.value.turn.iteration;
-  store.updateGame(gamePlay.value.getGame());
+  gameStore.updateGame(gamePlay.value.getGame());
 
-  if (stalemate.value.length) store.feedback([10, 150, 10]);
-  else store.feedback(5);
+  if (stalemate.value.length) userStore.feedback([10, 150, 10]);
+  else userStore.feedback(5);
 }
 
 function move(piece: string, coord: number[]) {
@@ -108,12 +108,12 @@ gamePlay.value.onWin = w => {
   actions.value = { moves: {}, blocks: {} };
   console.log("win:", w);
 
-  store.feedback([10, 150, 10, 150, 10]);
+  userStore.feedback([10, 150, 10, 150, 10]);
 }
 
 onMounted(() => {
-  gamePlay.value.start(gameData.play);
-  if (gameData.play) {
+  gamePlay.value.start(playData.game);
+  if (playData.game) {
     update();
     if (JSON.stringify(actions.value.moves) == '{}') gamePlay.value.win(1 - gamePlay.value.turn.player);
   }
@@ -139,9 +139,9 @@ onMounted(() => {
         <h2>{{ timings[1].game }}</h2>
         <h2>{{ timings[1].turn }}</h2>
       </div>
-      <chess-board-group :pieces="gamePlay.boardHist[boardDisplay].board" :turn="gamePlay.turn.player" :rotateOpponent="rotate"
-        :actions="boardDisplay == gamePlay.turn.iteration ? actions : { moves: {}, blocks: {} }" :stalemate="stalemate"
-        @move="(piece, coord) => move(piece, coord)"
+      <chess-board-group :pieces="gamePlay.boardHist[boardDisplay].board" :turn="gamePlay.turn.player"
+        :rotateOpponent="rotate" :actions="boardDisplay == gamePlay.turn.iteration ? actions : { moves: {}, blocks: {} }"
+        :stalemate="stalemate" @move="(piece, coord) => move(piece, coord)"
         :onclick="() => { if (!gamePlay.winner) boardDisplay = gamePlay.turn.iteration; }" />
       <div class="timing">
         <h2>{{ timings[0].game }}</h2>

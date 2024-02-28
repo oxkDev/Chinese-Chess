@@ -24,27 +24,42 @@ export default defineConfig({
         description: "This is a test",
         theme_color: "#232527",
         background_color: "#232527",
-        display: "standalone",
         icons: [
+          // {
+          //   src: 'img/icons/favicon-jiang (dark)(32x32).png',
+          //   sizes: '32x32',
+          //   type: 'image/png'
+          // },
+          // {
+          //   src: 'img/icons/appicon-jiang (dark)(192x192).png',
+          //   sizes: '192x192',
+          //   type: 'image/png'
+          // },
+          // {
+          //   src: 'img/icons/appicon-jiang (dark)(512x512).png',
+          //   sizes: '512x512',
+          //   type: 'image/png'
+          // },
           {
-            src: 'img/icons/favicon-jiang (dark)(32x32).png',
-            sizes: '32x32',
+            src: 'pwa-64x64.png',
+            sizes: '64x64',
             type: 'image/png'
           },
           {
-            src: 'img/icons/appicon-jiang (dark)(152x152).png',
-            sizes: '152x152',
-            type: 'image/png'
-          },
-          {
-            src: 'img/icons/appicon-jiang (dark)(192x192).png',
+            src: 'pwa-192x192.png',
             sizes: '192x192',
             type: 'image/png'
           },
           {
-            src: 'img/icons/appicon-jiang (dark)(512x512).png',
+            src: 'pwa-512x512.png',
             sizes: '512x512',
-            type: 'image/png'
+            type: 'image/png',
+          },
+          {
+            src: 'mask-icon.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'maskable',
           },
         ]
       }

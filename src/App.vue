@@ -2,12 +2,12 @@
 import IconButtonMain from "@/components/IconButtonMain.vue";
 import { ref, watch } from "vue";
 import { useRoute } from "vue-router";
-import { useStore } from "./store";
+import { useUserStore } from "./store";
 
 const route = useRoute();
-const store = useStore();
+const userStore = useUserStore();
 
-let settings = ref({ ...store.getSettings });
+let settings = ref({ ...userStore.getSettings });
 
 const styleElm = document.createElement("style");
 document.head.appendChild(styleElm);
@@ -62,8 +62,8 @@ setSettingsRules();
 
 console.log("reload");
 
-watch(store, () => {
-  settings.value = store.getSettings;
+watch(userStore, () => {
+  settings.value = userStore.getSettings;
   styleElmSheet?.deleteRule(0);
   setSettingsRules();
 });

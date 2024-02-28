@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { useStore } from '@/store';
+import { useUserStore } from '@/store';
 
-const store = useStore();
+const userStore = useUserStore();
 
 defineProps<{
   name?: string,
@@ -17,7 +17,7 @@ const emits = defineEmits<{
 
 <template>
   <button :disabled="!!disable" class="button-main" :class="{ small }"
-    :onclick="(e: MouseEvent) => { if (!disable) { emits('click', e); store.feedback(10); } }">
+    :onclick="(e: MouseEvent) => { if (!disable) { emits('click', e); userStore.feedback(10); } }">
     <h2 id="text">
       <slot></slot>
     </h2>

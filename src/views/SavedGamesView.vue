@@ -3,15 +3,16 @@ import SequenceTransition from '@/components/SequenceTransition.vue';
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import type { BoardHist, GamePlayData, GameSettings, Pieces } from '@/store/chinese chess';
-import { useStore } from '@/store';
+import { useGameStore, useUserStore } from '@/store';
 
 const router = useRouter();
-const store = useStore();
+const gameStore = useGameStore();
+const userStore = useUserStore();
 
-const settings = store.getSettings;
+const settings = userStore.getSettings;
 
 const saves = ref();
-const games = ref(store.getSavedGames);
+const games = ref(gameStore.getSavedGames);
 
 function transitionDelays() {
   let pieces = [];
@@ -30,9 +31,9 @@ function getBoard(boardHist: BoardHist): Pieces {
   return pieces ? pieces : {};
 }
 
-function formatTimings(gameData: { settings: GameSettings, play: GamePlayData }): string[] {
+function formatTimings(gameData: { settings: GameSettings, game: GamePlayData }): string[] {
   const duration = gameData.settings.gameDuration;
-  let timer = gameData.play.timer;
+  let timer = gameData.game.timer;
   if (duration > 0) timer = { 0: duration - timer[0], 1: duration - timer[1] };
   let out = [];
   for (const i in timer) {
@@ -46,9 +47,9 @@ function formatTimings(gameData: { settings: GameSettings, play: GamePlayData })
 }
 
 function start(gameKey: string) {
-  store.playSavedGame(gameKey);
+  gameStore.playSavedGame(gameKey);
   router.push('/game-play');
-  store.feedback(10);
+  userStore.feedback(10);
 }
 
 onMounted(transitionDelays);
@@ -86,7 +87,7 @@ onMounted(transitionDelays);
           <path d="M5 45L85 45" stroke-linecap="round" stroke-linejoin="round" />
           <path d="M5 55L85 55" stroke-linecap="round" stroke-linejoin="round" />
           <path d="M35 75H55" stroke-linecap="round" stroke-linejoin="round" />
-          <g v-for="(coord, k) in getBoard(gameData.play.boardHist)" :key="k"
+          <g v-for="(coord, k) in getBoard(gameData.game.boardHist)" :key="k"
             :player="k.toString().charAt(k.toString().length - 1)" class="piece-wrap">
             <circle :cx="5 + 10 * coord[0]" :cy="95 - 10 * coord[1]" r="4.5" class="piece-background" />
             <circle :cx="5 + 10 * coord[0]" :cy="95 - 10 * coord[1]" r="3" class="mark" />

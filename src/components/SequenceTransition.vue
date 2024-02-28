@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { useStore } from '@/store';
+import { useUserStore } from '@/store';
 
-const settings = useStore().getSettings;
+const settings = useUserStore().getSettings;
 
 const props = defineProps({
   interval: { type: Number, default: 0.1 },

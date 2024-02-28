@@ -4,13 +4,13 @@ import OptionsGroup from '@/components/groups/OptionsGroup.vue';
 import SequenceTransition from '@/components/SequenceTransition.vue';
 import GameSettingsGroup from '@/components/groups/GameSettingsGroup.vue';
 import { ref } from 'vue';
-import { useStore } from '@/store';
+import { useGameStore } from '@/store';
 import { useRouter } from 'vue-router';
 import { type GameSettings } from '@/store/chinese chess';
 
 const router = useRouter();
-const store = useStore();
-const gameSettings = store.getGame.settings;
+const gameStore = useGameStore();
+const gameSettings = gameStore.getSettings;
 
 const settingsGroup = ref();
 const gameOptions = {
@@ -26,7 +26,7 @@ function start() {
   gameOptions.gameDuration = parseInt(durations.game) * 60000;
   gameOptions.turnDuration = parseInt(durations.turn) * 60000;
   gameOptions.starter = (gameOptions.starter == 1) ? Math.round(Math.random()) : Number(gameOptions.starter == 2);
-  store.setGame(gameOptions as GameSettings);
+  gameStore.setGame(gameOptions as GameSettings);
   router.push('/game-play');
 }
 

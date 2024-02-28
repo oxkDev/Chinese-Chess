@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import ChessPieceIcon from '@/components/ChessPieceIcon.vue';
-import { useStore } from '@/store';
+import { useUserStore } from '@/store';
 
-const store = useStore(), settings = store.getSettings;
+const userStore = useUserStore(), settings = userStore.getSettings;
 
 const props = defineProps<{
   pieces: { [key: string]: number[] },
@@ -45,7 +45,7 @@ function onFocus(f: boolean, p: string) {
   if (f) {
     checkDisplay.value.piece = p;
     pieceCheck(p);
-    store.feedback();
+    userStore.feedback();
   } else if (checkDisplay.value.piece == p) {
     checkDisplay.value = { piece: "", moves: [], blocks: [] }
   }
@@ -116,6 +116,7 @@ function onFocus(f: boolean, p: string) {
   mask: url("@/assets/board/board.svg");
   mask-size: cover;
   position: relative;
+  box-shadow: var(--default-shadow);
 }
 
 .board-grid-wrap {

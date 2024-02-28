@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
-import { useStore } from '@/store';
+import { useUserStore } from '@/store';
 
-const store = useStore();
+const userStore = useUserStore();
 
 const input = ref();
 
@@ -19,7 +19,7 @@ onMounted(() => {
   input.value.checked = props.def;
   input.value.addEventListener("change", () => {
     emits("click", input.value.checked);
-    store.feedback();
+    userStore.feedback();
   });
 });
 

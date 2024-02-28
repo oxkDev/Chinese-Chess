@@ -2,13 +2,13 @@
 import SequenceTransition from '@/components/SequenceTransition.vue';
 import { ref, onMounted, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { useStore } from '@/store';
+import { useUserStore } from '@/store';
 
 const router = useRouter();
 const route = useRoute();
-const store = useStore();
+const userStore = useUserStore();
 
-const settings = store.getSettings;
+const settings = userStore.getSettings;
 
 const props = defineProps<{
   title: string,
@@ -38,7 +38,7 @@ onMounted(() => {
     show.value = e[0].isIntersecting;
     if (show.value && route.hash != `#${props.title}`) {
       router.push(`#${props.title}`);
-      store.feedback();
+      userStore.feedback();
     }
   }, {
     root: section.value.parentElement,
@@ -66,6 +66,8 @@ section {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  max-width: 300px;
+  margin: auto;
   min-height: calc(70vh - 50px);
   padding: calc(15vh + 25px) 0;
   width: 100%;

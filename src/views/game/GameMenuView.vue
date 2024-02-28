@@ -3,12 +3,12 @@ import IconButtonMain from '@/components/IconButtonMain.vue';
 import SettingsView from '@/views/SettingsView.vue';
 import ButtonMain from '@/components/mains/ButtonMain.vue';
 import { useRouter } from 'vue-router';
-import { useStore } from '@/store';
+import { useGameStore } from '@/store';
 
 const router = useRouter();
-const store = useStore();
+const gameStore = useGameStore();
 
-const isPlaying = store.isPlaying;
+const isSaved = gameStore.isSaved;
 
 defineProps<{
   subPage: ("home" | "settings" | "restart" | ""),
@@ -36,8 +36,8 @@ const emits = defineEmits<{
 
   <transition :duration="300" mode="out-in">
     <div v-if="subPage == 'home'" class="sub-page">
-      <button-main @click="store.endGame(); router.push('/');">End Match</button-main>
-      <button-main :disable="!isPlaying" @click="store.saveGame(); router.push('/')">Save Match</button-main>
+      <button-main @click="gameStore.endGame(); router.push('/');">End Match</button-main>
+      <button-main :disable="!isSaved" @click="gameStore.saveGame(); router.push('/')">Save Match</button-main>
     </div>
     <settings-view v-else-if="subPage == 'settings'" class="sub-page" />
     <div v-else-if="subPage == 'restart'" class="sub-page">

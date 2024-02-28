@@ -5,7 +5,7 @@ import SettingsView from '@/views/SettingsView.vue';
 import TwoPlayerView from '@/views/TwoPlayerView.vue';
 import SavedGamesView from '@/views/SavedGamesView.vue';
 import GamePlayView from '@/views/game/GamePlayView.vue';
-import { useStore } from '@/store';
+import { useGameStore } from '@/store';
 
 const homeFooter = {
   "account": "/account",
@@ -19,7 +19,7 @@ const routes: Array<RouteRecordRaw> = [
     name: 'Home',
     component: HomeView,
     meta: { footer: homeFooter },
-  },{
+  }, {
     path: '/account',
     name: 'Account',
     component: AccountView,
@@ -96,14 +96,17 @@ router.beforeEach((to, from, next) => {
 
   document.title = `Chinese Chess | ${to.name?.toString()}`;
 
-  const store = useStore();
-
-  if (store.isPlaying && to.path.indexOf('game-play') == -1)
-    next({ name: 'Game Play' });
-  else if (to.path.indexOf('game-play') != -1 && !store.getGame)
-    next({ name: '2 Player' });
-  else
-    next();
+  const gameStore = useGameStore();
+  
+  if (gameStore.isPlaying) {
+    console.log("gamep")
+    if (to.path.indexOf('game-play') == -1)
+      return next({ name: 'Game Play' });
+  } else if (to.path.indexOf('game-play') != -1) {
+    console.log("refused")
+    return next({ name: '2 Player' });
+  }
+  next();
 
 })
 

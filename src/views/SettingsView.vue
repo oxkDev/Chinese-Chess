@@ -6,18 +6,18 @@ import SwitchGroup from '@/components/groups/SwitchGroup.vue';
 import IconButtonMain from '@/components/IconButtonMain.vue';
 import ColourThemeIcon from '@/components/ColourThemeIcon.vue';
 import { useRoute } from 'vue-router';
-import { useStore } from '@/store';
+import { useUserStore } from '@/store';
 import { ref, watch } from 'vue';
 import { ColourTheme, colourThemes } from '@/store/themes';
 import router from '@/router';
 
 const route = useRoute();
-const store = useStore();
-const settings = ref(store.getSettings);
+const userStore = useUserStore();
+const settings = ref(userStore.getSettings);
 
 function setSetting(key: string, value: boolean | number | string | ColourTheme) {
   (settings.value as { [key: string]: boolean | number | string | ColourTheme })[key] = value;
-  store.setSettings(settings.value);
+  userStore.setSettings(settings.value);
 }
 
 const sideNav = {
@@ -113,7 +113,6 @@ watch(route, () => {
 
 #settingsScreen {
   height: 100vh;
-  max-width: 300px;
   width: calc(100% - 120px);
   padding: 0 60px;
   overflow-y: scroll;
@@ -147,4 +146,4 @@ nav#settingsSideNav path {
   transform: scale(.9);
   opacity: 0;
 }
-</style>@/store/themes
+</style>

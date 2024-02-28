@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue';
-import { useStore } from '@/store';
+import { useUserStore } from '@/store';
 
-const store = useStore();
+const userStore = useUserStore();
 
 const input = ref();
 const width = ref(36);
@@ -23,7 +23,9 @@ watch(props, () => {
   if (input.value.value > props.max) {
     input.value.value = props.max;
   }
-  setTimeout(setPosition);
+  // setTimeout(setPosition);
+  setPosition();
+  emits("onInput", input.value.value);
 });
 
 function setPosition() {
@@ -41,10 +43,10 @@ onMounted(() => {
   width.value = input.value.value / props.max;
   input.value.addEventListener("input", () => {
     emits("onInput", input.value.value);
-    if (!timeouts.fb && store.getSettings.haptic) {
+    if (!timeouts.fb && userStore.getSettings.haptic) {
       timeouts.fb = setTimeout(() => {
         timeouts.fb = 0;
-        store.feedback();
+        userStore.feedback();
       }, 10);
     }
     if (!timeouts.pos) {
@@ -52,7 +54,7 @@ onMounted(() => {
       timeouts.pos = setTimeout(() => {
         timeouts.pos = 0;
         setPosition();
-      }, 0.5 * store.getSettings.animationSpeed);
+      }, 0.5 * userStore.getSettings.animationSpeed);
     }
   });
   input.value.addEventListener("mouseup", () => {

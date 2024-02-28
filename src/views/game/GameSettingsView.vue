@@ -4,18 +4,18 @@ import ButtonMain from '@/components/mains/ButtonMain.vue';
 import router from '@/router';
 import { type GameSettings } from '@/store/chinese chess';
 import { ref } from 'vue';
-import { useStore } from '@/store';
+import { useGameStore } from '@/store';
 
-const store = useStore();
+const gameStore = useGameStore();
 
-const gameSettings: GameSettings = store.getGame.settings;
+const gameSettings: GameSettings = gameStore.getGame.settings;
 
 const durations = ref({ game: gameSettings.gameDuration, turn: gameSettings.turnDuration });
 
 function save() {
   gameSettings.gameDuration = durations.value.game * 60000;
   gameSettings.turnDuration = durations.value.turn * 60000;
-  store.setGame(gameSettings);
+  gameStore.setGame(gameSettings);
   router.push('');
 }
 </script>

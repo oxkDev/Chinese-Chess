@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import SliderMain from '@/components/mains/SliderMain.vue';
-import { useStore } from '@/store';
+import { useUserStore } from '@/store';
 
-const settings = useStore().getSettings;
+const settings = useUserStore().getSettings;
 
 const props = defineProps({
   name: String,

@@ -6,9 +6,9 @@ const userStore = useUserStore();
 
 const input = ref();
 
-const props = defineProps<{
+defineProps<{
   name?: string,
-  def?: boolean,
+  value?: boolean,
 }>();
 
 const emits = defineEmits<{
@@ -16,7 +16,7 @@ const emits = defineEmits<{
 }>();
 
 onMounted(() => {
-  input.value.checked = props.def;
+  // input.value.checked = props.value;
   input.value.addEventListener("change", () => {
     emits("click", input.value.checked);
     userStore.feedback();
@@ -28,7 +28,7 @@ onMounted(() => {
 <template>
   <label class="switch-main">
     <span class="knob">
-      <input type="checkbox" ref="input">
+      <input type="checkbox" ref="input" :checked="value">
     </span>
   </label>
 </template>

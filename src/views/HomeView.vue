@@ -23,8 +23,7 @@ onMounted(transitiondelays);
 
 <template>
   <div id="home" ref="home">
-    <button-main @click="if (userstore.isPlaying) router.push('/game-play'); else router.push('/two-player');">2
-      Player</button-main>
+    <button-main @click="router.push('/two-player');">2 Player</button-main>
     <button-main>Online</button-main>
     <button-main>Computer</button-main>
     <button-main @click="router.push('/saved');">Saved Games</button-main>

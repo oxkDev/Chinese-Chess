@@ -1,6 +1,18 @@
 import { defineStore } from 'pinia'
 import { ColourTheme } from './themes';
 import { type GamePlayData, type GameSettings } from './chinese chess';
+import { deleteDoc, doc, getDoc, onSnapshot, setDoc } from 'firebase/firestore';
+import { db } from './firebase';
+import { createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import { ref } from 'vue';
+
+const auth = getAuth();
+
+export const errorMessage: { [key: string]: string } = {
+  "auth/invalid-credential": "The email or password provided is invalid",
+  "auth/invalid-email": "The email provided is invalid",
+  "auth/email-already-in-use": "This email is already in use"
+}
 
 export class Settings {
   colourTheme: ColourTheme;
@@ -42,14 +54,80 @@ export class Settings {
 }
 
 export class UserData {
-  userid: string;
-  password: string;
-  constructor({ userid, password }: {
-    userid: string,
-    password: string,
+  email: string;
+  username: string;
+  score: number;
+  rank: number;
+  statistics: {
+    "bestRank": number,
+    "games": {
+      "tp": number,
+      "cp": number,
+      "ol": number,
+    },
+    "wins": {
+      "tp": number,
+      "cp": number,
+      "ol": number,
+    },
+    "moves": {
+      "tp": number,
+      "cp": number,
+      "ol": number,
+    }
+  };
+  constructor({
+    email,
+    username = email.split("@")[0],
+    score = 100,
+    rank = 1000,
+    statistics = {
+      "bestRank": rank,
+      "games": {
+        "tp": 0,
+        "cp": 0,
+        "ol": 0,
+      },
+      "wins": {
+        "tp": 0,
+        "cp": 0,
+        "ol": 0,
+      },
+      "moves": {
+        "tp": 0,
+        "cp": 0,
+        "ol": 0,
+      }
+    }
+  }: {
+    email: string,
+    username?: string,
+    score?: number,
+    rank?: number,
+    statistics?: {
+      "bestRank": number,
+      "games": {
+        "tp": number,
+        "cp": number,
+        "ol": number,
+      },
+      "wins": {
+        "tp": number,
+        "cp": number,
+        "ol": number,
+      },
+      "moves": {
+        "tp": number,
+        "cp": number,
+        "ol": number,
+      }
+    }
   }) {
-    this.userid = userid;
-    this.password = password;
+    this.email = email;
+    this.username = username;
+    this.score = score || 0;
+    this.rank = rank || 0;
+    this.statistics = statistics;
   }
 }
 
@@ -62,6 +140,69 @@ export class GameData {
   }
 }
 
+export const useFireStore = defineStore('firestore', () => {
+  const auth = getAuth();
+
+  const userStore = useUserStore();
+  const gameStore = useGameStore();
+
+  // state
+  const firebaseData = ref({
+    user: userStore.user,
+    savedGames: gameStore.saves,
+  });
+
+  // actions
+  async function loadFirebase() {
+    if (auth.currentUser && auth.currentUser.email) {
+      const snapshot = await getDoc(doc(db, "users", auth.currentUser.email)).catch(e => {
+        console.error("saveFirebase error:", e);
+        throw e;
+      });
+      const data = { ...snapshot.data() };
+      console.info("loadFirebase success: ", data);
+      if (data && data.email) {
+        userStore.user = new UserData(data as {email: string, [key: string]: any});
+        userStore.saveLocalStorage();
+      }
+    }
+  }
+
+  async function saveFirebase() {
+    const user = auth.currentUser;
+    if (user && user.email) {
+      if (!userStore.user) userStore.user = new UserData({ email: user.email });
+      await setDoc(doc(db, "users", user.email), { ...userStore.user }).catch(e => {
+        console.error("saveFirebase error:", e);
+        throw e;
+      });
+      console.info("saveFirebase: success");
+    }
+  }
+
+  // initialise
+  if (auth.currentUser && auth.currentUser.email) onSnapshot(doc(db, "users", auth.currentUser.email), {
+    next(snapshot) {
+      console.log(snapshot)
+    }
+  });
+  auth.authStateReady().then(() => {
+    loadFirebase();
+  });
+
+  return {
+    // states
+    firebaseData,
+    // actions
+    loadFirebase,
+    saveFirebase,
+    test() {
+      console.log(this.loadFirebase());
+    }
+    // getters
+  }
+});
+
 export const useUserStore = defineStore('userStore', {
   state: () => {
     // localStorage.setItem("settings", "");
@@ -69,19 +210,28 @@ export const useUserStore = defineStore('userStore', {
       settings: new Settings(),
       user: undefined as UserData | undefined,
     };
-    if (!userStore) {
-      localStorage.setItem("userStore", JSON.stringify(userData));
-    } else {
+    if (userStore) {
       const parsedData = JSON.parse(userStore)
       userData.settings = new Settings(parsedData.settings);
       if (parsedData.user) userData.user = new UserData(parsedData.user);
-    }
+    } else localStorage.setItem("userStore", JSON.stringify(userData));
+
     return userData
   },
   getters: {
-    getSettings(state): Settings {
-      return state.settings;
+    getSettings(): Settings {
+      return this.settings;
     },
+    getUser(): UserData {
+      return this.user || new UserData({ email: "fake@gmail.com" });
+    },
+    getStatistics(): {[key: string]: any} {
+      if (this.user) return this.user.statistics;
+      else return {};
+    },
+    isLoggedIn(): boolean {
+      return !!this.user;
+    }
   },
   actions: {
     saveLocalStorage() {
@@ -90,14 +240,76 @@ export const useUserStore = defineStore('userStore', {
         user: this.user,
       }));
     },
-    updateLocalStorage() {
-      const userStore = localStorage.getItem("userStore"), parsedData = JSON.parse(userStore ? userStore : "{}");
+    loadLocalStorage() {
+      const userStore = localStorage.getItem(this.$id), parsedData = JSON.parse(userStore ? userStore : "{}");
       this.settings = new Settings(parsedData.settings);
-      if (parsedData.user) this.user = new UserData(parsedData.user);
+      this.user = parsedData.user;
     },
     setSettings(settings: Settings) {
       this.settings = settings;
       this.saveLocalStorage();
+    },
+    async signUp({ email, password }: {
+      email: string,
+      password: string,
+    }) {
+      // attempt sign up
+      const result = await createUserWithEmailAndPassword(auth, email, password).catch(e => {
+        console.error("signUp error:", e);
+        throw e;
+      });
+      // if successful, add user to state.user;
+      this.user = new UserData({ email });
+      this.saveLocalStorage();
+      try {
+
+        await setDoc(doc(db, "users", email), { ...this.user });
+        console.info("signUp success:", result.user);
+      } catch (e) {
+        console.error("setDoc error: ", e);
+      }
+      return result;
+
+    },
+    async signIn({ email, password }: {
+      email: string,
+      password: string,
+    }) {
+      // attempt log in
+      const result = await signInWithEmailAndPassword(auth, email, password).catch(e => {
+        console.error("signIn error:", e);
+        throw e;
+      });
+      // if successful, add user to state.user;
+      await useFireStore().loadFirebase();
+      return result;
+    },
+    async signOut() {
+      await signOut(auth).catch(e => {
+        console.info("signOut: error");
+        throw e;
+      });
+      this.user = undefined;
+      this.saveLocalStorage();
+      return "success";
+    },
+    async deleteAccount(password: string) {
+      const user = auth.currentUser;
+      if (user) {
+        await this.signIn({ email: user.email || "", password }).catch(e => {
+          throw e;
+        });
+        try {
+          user.delete();
+          this.user = undefined;
+          this.saveLocalStorage();
+          await deleteDoc(doc(db, "users", user.email || ""));
+          return "success"
+        } catch (e) {
+          console.error("deleteAccount: error");
+          throw e;
+        }
+      } else throw ("Not signed in");
     },
     feedback(pattern: number | number[] = 5) {
       if (this.settings.haptic && navigator.vibrate) navigator.vibrate(pattern);
@@ -119,7 +331,7 @@ export const useGameStore = defineStore('gameStore', {
       saves: {} as { [key: string]: { settings: GameSettings, game: GamePlayData } }
     };
     try {
-      const localData = JSON.parse(local ? local : "{}");
+      const localData = JSON.parse(local || "{}");
       if (localData.settings) gameData.settings = localData.settings as { gameDuration: number, turnDuration: number };
       if (localData.saves) gameData.saves = localData.saves;
       if (localData.play && localData.play.settings) gameData.play = localData.play;
@@ -136,9 +348,17 @@ export const useGameStore = defineStore('gameStore', {
     isSaved(state): boolean {
       return !!state.play?.game;
     },
-    getGame(state): { settings: GameSettings, play?: GamePlayData } {
+    getGame(state): { settings: GameSettings, game?: GamePlayData } {
       if (state.play) return state.play;
-      else throw ("error");
+      else return {
+        settings: {
+          type: '2 Player',
+          names: [],
+          gameDuration: state.settings.gameDuration,
+          turnDuration: state.settings.turnDuration,
+          starter: 0
+        }
+      };
     },
     getSettings(state) {
       return { ...state.settings };
@@ -149,7 +369,7 @@ export const useGameStore = defineStore('gameStore', {
   },
   actions: {
     saveLocalStorage() {
-      // console.log(JSON.stringify({
+      // console.info(JSON.stringify({
       //   settings: this.settings,
       //   play: this.play,
       //   saves: this.saves
@@ -160,8 +380,8 @@ export const useGameStore = defineStore('gameStore', {
         saves: this.saves
       }));
     },
-    updateLocalStorage() {
-      const local = localStorage.getItem(this.$id), localData = JSON.parse(local ? local : "{}");
+    loadLocalStorage() {
+      const local = localStorage.getItem(this.$id), localData = JSON.parse(local || "{}");
 
       this.settings = localData.settings ? localData.settings : {
         gameDuration: 3600000,
@@ -171,10 +391,16 @@ export const useGameStore = defineStore('gameStore', {
       this.saves = localData.saves;
     },
     setGame(settings: GameSettings) {
-      this.play = {
-        settings,
-        game: undefined,
-      }
+      if (this.play)
+        this.play.settings = settings;
+      else
+        this.play = {
+          settings,
+          game: undefined,
+        }
+
+      this.settings.gameDuration = settings.gameDuration;
+      this.settings.turnDuration = settings.turnDuration;
       this.saveLocalStorage();
     },
     updateGame(playData: GamePlayData) {
@@ -204,12 +430,13 @@ export const useGameStore = defineStore('gameStore', {
       if (Object.keys(this.saves).indexOf(key) != -1) {
         const save = { ...this.saves[key] };
         this.play = save;
+        this.saveLocalStorage();
       }
     },
   }
 });
 
-// addEventListener("storage", () => {
-//   useUserStore().updateLocalStorage();
-//   useGameStore().updateLocalStorage();
-// })
+addEventListener("storage", e => {
+  if (e.key == useUserStore.$id) useUserStore().loadLocalStorage();
+  if (e.key == useGameStore.$id) useGameStore().loadLocalStorage();
+})

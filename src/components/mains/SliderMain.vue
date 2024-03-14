@@ -14,18 +14,23 @@ const props = defineProps({
   step: { type: Number, defualt: 1 },
 });
 
+let defValue = props.value;
+
 const emits = defineEmits<{
   (e: "onInput", newValue: number): void,
   (e: "onSet", newValue: number): void,
 }>();
 
 watch(props, () => {
-  if (input.value.value > props.max) {
+  if (input.value && input.value.value > props.max) {
     input.value.value = props.max;
+    emits("onInput", input.value.value);
+  } else if (props.value != defValue) {
+    defValue = props.value;
+    input.value.value = defValue;
+    emits("onInput", input.value.value);
   }
-  // setTimeout(setPosition);
   setPosition();
-  emits("onInput", input.value.value);
 });
 
 function setPosition() {

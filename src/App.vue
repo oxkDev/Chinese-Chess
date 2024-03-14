@@ -2,10 +2,12 @@
 import IconButtonMain from "@/components/IconButtonMain.vue";
 import { ref, watch } from "vue";
 import { useRoute } from "vue-router";
-import { useUserStore } from "./store";
+import { useGameStore, useUserStore } from "./store";
+import router from "./router";
 
 const route = useRoute();
 const userStore = useUserStore();
+const gameStore = useGameStore();
 
 let settings = ref({ ...userStore.getSettings });
 
@@ -60,7 +62,7 @@ function setSettingsRules() {
 
 setSettingsRules();
 
-console.log("reload");
+console.info("reload");
 
 watch(userStore, () => {
   settings.value = userStore.getSettings;
@@ -68,10 +70,17 @@ watch(userStore, () => {
   setSettingsRules();
 });
 
-function getTitle(): string | undefined {
-  if (route.meta.title) return route.meta.title?.toString();
-  const hashMeta = route.meta.hash as { [hash: string]: string };
-  return hashMeta ? hashMeta[route.hash] : "";
+addEventListener("storage", () => {
+  if (gameStore.isPlaying && route.path.indexOf('game-play') == -1) router.push('/game-play');
+});
+
+function getTitle(): string {
+  if (route.meta) {
+    const hashMeta = route.meta.hash as { [hash: string]: string };
+    if (hashMeta && hashMeta[route.hash]) return hashMeta[route.hash];
+    if (route.meta.title) return route.meta.title?.toString();
+  }
+  return "";
 }
 
 </script>
@@ -79,7 +88,7 @@ function getTitle(): string | undefined {
 <template>
   <div id="main">
     <div id="title">
-      <transition name="title" :duration="500">
+      <transition name="title" :duration="5 * settings.animationSpeed">
         <h1 :key="route.fullPath">{{ getTitle() }}</h1>
       </transition>
     </div>
@@ -93,11 +102,12 @@ function getTitle(): string | undefined {
     </router-view>
   </div>
 
-  <transition :duration="500" enter-from-class="footer v-enter-from" leave-to-class="footer v-enter-from">
+  <transition :duration="5 * settings.animationSpeed" enter-from-class="footer v-enter-from" leave-to-class="footer v-enter-from">
     <footer v-if="String(route.meta.footer) != 'undefined'" :key="route.meta.footer?.toString()">
       <nav class="navbar main" id="footer">
-        <transition-group name="footer-nav" :duration="500">
-          <icon-button-main v-for="(value, key) in route.meta.footer" active="route" :key="key" :to="value" :icon="key" />
+        <transition-group name="footer-nav" :duration="5 * settings.animationSpeed">
+          <icon-button-main v-for="(value, key) in route.meta.footer" active="route" :key="key" :to="value"
+            :icon="key" />
         </transition-group>
       </nav>
     </footer>

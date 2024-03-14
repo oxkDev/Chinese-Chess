@@ -6,7 +6,8 @@ const userStore = useUserStore();
 defineProps<{
   name?: string,
   small?: boolean,
-  disable?: boolean
+  disable?: boolean,
+  active?: boolean,
 }>();
 
 const emits = defineEmits<{
@@ -16,18 +17,17 @@ const emits = defineEmits<{
 </script>
 
 <template>
-  <button :disabled="!!disable" class="button-main" :class="{ small }"
+  <button :disabled="!!disable" class="button-main" :class="{ small, active }"
     :onclick="(e: MouseEvent) => { if (!disable) { emits('click', e); userStore.feedback(10); } }">
     <h2 id="text">
       <slot></slot>
     </h2>
-    <!-- <div id="hover"></div> -->
   </button>
 </template>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-.button-main {
+button.button-main {
   width: var(--length);
   width: 100%;
   max-width: 300px;
@@ -41,7 +41,7 @@ const emits = defineEmits<{
   position: relative;
 }
 
-button.small {
+button.button-main.small {
   max-width: 140px;
 }
 
@@ -57,7 +57,7 @@ button.small {
   z-index: 0;
 }
 
-button::after {
+button.button-main::after {
   content: " ";
   width: 60%;
   height: 150%;
@@ -76,30 +76,30 @@ button::after {
   transition: var(--transition-m);
 }
 
-button:hover {
+button.button-main:hover {
   box-shadow: var(--default-glow);
 }
 
-button:hover::after {
+button.button-main:hover::after {
   width: 120%;
   left: -10%;
   opacity: 0.15;
 }
 
-button:hover #text {
+button.button-main:hover #text {
   letter-spacing: 4px;
 }
 
-button:active::after {
+button.button-main:active::after {
   background-color: var(--contrast);
 }
 
-button:active #text {
+button.button-main:active #text {
   letter-spacing: 2px;
 }
 
-.v-leave-to button,
-.v-enter-from button {
+.v-leave-to button.button-main,
+.v-enter-from button.button-main {
   /* transform: translateX(-50px); */
   transform: scale(.9);
   box-shadow: none;
@@ -107,13 +107,13 @@ button:active #text {
   opacity: 0;
 }
 
-button[disabled] {
+button.button-main[disabled] {
   pointer-events: none;
   background: var(--translucent);
   box-shadow: var(--inner-shadow);
 }
 
-button[disabled] #text {
+button.button-main[disabled] #text {
   opacity: .5;
 }
 </style>

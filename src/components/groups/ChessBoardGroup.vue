@@ -46,9 +46,8 @@ function onFocus(f: boolean, p: string) {
     checkDisplay.value.piece = p;
     pieceCheck(p);
     userStore.feedback();
-  } else if (checkDisplay.value.piece == p) {
-    checkDisplay.value = { piece: "", moves: [], blocks: [] }
-  }
+  } else if (checkDisplay.value.piece == p)
+    checkDisplay.value = { piece: "", moves: [], blocks: [] };
 }
 
 </script>
@@ -58,18 +57,23 @@ function onFocus(f: boolean, p: string) {
     <transition-group name="pieces" tag="div" class="board-grid-wrap">
       <div v-for="(piece, i) in getPositions()" :key="piece ? piece : i" class="position">
         <chess-piece-icon v-if="piece != ''" :type="piece[0] + piece[piece.length - 1]"
-          :coord="[Math.floor(i / 9), i % 9]" :rotate="!(rotateOpponent === false)" :active="turn.toString() == piece[piece.length - 1]" :tester="rotateOpponent"
-          :danger="stalemate.length > 0 && settings.stalemateAid"
+          :coord="[Math.floor(i / 9), i % 9]" :rotate="!(rotateOpponent === false)"
+          :active="turn.toString() == piece[piece.length - 1]" :danger="stalemate.length > 0 && settings.stalemateAid"
           :attacker="stalemate.indexOf(piece) != -1 && settings.stalemateAid" @focus="f => onFocus(f, piece)"
           class="chess-piece" />
-        <transition :duration="200" mode="out-in" :key="turn">
-          <div v-if="checkDisplay.moves.indexOf(`${i % 9},${9 - Math.floor(i / 9)}`) + 1" :kill="piece != ''"
+        <transition v-if="settings.positionAid" :duration="200" mode="out-in" :kill="piece != ''">
+          <div v-if="checkDisplay.moves.indexOf(`${i % 9},${9 - Math.floor(i / 9)}`) + 1"
             :onclick="() => { emits('move', checkDisplay.piece, [i % 9, 9 - Math.floor(i / 9)]); checkDisplay = { piece: '', moves: [], blocks: [] }; }"
             class="moves-check">
-            <div v-if="settings.positionAid" class="moves-check-indicator"></div>
+            <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" class="moves-indicator">
+              <circle v-if="piece != ''" cx="9" cy="9" r="8" stroke="white" stroke-width="1.5" />
+              <circle cx="9" cy="9" r="5" fill="white" />
+            </svg>
           </div>
-          <div v-else-if="checkDisplay.blocks.indexOf(`${i % 9},${9 - Math.floor(i / 9)}`) + 1 && settings.positionAid"
-            :kill="piece != ''" class="blocked-move"></div>
+          <svg v-else-if="checkDisplay.blocks.indexOf(`${i % 9},${9 - Math.floor(i / 9)}`) + 1" viewBox="0 0 18 18"
+            fill="none" xmlns="http://www.w3.org/2000/svg" class="blocked-move">
+            <path d="M15 3L9 9M9 9L3 15M9 9L15 15M9 9L3 3" stroke="white" stroke-width="3" />
+          </svg>
         </transition>
       </div>
     </transition-group>
@@ -166,7 +170,6 @@ function onFocus(f: boolean, p: string) {
   width: 100%;
   aspect-ratio: 1;
   border-radius: 100%;
-  opacity: .5;
   position: absolute;
   top: 0px;
   left: 0px;
@@ -176,36 +179,43 @@ function onFocus(f: boolean, p: string) {
   align-items: center;
 }
 
-.moves-check-indicator,
+.moves-indicator,
 .blocked-move {
-  width: 30%;
+  width: 60%;
+  opacity: .6;
   aspect-ratio: 1;
   border-radius: 100%;
-  background: var(--generic);
-  box-shadow: var(--icon-shadow);
-}
-
-.moves-check[kill="true"]>.moves-check-indicator {
-  outline: solid var(--dark) 3px;
-  outline-offset: 5px;
-  background: var(--dark);
+  backdrop-filter: drop-shadow(var(--icon-shadow));
 }
 
 .blocked-move {
-  width: 50%;
-  background: var(--generic);
-  opacity: .8;
-  mask: url("@/assets/icons/cross.svg");
-  mask-size: 200%;
-  mask-position: center;
   position: absolute;
-  top: 25%;
-  left: 25%;
+  top: 20%;
+  left: 20%;
   z-index: 3;
 }
 
+.moves-indicator>circle[stroke],
+.blocked-move>path[stroke] {
+  stroke: var(--generic);
+}
+
+.moves-indicator>circle[fill] {
+  fill: var(--generic)
+}
+
+/* .moves-check[kill="true"] > .moves-indicator,
 .blocked-move[kill="true"] {
-  background: var(--contrast);
+  backdrop-filter: invert(10%);
+} */
+
+.moves-check[kill="true"]>.moves-indicator>circle[stroke],
+.blocked-move[kill="true"]>path[stroke] {
+  stroke: var(--dark);
+}
+
+.moves-check[kill="true"]>.moves-indicator>circle[fill] {
+  fill: var(--dark);
 }
 
 .board-lines {
@@ -250,15 +260,20 @@ function onFocus(f: boolean, p: string) {
   box-shadow: none;
 }
 
-.v-enter-from.moves-check>.moves-check-indicator,
-.v-leave-to.moves-check>.moves-check-indicator {
+.v-enter-from.moves-check>.moves-indicator,
+.v-leave-to.moves-check>.moves-indicator {
   width: 10%;
-  outline-offset: 10px;
+}
+
+.v-enter-from.moves-check>.moves-indicator>circle[fill],
+.v-leave-to.moves-check>.moves-indicator>circle[fill] {
+  r: 2;
 }
 
 .v-enter-active.moves-check,
 .v-leave-active.moves-check {
   transition: var(--transition-m);
+  pointer-events: none;
 }
 
 

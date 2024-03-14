@@ -1,4 +1,3 @@
-
 export class ColourTheme {
 	primary: string;
 	secondary: string;
@@ -8,13 +7,6 @@ export class ColourTheme {
 	generic: string;
 	contrast: string;
 	light: string;
-	// translucent: string;
-	// translucentLess: string;
-	// contrastTranslucent: string;
-	// contrastTranslucentLess: string;
-	// backgroundPrimaryTranslucent: string;
-	// primaryTranslucent: string;
-	// secondaryTranslucent: string;
 	type: "dark" | "light";
 	pieceHome: { background: string; colour: string; };
 	pieceRival: { background: string; colour: string; };
@@ -40,13 +32,9 @@ export class ColourTheme {
 		} : {
 			l: "19",
 			m: "26", /* 15% */
-			s: "66",
+			s: "4d", /* 30% */
 			xs: "8d", /* 55% */
 		},
-
-		// backgroundPrimaryTranslucent = backgroundPrimary + translucence.xs, /* 70% */
-		// primaryTranslucent = primary + translucence.m, /* 30% */
-		// secondaryTranslucent = secondary + translucence.m, /* 30% */
 		shadow = {
 			default: "#000000" + translucence.m,
 			icon: "#000000" + translucence.m,
@@ -164,6 +152,12 @@ export const colourThemes: { [key: string]: ColourTheme } = {
 		secondary: "#DF9D6D",
 		backgroundPrimary: "#F1DFDE",
 		backgroundSecondary: "#F9BEB6",
+		translucence: {
+			l: "0D", /* 7.5% */
+			m: "19", /* 10% */
+			s: "4d", /* 30% */
+			xs: "8d", /* 55% */
+		},
 	}),
 	"Chocolate": new ColourTheme({
 		type: "dark",

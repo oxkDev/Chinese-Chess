@@ -12,6 +12,7 @@ const settings = userStore.getSettings;
 
 const props = defineProps<{
   title: string,
+  routeName: string,
 }>();
 
 const section = ref();
@@ -19,7 +20,7 @@ const show = ref(false);
 let timeout = 0;
 
 watch(route, () => {
-  if (route.path.indexOf("/settings") != -1) {
+  if (route.path.indexOf(props.routeName) != -1) {
     clearTimeout(timeout);
     if (route.hash == `#${props.title}` && !show.value) {
       if (section.value) timeout = setTimeout(() => {
@@ -52,7 +53,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <section :id="title" class="setting-section" ref="section">
+  <section :id="title" class="snap-section" ref="section">
     <transition :duration="5 * settings.animationSpeed">
       <sequence-transition :key="show.toString()" class="innerWrap">
         <slot v-if="show" />

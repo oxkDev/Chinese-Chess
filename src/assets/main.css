@@ -75,11 +75,14 @@ nav.navbar.main {
   transform: scale(.9);
 }
 
-.v-enter-from.blur,
 .v-leave-to.blur {
-  filter: var(--blur-l);
   opacity: 0;
 }
+
+body.blur-l .v-leave-to.blur {
+  filter: var(--blur-l);
+}
+
 
 .title-enter-from {
   opacity: 0;

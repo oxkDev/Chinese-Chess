@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import SliderMain from '@/components/mains/SliderMain.vue';
 import { useUserStore } from '@/store';
 
@@ -22,45 +22,30 @@ const emits = defineEmits<{
 
 const output = ref(0);
 
-let interv = 0;
+let interv: number;
 
 function update(newValue: number) {
-  clearInterval(interv);
+  if (interv) cancelAnimationFrame(interv);
   newValue = parseInt(newValue.toString());
-  
-  if (settings.animationSpeed == 0) {
-    output.value = newValue;
-    return;
-  }
+  if (newValue == output.value) return;
 
-  let step = props.step;
-  let intervalDuration = Math.round((props.duration * settings.animationSpeed / 100) * step / Math.abs(output.value - newValue) );
-
-  if (intervalDuration <= 0) {
-    output.value = newValue;
-    return;
-  }
-
-  if (intervalDuration < 50) {
-    const multiple = Math.ceil(50 / intervalDuration);
-    step *= multiple;
-    intervalDuration = 50;
-  }
+  const change = newValue - output.value;
+  const duration = Math.round(props.duration * settings.animationSpeed / 100);
+  const startTime = performance.now();
 
   const intervFunc = () => {
-    if (Math.abs(output.value - newValue) < step) output.value = newValue;
-    else if (output.value > newValue) output.value -= step;
-    else if (output.value < newValue) output.value += step;
-    if (output.value == newValue) clearInterval(interv);
+    const percentage = (performance.now() - startTime) / duration;
+    if (percentage > 1) return output.value = newValue;
+    output.value = Math.round(newValue - (change * (1 - percentage)));
+    if (output.value != newValue) interv = requestAnimationFrame(intervFunc);
   };
-  // console.log(!(intervalDuration == Infinity || step == Infinity), typeof(step), typeof(newValue))
-  if (!(intervalDuration == Infinity || intervalDuration == 0)) {
-    intervFunc();
-    interv = setInterval(intervFunc, intervalDuration);
-  }
+
+  if (duration) interv = requestAnimationFrame(intervFunc);
+  else output.value = newValue;
 }
 
-update(props.value);
+// onMounted(() => setTimeout(() => update(props.value), settings.animationSpeed));
+output.value = props.value;
 </script>
 
 <template>

@@ -1,22 +1,22 @@
 <script setup lang="ts">
 import IconButtonMain from '@/components/IconButtonMain.vue';
-import SettingsView from '@/views/SettingsView.vue';
 import ButtonMain from '@/components/mains/ButtonMain.vue';
-import { useRouter } from 'vue-router';
-import { useGameStore } from '@/store';
+import { useRoute, useRouter } from 'vue-router';
+import { useGameStore, useUserStore } from '@/store';
 
+const route = useRoute();
 const router = useRouter();
 const gameStore = useGameStore();
+const settings = useUserStore().getSettings;
 
-const isSaved = gameStore.isSaved;
+// const subPage = ref("");
 
-defineProps<{
-  subPage: ("home" | "settings" | "restart" | ""),
-}>();
+// defineProps<{
+//   subPage: ("home" | "settings" | "restart" | ""),
+// }>();
 
 const emits = defineEmits<{
   (e: "action", act: "restart" | ""): void,
-  (e: "update", path: "home" | "settings" | "restart"): void,
 }>();
 
 </script>
@@ -24,26 +24,32 @@ const emits = defineEmits<{
 <template>
   <transition-group name="menu" tag="div" class="menu-screen">
 
-    <icon-button-main v-if="subPage == 'home' || !subPage" :active="subPage == 'home'" type="button" key="home"
-      icon="home" :big="true" @click="emits('update', 'home')" class="menu-button"
-      :class="{ active: subPage == 'home' }" />
-    <icon-button-main v-if="!subPage" type="button" key="settings 1" icon="settings 1" :big="true"
-      @click="emits('update', 'settings'); router.push('/game-play/settings');" class="menu-button" />
-    <icon-button-main v-if="subPage == 'restart' || !subPage" :active="subPage == 'restart'" type="button" key="restart"
-      icon="restart" :big="true" @click="emits('update', 'restart')" class="menu-button"
-      :class="{ active: subPage == 'restart' }" />
+    <icon-button-main v-if="route.hash == '#home' || !route.hash" :active="route.hash == '#home'" type="button"
+      key="home" icon="home" :big="true" @click="router.push('#home')" class="menu-button"
+      :class="{ active: route.hash == '#home' }" />
+    <icon-button-main v-if="!route.hash" type="button" key="settings 1" icon="settings 1" :big="true"
+      @click="router.push('/game-play/menu/settings');" class="menu-button" />
+    <icon-button-main v-if="route.hash == '#restart' || !route.hash" :active="route.hash == '#restart'" type="button"
+      key="restart" icon="restart" :big="true" @click="router.push('#restart')" class="menu-button"
+      :class="{ active: route.hash == '#restart' }" />
   </transition-group>
 
   <transition :duration="300" mode="out-in">
-    <div v-if="subPage == 'home'" class="sub-page">
+    <div v-if="route.hash == '#home'" class="sub-page">
       <button-main @click="gameStore.endGame(); router.push('/');">End Match</button-main>
-      <button-main :disable="!isSaved" @click="gameStore.saveGame(); router.push('/')">Save Match</button-main>
+      <button-main :disable="!gameStore.isSaved" @click="gameStore.saveGame(); router.push('/')">Save
+        Match</button-main>
     </div>
-    <settings-view v-else-if="subPage == 'settings'" class="sub-page" />
-    <div v-else-if="subPage == 'restart'" class="sub-page">
-      <button-main @click="emits('action', 'restart'); router.push('')">Rematch</button-main>
+    <!-- <settings-view v-else-if="route.hash == 'settings'" class="sub-page" /> -->
+    <div v-else-if="route.hash == '#restart'" class="sub-page">
+      <button-main @click="emits('action', 'restart'); router.push('/game-play')">Rematch</button-main>
     </div>
   </transition>
+  <router-view v-slot="{ Component }">
+    <transition :duration="500 * settings.animationSpeed">
+      <component :is="Component" />
+    </transition>
+  </router-view>
 </template>
 
 <style>

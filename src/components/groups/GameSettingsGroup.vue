@@ -36,13 +36,14 @@ function turnMax() {
 </script>
 
 <template>
-  <slider-group name="Game Duration" :value="defaults.gameDuration" @update="val => { duration.game = val }"
-    :options="{ 0: 'Infinite' }" :max="60" unit="min">
+  <slider-group name="Game Duration" :value="defaults.gameDuration"
+    @update="val => { duration.game = val; emits('update', duration); }" :options="{ 0: 'Infinite' }" :max="60"
+    unit="min">
     <option value="0" label="∞" />
     <option value="60" label="60 min" />
   </slider-group>
   <slider-group name="Turn Duration" :value="defaults.turnDuration"
-    @update="val => { duration.turn = val; emits('update', duration) }" :options="{ 0: 'Infinite' }" :max="turnMax()"
+    @update="val => { duration.turn = val; emits('update', duration); }" :options="{ 0: 'Infinite' }" :max="turnMax()"
     unit="min" ref="turnSlider">
     <option value="0" label="∞" />
     <option :value="turnMax()" :label="turnMax().toString() + ' min'" />

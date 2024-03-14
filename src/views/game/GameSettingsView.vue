@@ -8,6 +8,10 @@ import { useGameStore } from '@/store';
 
 const gameStore = useGameStore();
 
+defineEmits<{
+  (e: "action", act: "update" | ""): void,
+}>();
+
 const gameSettings: GameSettings = gameStore.getGame.settings;
 
 const durations = ref({ game: gameSettings.gameDuration, turn: gameSettings.turnDuration });
@@ -16,7 +20,7 @@ function save() {
   gameSettings.gameDuration = durations.value.game * 60000;
   gameSettings.turnDuration = durations.value.turn * 60000;
   gameStore.setGame(gameSettings);
-  router.push('');
+  router.push('/game-play');
 }
 </script>
 

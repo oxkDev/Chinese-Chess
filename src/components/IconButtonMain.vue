@@ -22,13 +22,14 @@ const rotate = ["cross", "restart", "settings 1", "undo"];
 </script>
 
 <template>
-  <button v-if="type == 'button'" :onclick="() => { emits('click'); userStore.feedback(); }"
+  <button v-if="type == 'button'" @click="() => { emits('click'); userStore.feedback(); }"
     :active="String(props.active) != 'route' ? !!props.active : ''" :disable="!!props.disable" class="icon-button-main">
-    <icon-main :icon="icon" :class="`buttonIcon ${rotate.indexOf(props.icon) != -1 ? 'rotate' : ''} ${big ? 'big' : ''}`"
-      ref="svg" />
+    <icon-main :icon="icon"
+      :class="`buttonIcon ${rotate.indexOf(props.icon) != -1 ? 'rotate' : ''} ${big ? 'big' : ''}`" ref="svg" />
   </button>
-  <router-link v-else :onclick="() => userStore.feedback()" :active="String(props.active) != 'route' ? !!props.active : ''"
-    :disable="!!props.disable" :to="to ? to : ''" class="icon-button-main">
+  <router-link v-else :onclick="() => userStore.feedback()"
+    :active="String(props.active) != 'route' ? !!props.active : ''" :disable="!!props.disable" :to="to ? to : ''"
+    class="icon-button-main">
     <icon-main :icon="icon" :class="`${rotate.indexOf(props.icon) != -1 ? 'rotate' : ''} ${big ? 'big' : ''}`"
       ref="svg" />
 
@@ -121,8 +122,8 @@ a.router-link-exact-active.icon-button-main:not([active="false"]) svg.rotate {
   transform: rotate(135deg);
 }
 
-.footer-nav-leave-to svg.rotate,
-.v-leave-to svg.rotate {
-  transform: rotate(-135deg);
+.footer-nav-leave-to .icon-button-main>svg.rotate,
+.v-leave-to .icon-button-main>svg.rotate {
+  transform: rotate(-135deg) !important;
 }
 </style>

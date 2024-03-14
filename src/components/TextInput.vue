@@ -6,12 +6,15 @@ const userStore = useUserStore();
 
 defineProps<{
 	name?: string,
-	type: string,
-	inputmode: "text" | "none" | "tel" | "url" | "email" | "numeric" | "decimal" | "search" | undefined,
+	type?: "email" | "number" | "password" | "text",
+	inputMode?: "text" | "none" | "tel" | "url" | "email" | "numeric" | "decimal" | "search" | undefined,
+}>();
+
+const emits = defineEmits<{
+	(e: "update", value: string): void,
 }>();
 
 const input = ref();
-const value = ref("");
 
 onMounted(() => {
 	input.value.addEventListener("focusout", () => {
@@ -19,18 +22,18 @@ onMounted(() => {
 		userStore.feedback();
 	});
 	input.value.addEventListener("input", () => {
-		value.value = input.value.value;
-		input.value?.toggleAttribute("hasValue", value.value != "");
+		emits("update", input.value.value);
+		input.value.toggleAttribute("hasValue", input.value.value != "");
 	});
 	input.value.addEventListener("focusin", userStore.feedback);
 });
 </script>
 
 <template>
-	<div class="text-input-wrap">
-		<input :inputmode="inputmode" :type="type" ref="input">
-		<label>
-			<h2 class="name">
+	<div class="text-input">
+		<input :inputmode="inputMode ? inputMode : 'text'" :type="type ? type : 'text'" ref="input">
+		<label class="input-label">
+			<h2 class="input-title">
 				<slot></slot>
 			</h2>
 		</label>
@@ -38,14 +41,15 @@ onMounted(() => {
 </template>
 
 <style scoped>
-.text-input-wrap {
+.text-input {
 	height: 40px;
-	/* width: 100%; */
+	width: 100%;
 	max-width: 300px;
 	/* padding: 5px 10px; */
-	overflow: visible;
 	margin: 10px 0;
 	border-radius: 15px;
+	overflow: visible;
+	position: relative;
 	background: var(--translucent);
 	box-shadow: var(--inner-shadow);
 }
@@ -65,31 +69,40 @@ input {
 	position: relative;
 }
 
-label {
+label.input-label {
 	height: 100%;
-	margin: 0 10px;
+	max-width: calc(100% - 20px);
 	padding: 0 10px;
-	position: relative;
-	top: -100%;
-	left: -10px;
-	display: table;
+	position: absolute;
+	top: 0;
+	left: 0;
+	display: flex;
 	z-index: 0;
-	backdrop-filter: blur(0px);
+	backdrop-filter: none;
 	border-radius: 20px;
+	overflow: hidden;
 }
 
-input:focus+label,
-input[hasValue]+label {
-	backdrop-filter: blur(10px);
-	transform: scale(.8) translate(-10px, -25px);
-
+input:focus+label.input-label,
+input[hasValue]+label.input-label {
+	backdrop-filter: var(--blur-m);
+	transform: scale(.8) translate(calc(-10% + 10px), -25px);
 }
 
-h2 {
-	margin: auto;
+h2.input-title {
+	/* max-width: 50vw; */
+	margin: auto 0;
 	text-align: left;
 	opacity: .6;
-	display: table-cell;
-	vertical-align: middle;
+	/* display: block; */
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.v-enter-from .text-input,
+.v-leave-to .text-input {
+	transform: scale(.9);
+	opacity: 0;
 }
 </style>

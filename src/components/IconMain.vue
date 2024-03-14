@@ -2,23 +2,28 @@
 import { ref } from 'vue';
 
 defineProps<{
-  icon: "account" |
+  icon: "account 1" |
+  "account 2" |
   "animation" |
   "appearance" |
   "back 1" |
   "back 2" |
   "behaviour" |
   "cross" |
+  "data" |
   "disable timer" |
   "forward 1" |
   "forward 2" |
   "home" |
   "menu" |
+  "rank 1" |
+  "rank 2" |
   "restart" |
   "settings 1" |
   "settings 2" |
   "sound" |
   "undo" |
+  "warn" |
   string,
 }>();
 
@@ -32,13 +37,18 @@ defineExpose({
 
 <template>
   <svg viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg" ref="svg">
-    <g v-if="icon == 'account'" id="account">
+    <g v-if="icon == 'account 1'" id="account 1">
       <path
         d="M21 9C21 12.3137 18.3137 15 15 15C11.6863 15 9 12.3137 9 9C9 5.68629 11.6863 3 15 3C18.3137 3 21 5.68629 21 9Z"
         stroke="white" stroke-linejoin="round" />
       <path
         d="M9.70814 18.0709C9.62963 18.025 9.54056 18 9.44962 18H9C5.68629 18 3 20.6863 3 24V28C3 28.2761 3.22386 28.5 3.5 28.5H26.5C26.7761 28.5 27 28.2761 27 28V24C27 20.6863 24.3137 18 21 18H20.5504C20.4594 18 20.3704 18.025 20.2919 18.0709C18.738 18.9794 16.9298 19.5 15 19.5C13.0702 19.5 11.262 18.9794 9.70814 18.0709Z"
         stroke="white" stroke-linejoin="round" />
+    </g>
+    <g v-else-if="icon == 'account 2'" id="account 2">
+      <path
+        d="M24.6814 24.4085C27.0447 21.9771 28.5 18.6585 28.5 15C28.5 7.54416 22.4558 1.5 15 1.5C7.54416 1.5 1.5 7.54416 1.5 15C1.5 18.6585 2.95529 21.9771 5.31856 24.4085M24.6814 24.4085C22.4977 21.4322 18.9745 19.5 15 19.5C11.0255 19.5 7.50235 21.4322 5.31856 24.4085M24.6814 24.4085C22.2285 26.9322 18.7973 28.5 15 28.5C11.2027 28.5 7.77152 26.9322 5.31856 24.4085M20.25 12.75C20.25 15.6495 17.8995 18 15 18C12.1005 18 9.75 15.6495 9.75 12.75C9.75 9.85051 12.1005 7.5 15 7.5C17.8995 7.5 20.25 9.85051 20.25 12.75Z"
+        stroke="white" />
     </g>
     <g v-else-if="icon == 'animation'" id="animation">
       <path id="Animation"
@@ -57,8 +67,7 @@ defineExpose({
         stroke="white" stroke-linejoin="round" />
     </g>
     <g v-else-if="icon == 'back 1'" id="back 1">
-      <path id="Back 1" d="M19.5 3L7.5 15L19.5 27" stroke="white" stroke-linecap="round"
-        stroke-linejoin="round" />
+      <path id="Back 1" d="M19.5 3L7.5 15L19.5 27" stroke="white" stroke-linecap="round" stroke-linejoin="round" />
     </g>
     <g v-else-if="icon == 'back 2'" id="back 2">
       <path id="Back 2"
@@ -83,14 +92,17 @@ defineExpose({
       <path id="Cross" d="M25.5 4.5L15 15M4.5 4.5L15 15M25.5 25.5L15 15M4.5 25.5L15 15" stroke="white"
         stroke-linecap="round" />
     </g>
+    <g v-else-if="icon == 'data'" id="data">
+      <path d="M11.5 22.5V6M18.5 22.5V9M25.5 22.5V3M3 27H27M4.5 22.5V13.5" stroke="white" stroke-linecap="round"
+        stroke-linejoin="round" />
+    </g>
     <g v-else-if="icon == 'disable timer'" id="disable timer">
       <path id="Disable Timer"
         d="M15 9C10.0294 9 6 13.0294 6 18C6 22.9706 10.0294 27 15 27C19.9706 27 24 22.9706 24 18C24 13.0294 19.9706 9 15 9ZM15 9V4.5M9 4.5H15M21 4.5H15M19.5 18H15.5C15.2239 18 15 17.7761 15 18V13.5M3 27L27 3"
         stroke="white" stroke-linecap="round" stroke-linejoin="round" />
     </g>
     <g v-else-if="icon == 'forward 1'" id="forward 1">
-      <path id="Forward 1" d="M10.5 27L22.5 15L10.5 3" stroke="white" stroke-linecap="round"
-        stroke-linejoin="round" />
+      <path id="Forward 1" d="M10.5 27L22.5 15L10.5 3" stroke="white" stroke-linecap="round" stroke-linejoin="round" />
     </g>
     <g v-else-if="icon == 'forward 2'" id="forward 2">
       <path id="Forward 2"
@@ -104,6 +116,15 @@ defineExpose({
     </g>
     <g v-else-if="icon == 'menu'" id="menu">
       <path id="Menu" d="M27 6L3 6M27 15H3M27 24H3" stroke="white" stroke-linecap="round" />
+    </g>
+    <g v-else-if="icon == 'rank 1'" id="rank 1">
+      <path
+        d="M10.5 3H5C4.72386 3 4.5 3.22386 4.5 3.5V27.3981C4.5 27.8277 5.00596 28.0573 5.32925 27.7744L10.5 23.25M10.5 3H19.5M10.5 3V23.25M19.5 3H25C25.2761 3 25.5 3.22386 25.5 3.5V27.3981C25.5 27.8277 24.994 28.0573 24.6707 27.7744L19.5 23.25M19.5 3V23.25M10.5 23.25L14.6799 19.7667C14.8653 19.6122 15.1347 19.6122 15.3201 19.7667L19.5 23.25"
+        stroke="white" stroke-linejoin="round" />
+    </g>
+    <g v-else-if="icon == 'rank 2'" id="rank 2">
+      <path d="M3 27V9H10.5M10.5 9V3H19.5V12M10.5 9V27M27 27V12H19.5M19.5 12V27" stroke="white" stroke-linecap="round"
+        stroke-linejoin="round" />
     </g>
     <g v-else-if="icon == 'restart'" id="restart">
       <path id="Restart"
@@ -128,6 +149,21 @@ defineExpose({
       <path id="Undo"
         d="M3.50999 2.01001V9.50996M3.50999 9.50996H11.01M3.50999 9.50996L6.51471 6.51468C8.76515 4.26424 11.8174 3.00001 15 3.00001C18.1826 3.00001 21.2348 4.26429 23.4853 6.51473C25.7357 8.76517 27 11.8174 27 15C27 18.1826 25.7357 21.2349 23.4853 23.4853C21.2348 25.7357 18.1826 27 15 27C11.8174 27 8.76515 25.7357 6.51471 23.4853C5.40041 22.371 4.51649 21.0481 3.91343 19.5922"
         stroke="white" stroke-linecap="round" stroke-linejoin="round" />
+    </g>
+    <g v-else-if="icon == 'warn'" id="warn">
+      <path
+        d="M15 10.5V20.25M1.5766 26.25H28.4234C28.8083 26.25 29.0489 25.8333 28.8564 25.5L15.433 2.25C15.2406 1.91667 14.7594 1.91667 14.567 2.25L1.14359 25.5C0.951142 25.8333 1.1917 26.25 1.5766 26.25Z"
+        stroke="white" stroke-linecap="round" stroke-linejoin="round" />
+    </g>
+    <g v-else id="filler">
+      <path
+        d="M27.5 22.5V7.5C27.5 4.73858 25.2614 2.5 22.5 2.5H7.5C4.73858 2.5 2.5 4.73858 2.5 7.5V22.5C2.5 25.2614 4.73858 27.5 7.5 27.5H22.5C25.2614 27.5 27.5 25.2614 27.5 22.5Z"
+        stroke="white" stroke-linejoin="round" />
+      <path d="M16.5 13.5H24.5L16.5 5.5V13.5Z" stroke="white" stroke-linejoin="round" />
+      <path d="M5.5 9.5C5.5 7.29086 7.29086 5.5 9.5 5.5H13.5V13.5H5.5V9.5Z" stroke="white" stroke-linejoin="round" />
+      <path d="M20.5 24C18.2909 24 16.5 22.2091 16.5 20V16.5H20C22.2091 16.5 24 18.2909 24 20.5V24H20.5Z" stroke="white"
+        stroke-linejoin="round" />
+      <path d="M5.50001 19.5L10.5 24.5L13.5 21.5V16.5H8.50001L5.50001 19.5Z" stroke="white" stroke-linejoin="round" />
     </g>
   </svg>
 </template>

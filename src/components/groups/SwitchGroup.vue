@@ -2,7 +2,7 @@
 import SwitchMain from '@/components/mains/SwitchMain.vue';
 
 defineProps<{
-  def?: boolean,
+  value?: boolean,
 }>();
 
 const emits = defineEmits<{
@@ -18,7 +18,7 @@ const emits = defineEmits<{
         <slot></slot>
       </h3>
     </label>
-    <switch-main @click="val => { emits('update', val); }" :def="def"></switch-main>
+    <switch-main @click="val => { emits('update', val); }" :value="value"></switch-main>
   </div>
 </template>
 

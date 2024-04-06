@@ -6,12 +6,15 @@ const userStore = useUserStore();
 
 const props = defineProps<{
   options: string[],
-  def?: number,
+  value?: number,
+  id?: string,
 }>();
 
 const emits = defineEmits<{
   (e: "onInput", newValue: number): void,
 }>();
+
+const output = defineModel<number>();
 
 const gap = 100 / props.options.length;
 const input = ref();
@@ -19,17 +22,18 @@ const selected = ref(0);
 const position = ref(0);
 
 function setPosition() {
-  emits("onInput", parseInt(input.value.value));
+  selected.value = parseInt(input.value.value);
+  output.value = selected.value;
   position.value = gap * input.value.value;
-  selected.value = input.value.value;
-
 }
 
 onMounted(() => {
-  input.value.value = props.def ? props.def : props.options.length - 2;
+  input.value.value = props.value || props.options.length - 2;
   setPosition();
+
   input.value.addEventListener("input", () => {
     setPosition();
+    emits("onInput", input.value.value);
     userStore.feedback();
   });
 })
@@ -38,10 +42,10 @@ onMounted(() => {
 
 <template>
   <div class="options-main">
-    <input type="range" min="0" :max="options.length - 1" ref="input">
+    <input type="range" min="0" :max="options.length - 1" :id="id" ref="input">
     <div class="selector"></div>
     <ul class="options-list">
-      <p v-for="(option, index) in options" :selected="selected == index" :key="option">{{ option }}</p>
+      <p v-for="(option, index) in options" :class="{ selected: selected == index }" :key="option">{{ option }}</p>
     </ul>
   </div>
 </template>
@@ -51,10 +55,11 @@ onMounted(() => {
   height: 40px;
   max-width: 300px;
   width: 100%;
-  margin: 10px 0 0;
+  margin-top: 10px;
   border-radius: 20px;
   background: var(--translucent);
   box-shadow: var(--inner-shadow);
+  position: relative;
 }
 
 .options-main:hover,
@@ -72,59 +77,60 @@ input:hover+.selector {
   min-width: 36px;
   border-radius: 20px;
   background: var(--primary);
-  position: relative;
-  bottom: 100%;
+  box-shadow: var(--default-shadow);
+  position: absolute;
+  top: 0;
   left: v-bind(position + "%");
   z-index: 1;
-  box-shadow: var(--default-shadow);
 }
 
 input {
-  overflow: visible;
-  width: calc(100% - 10px);
   height: 100%;
+  width: calc(100% - 10px);
   margin: 0 5px;
+  background: none;
   position: relative;
   outline: none;
-  background: none;
-  opacity: 0;
   display: block;
+  overflow: visible;
+  opacity: 0;
   z-index: 2;
 }
 
 .options-list {
-  padding: 0;
   width: 100%;
   height: 100%;
+  padding: 0;
   display: flex;
   justify-content: space-evenly;
   align-items: center;
-  position: relative;
-  bottom: 200%;
+  position: absolute;
+  top: 0px;
   z-index: 1;
+
+  p {
+    min-width: 33%;
+    text-align: center;
+    font-size: 16px;
+  }
+
+  p.selected {
+    /* font-weight: 500; */
+    transition-delay: .2s;
+    letter-spacing: 2px;
+  }
 }
 
-.options-list p {
-  min-width: 33%;
-  text-align: center;
-  font-size: 16px;
-}
-
-.options-list p[selected="true"] {
-  /* font-weight: 500; */
-  transition-delay: .2s;
-  letter-spacing: 2px;
-}
-
-.v-enter-from .selector,
-.v-leave-to .selector,
-.v-enter-from p,
-.v-leave-to p {
-  transform: scale(.9);
-}
-
-.v-enter-from .selector,
+.v-enter-from .options-main,
 .v-leave-to .options-main {
-  transition-delay: .1s;
+
+  .options-main {
+    transition-delay: .1s;
+  }
+
+  div.selector,
+  p {
+    transform: scale(.9);
+  }
 }
 </style>

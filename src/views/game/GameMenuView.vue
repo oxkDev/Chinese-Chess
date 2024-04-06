@@ -25,13 +25,11 @@ const emits = defineEmits<{
   <transition-group name="menu" tag="div" class="menu-screen">
 
     <icon-button-main v-if="route.hash == '#home' || !route.hash" :active="route.hash == '#home'" type="button"
-      key="home" icon="home" :big="true" @click="router.push('#home')" class="menu-button"
-      :class="{ active: route.hash == '#home' }" />
+      key="home" icon="home" :big="true" @click="router.push('#home')" class="menu-button" />
     <icon-button-main v-if="!route.hash" type="button" key="settings 1" icon="settings 1" :big="true"
-      @click="router.push('/game-play/menu/settings');" class="menu-button" />
+      @click="router.push({ name: 'Menu Settings' });" class="menu-button" />
     <icon-button-main v-if="route.hash == '#restart' || !route.hash" :active="route.hash == '#restart'" type="button"
-      key="restart" icon="restart" :big="true" @click="router.push('#restart')" class="menu-button"
-      :class="{ active: route.hash == '#restart' }" />
+      key="restart" icon="restart" :big="true" @click="router.push('#restart')" class="menu-button" />
   </transition-group>
 
   <transition :duration="300" mode="out-in">
@@ -40,9 +38,8 @@ const emits = defineEmits<{
       <button-main :disable="!gameStore.isSaved" @click="gameStore.saveGame(); router.push('/')">Save
         Match</button-main>
     </div>
-    <!-- <settings-view v-else-if="route.hash == 'settings'" class="sub-page" /> -->
     <div v-else-if="route.hash == '#restart'" class="sub-page">
-      <button-main @click="emits('action', 'restart'); router.push('/game-play')">Rematch</button-main>
+      <button-main @click="emits('action', 'restart'); router.push({ name: 'Game Play' })">Rematch</button-main>
     </div>
   </transition>
   <router-view v-slot="{ Component }">
@@ -68,7 +65,7 @@ const emits = defineEmits<{
   transition: var(--transition-l);
 }
 
-.menu-button.active {
+.menu-button[active="true"] {
   position: absolute;
   top: 25vh;
   transform: scale(1.2);

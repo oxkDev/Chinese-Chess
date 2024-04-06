@@ -4,24 +4,32 @@ import { useUserStore } from '@/store';
 
 const userStore = useUserStore();
 
-defineProps<{
+const props = defineProps<{
 	name?: string,
 	type?: "email" | "number" | "password" | "text",
+	value?: string,
 	inputMode?: "text" | "none" | "tel" | "url" | "email" | "numeric" | "decimal" | "search" | undefined,
+	required?: boolean,
 }>();
 
 const emits = defineEmits<{
 	(e: "update", value: string): void,
 }>();
 
+const model = defineModel<string>();
+
 const input = ref();
 
 onMounted(() => {
+	input.value.value = props.value || "";
+	if (input.value) input.value.toggleAttribute("hasValue", input.value.value != "");
+
 	input.value.addEventListener("focusout", () => {
-		input.value.toggleAttribute("hasValue", input.value.value != "");
+		if (input.value) input.value.toggleAttribute("hasValue", input.value.value != "");
 		userStore.feedback();
 	});
 	input.value.addEventListener("input", () => {
+		model.value = input.value.value;
 		emits("update", input.value.value);
 		input.value.toggleAttribute("hasValue", input.value.value != "");
 	});
@@ -31,7 +39,8 @@ onMounted(() => {
 
 <template>
 	<div class="text-input">
-		<input :inputmode="inputMode ? inputMode : 'text'" :type="type ? type : 'text'" ref="input">
+		<input :inputmode="inputMode ? inputMode : 'text'" :type="type ? type : 'text'"
+			:minlength="type == 'password' ? 8 : undefined" ref="input" :required="required">
 		<label class="input-label">
 			<h2 class="input-title">
 				<slot></slot>
@@ -100,9 +109,25 @@ h2.input-title {
 	white-space: nowrap;
 }
 
+.v-enter-active .text-input label.input-label,
+.v-leave-active .text-input label.input-label {
+	backdrop-filter: none;
+}
+
 .v-enter-from .text-input,
-.v-leave-to .text-input {
+.v-leave-to .text-input,
+.v-enter-from.text-input,
+.v-leave-to.text-input {
 	transform: scale(.9);
 	opacity: 0;
+
+	label.input-label {
+		backdrop-filter: none;
+		/* opacity: 0; */
+	}
+
+	h2.input-title {
+		transform: translateX(-100%);
+	}
 }
 </style>

@@ -1,4 +1,8 @@
 :root {
+  --vertical-padding: max(calc(15vh + 30px), 70px);
+  --safe-height: calc(100vh - var(--vertical-padding) * 2);
+
+  /* colours */
   color-scheme: dark;
 
   --primary: #3D68A9;

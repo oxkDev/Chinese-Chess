@@ -94,16 +94,16 @@ function getTitle(): string {
     </div>
 
     <router-view v-slot="{ Component }">
-      <transition :enter-from-class="`v-enter-from ${route.meta.transition?.toString()}`"
-        :leave-to-class="`v-leave-to ${route.meta.transition?.toString()}`" mode="out-in"
+      <transition mode="out-in" :enter-from-class="`v-enter-from ${route.meta.transition?.toString()}`"
+        :leave-to-class="`v-leave-to ${route.meta.transition?.toString()}`"
         :duration="{ enter: 10 * settings.animationSpeed, leave: route.meta.fast ? 4 * settings.animationSpeed : 7 * settings.animationSpeed }">
         <component :is="Component" />
       </transition>
     </router-view>
   </div>
 
-  <transition :duration="5 * settings.animationSpeed" enter-from-class="footer v-enter-from" leave-to-class="footer v-enter-from">
-    <footer v-if="String(route.meta.footer) != 'undefined'" :key="route.meta.footer?.toString()">
+  <transition :duration="5 * settings.animationSpeed">
+    <footer v-if="route.meta.footer" :key="route.meta.footer.toString()">
       <nav class="navbar main" id="footer">
         <transition-group name="footer-nav" :duration="5 * settings.animationSpeed">
           <icon-button-main v-for="(value, key) in route.meta.footer" active="route" :key="key" :to="value"
@@ -113,3 +113,124 @@ function getTitle(): string {
     </footer>
   </transition>
 </template>
+
+<style>
+#main {
+  height: 100vh;
+  max-width: 300px;
+  margin: auto;
+  padding: 0 30px;
+}
+
+#title {
+  width: 100%;
+  height: 30px;
+  max-width: 300px;
+  margin: auto;
+  overflow: hidden;
+  position: fixed;
+  top: 15%;
+  z-index: 100;
+}
+
+.group-heading {
+  width: 100%;
+  max-width: 300px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  overflow: hidden;
+}
+
+.group-title {
+  min-width: 50%;
+}
+
+.page-view {
+  width: 100%;
+  max-width: 300px;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.scroll-snap-view {
+  width: calc(100vw - 120px);
+  height: 100vh;
+  padding: 0 60px;
+  position: fixed;
+  left: 0px;
+  top: 0px;
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+}
+
+.scroll-list-view {
+  width: calc(100vw - 60px);
+  height: 100vh;
+  padding: 0 30px;
+  position: fixed;
+  left: 0px;
+  top: 0px;
+  overflow-y: scroll;
+  scroll-snap-type: y proximity;
+}
+
+.snap-section {
+  width: 100%;
+  max-width: 300px;
+  min-height: var(--safe-height);
+  margin: 0 auto;
+  padding: var(--vertical-padding) 0;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  scroll-snap-align: start;
+  overflow: visible;
+}
+
+.overlay-view {
+  width: calc(100vw - 60px);
+  height: 100vh;
+  padding: 0 30px;
+  position: fixed;
+  left: 0px;
+  top: 0px;
+  z-index: 50;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: var(--transition-l);
+  background: var(--background-primary);
+  backdrop-filter: none;
+}
+
+.blur-l .overlay-view {
+  background: var(--background-primary-translucent);
+  backdrop-filter: var(--blur-l);
+}
+
+.v-enter-from,
+.v-leave-to {
+
+  .group-title {
+    transform: translateX(-50%);
+    opacity: 0;
+  }
+
+  .group-value {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+
+  &.overlay-view {
+    /* opacity: 0; */
+    background: transparent;
+    backdrop-filter: none;
+  }
+}
+</style>

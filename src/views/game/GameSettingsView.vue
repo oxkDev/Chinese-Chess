@@ -14,22 +14,19 @@ defineEmits<{
 
 const gameSettings: GameSettings = gameStore.getGame.settings;
 
-const durations = ref({ game: gameSettings.gameDuration, turn: gameSettings.turnDuration });
+const durations = ref({ gameDuration: gameSettings.gameDuration, turnDuration: gameSettings.turnDuration });
 
 function save() {
-  gameSettings.gameDuration = durations.value.game * 60000;
-  gameSettings.turnDuration = durations.value.turn * 60000;
+  gameSettings.gameDuration = durations.value.gameDuration * 60000;
+  gameSettings.turnDuration = durations.value.turnDuration * 60000;
   gameStore.setGame(gameSettings);
   router.push('/game-play');
 }
 </script>
 
 <template>
-  <game-settings-group @update="d => durations = d" :game-duration="gameSettings.gameDuration / 60000"
-    :turn-duration="gameSettings.turnDuration / 60000" />
+  <game-settings-group v-model="durations" />
   <button-main
-    :disable="durations.game * 60000 == gameSettings.gameDuration && durations.turn * 60000 == gameSettings.turnDuration"
+    :disable="durations.gameDuration * 60000 == gameSettings.gameDuration && durations.turnDuration * 60000 == gameSettings.turnDuration"
     @click="save()">Save</button-main>
 </template>
-
-<style></style>

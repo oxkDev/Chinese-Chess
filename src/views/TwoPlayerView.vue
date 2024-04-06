@@ -10,11 +10,11 @@ import { type GameSettings } from '@/store/chinese chess';
 
 const router = useRouter();
 const gameStore = useGameStore();
-const gameSettings = gameStore.getSettings;
+// const gameSettings = gameStore.getSettings;
 
-const settingsGroup = ref();
+const settingsGroup = ref({ gameDuration: 60, turnDuration: 5 });
 const gameOptions = {
-  type: "2 Player",
+  type: "tp",
   names: ["home", "rival"],
   gameDuration: 0,
   turnDuration: 0,
@@ -22,10 +22,10 @@ const gameOptions = {
 };
 
 function start() {
-  const durations = settingsGroup.value.duration;
-  gameOptions.gameDuration = parseInt(durations.game) * 60000;
-  gameOptions.turnDuration = parseInt(durations.turn) * 60000;
-  gameOptions.starter = (gameOptions.starter == 1) ? Math.round(Math.random()) : Number(gameOptions.starter == 2);
+  gameOptions.gameDuration = settingsGroup.value.gameDuration * 60000;
+  gameOptions.turnDuration = settingsGroup.value.turnDuration * 60000;
+  gameOptions.starter = (gameOptions.starter == 1) ? Math.round((Math.random() + Math.random() + Math.random()) / 3) : Number(gameOptions.starter == 2);
+  console.log(gameOptions)
   gameStore.setGame(gameOptions as GameSettings);
   router.push('/game-play');
 }
@@ -35,10 +35,8 @@ function start() {
 
 <template>
   <sequence-transition id="twoPlayer">
-    <game-settings-group :game-duration="gameSettings ? gameSettings.gameDuration / 60000 : undefined"
-      :turn-duration="gameSettings ? gameSettings.turnDuration / 60000 : undefined" ref="settingsGroup" />
-    <options-group @update="v => { gameOptions.starter = v }"
-      :options="['Home', 'Random', 'Rival']">Starter</options-group>
+    <game-settings-group v-model="settingsGroup" />
+    <options-group v-model="gameOptions.starter" :options="['Home', 'Random', 'Rival']">Starter</options-group>
     <button-main @click="start" id="startButton">Start</button-main>
   </sequence-transition>
 </template>

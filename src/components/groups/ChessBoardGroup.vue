@@ -54,27 +54,29 @@ function onFocus(f: boolean, p: string) {
 
 <template>
   <div class="chess-board-group" ref="boardWrap">
-    <transition-group name="pieces" tag="div" class="board-grid-wrap">
+    <transition-group name="pieces" tag="div" class="board-grid-wrap" :duration="5 * settings.animationSpeed">
       <div v-for="(piece, i) in getPositions()" :key="piece ? piece : i" class="position">
-        <chess-piece-icon v-if="piece != ''" :type="piece[0] + piece[piece.length - 1]"
-          :coord="[Math.floor(i / 9), i % 9]" :rotate="!(rotateOpponent === false)"
-          :active="turn.toString() == piece[piece.length - 1]" :danger="stalemate.length > 0 && settings.stalemateAid"
-          :attacker="stalemate.indexOf(piece) != -1 && settings.stalemateAid" @focus="f => onFocus(f, piece)"
-          class="chess-piece" />
-        <transition v-if="settings.positionAid" :duration="200" mode="out-in" :kill="piece != ''">
-          <div v-if="checkDisplay.moves.indexOf(`${i % 9},${9 - Math.floor(i / 9)}`) + 1"
-            :onclick="() => { emits('move', checkDisplay.piece, [i % 9, 9 - Math.floor(i / 9)]); checkDisplay = { piece: '', moves: [], blocks: [] }; }"
-            class="moves-check">
-            <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" class="moves-indicator">
-              <circle v-if="piece != ''" cx="9" cy="9" r="8" stroke="white" stroke-width="1.5" />
-              <circle cx="9" cy="9" r="5" fill="white" />
+        <div class="position-content-wrap">
+          <chess-piece-icon v-if="piece != ''" :type="piece[0] + piece[piece.length - 1]"
+            :coord="[Math.floor(i / 9), i % 9]" :rotate="!(rotateOpponent === false)"
+            :active="turn.toString() == piece[piece.length - 1]" :danger="stalemate.length > 0 && settings.stalemateAid"
+            :attacker="stalemate.includes(piece) && settings.stalemateAid" @focus="f => onFocus(f, piece)"
+            class="chess-piece" />
+          <transition v-if="settings.positionAid" :duration="200" mode="out-in" :kill="piece != ''">
+            <div v-if="checkDisplay.moves.includes(`${i % 9},${9 - Math.floor(i / 9)}`)"
+              :onclick="() => { emits('move', checkDisplay.piece, [i % 9, 9 - Math.floor(i / 9)]); checkDisplay = { piece: '', moves: [], blocks: [] }; }"
+              class="moves-check">
+              <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" class="moves-indicator">
+                <circle v-if="piece != ''" cx="9" cy="9" r="8" stroke="white" stroke-width="1.5" />
+                <circle cx="9" cy="9" r="5" fill="white" />
+              </svg>
+            </div>
+            <svg v-else-if="checkDisplay.blocks.includes(`${i % 9},${9 - Math.floor(i / 9)}`)" viewBox="0 0 18 18"
+              fill="none" xmlns="http://www.w3.org/2000/svg" class="blocked-move">
+              <path d="M15 3L9 9M9 9L3 15M9 9L15 15M9 9L3 3" stroke="white" stroke-width="3" />
             </svg>
-          </div>
-          <svg v-else-if="checkDisplay.blocks.indexOf(`${i % 9},${9 - Math.floor(i / 9)}`) + 1" viewBox="0 0 18 18"
-            fill="none" xmlns="http://www.w3.org/2000/svg" class="blocked-move">
-            <path d="M15 3L9 9M9 9L3 15M9 9L15 15M9 9L3 3" stroke="white" stroke-width="3" />
-          </svg>
-        </transition>
+          </transition>
+        </div>
       </div>
     </transition-group>
     <div class="board-lines">
@@ -119,16 +121,22 @@ function onFocus(f: boolean, p: string) {
   background: var(--background-secondary);
   mask: url("@/assets/board/board.svg");
   mask-size: cover;
+  overflow: hidden;
   position: relative;
   box-shadow: var(--default-shadow);
 }
 
 .board-grid-wrap {
   margin: 5px;
-  max-width: 100%;
+  width: calc(100% - 10px);
+  aspect-ratio: 0.9;
   display: grid;
   grid-template-rows: repeat(10, 1fr);
   grid-template-columns: repeat(9, 1fr);
+  align-content: center;
+  align-items: center;
+  justify-content: center;
+  justify-items: center;
   position: relative;
   z-index: 2;
 }
@@ -139,24 +147,40 @@ function onFocus(f: boolean, p: string) {
 }
 
 .position {
-  width: 100%;
+  height: 100%;
+  /* width: 100%; */
   aspect-ratio: 1;
   border-radius: 100%;
+  /* position: relative; */
+}
+
+.position-content-wrap {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   position: relative;
 }
 
+.pieces-leave-from.position {
+  height: auto;
+  /* position: absolute !important; */
+}
+
 .pieces-leave-active.position {
+  height: 10%;
   position: absolute !important;
-  transition: none;
-  opacity: 0 !important;
+  transition-duration: 100s;
 }
 
 .pieces-move {
+  z-index: 3;
   transition: var(--transition-m);
 }
 
-.pieces-enter-from,
-.pieces-leave-to {
+.pieces-enter-from.position>.position-content-wrap,
+.pieces-leave-to.position>.position-content-wrap {
   transform: scale(.7);
   opacity: 0;
 }
@@ -164,6 +188,8 @@ function onFocus(f: boolean, p: string) {
 .chess-piece:hover,
 .moves-check:hover {
   cursor: pointer;
+
+
 }
 
 .moves-check {
@@ -229,45 +255,45 @@ function onFocus(f: boolean, p: string) {
   justify-content: center;
   align-items: center;
   z-index: 1;
+
+  svg {
+    width: 100%;
+  }
+
+  path {
+    stroke: var(--generic);
+    stroke-width: 2px;
+    opacity: .5;
+  }
+
+  path.frame {
+    stroke-width: 3px;
+  }
 }
 
-.board-lines svg {
-  width: 100%;
-}
+.v-enter-from,
+.v-leave-to {
 
-.board-lines path {
-  stroke: var(--generic);
-  stroke-width: 2px;
-  opacity: .5;
-}
+  .chess-board-group {
+    transform: scale(.95);
+    opacity: 0;
+  }
 
-.board-lines path.frame {
-  stroke-width: 3px;
-}
+  &.moves-check,
+  &.blocked-move {
+    transform: scale(.8);
+    opacity: 0;
+    box-shadow: none;
+  }
 
-.v-enter-from .chess-board-group,
-.v-leave-to .chess-board-group {
-  transform: scale(.95);
-  opacity: 0;
-}
+  &.moves-check>.moves-indicator {
+    width: 10%;
 
-.v-enter-from.moves-check,
-.v-leave-to.moves-check,
-.v-enter-from.blocked-move,
-.v-leave-to.blocked-move {
-  transform: scale(.8);
-  opacity: 0;
-  box-shadow: none;
-}
+    circle[fill] {
+      r: 2;
+    }
+  }
 
-.v-enter-from.moves-check>.moves-indicator,
-.v-leave-to.moves-check>.moves-indicator {
-  width: 10%;
-}
-
-.v-enter-from.moves-check>.moves-indicator>circle[fill],
-.v-leave-to.moves-check>.moves-indicator>circle[fill] {
-  r: 2;
 }
 
 .v-enter-active.moves-check,
@@ -275,7 +301,6 @@ function onFocus(f: boolean, p: string) {
   transition: var(--transition-m);
   pointer-events: none;
 }
-
 
 .board-lines path {
   transition-delay: .1s;
@@ -285,28 +310,31 @@ function onFocus(f: boolean, p: string) {
   transition-delay: .4s;
 }
 
-.v-enter-from .board-lines path.frame {
-  stroke-width: 0px;
-}
+.v-enter-from .board-lines {
 
-.v-enter-from .board-lines path.vline.home {
-  transform: translateY(55%) scaleY(0);
-}
+  path.frame {
+    stroke-width: 0px;
+  }
 
-.v-enter-from .board-lines path.vline.opp {
-  transform: translateY(45%) scaleY(0);
-}
+  path.vline.home {
+    transform: translateY(55%) scaleY(0);
+  }
 
-.v-enter-from .board-lines path.hline {
-  transform: translateX(50%) scaleX(0);
-}
+  path.vline.opp {
+    transform: translateY(45%) scaleY(0);
+  }
 
-.v-enter-from .board-lines path.cross.home {
-  transform: translate(50%, 85%) scale(0);
-}
+  path.hline {
+    transform: translateX(50%) scaleX(0);
+  }
 
-.v-enter-from .board-lines path.cross.opp {
-  transform: translate(50%, 15%) scale(0);
+  path.cross.home {
+    transform: translate(50%, 85%) scale(0);
+  }
+
+  path.cross.opp {
+    transform: translate(50%, 15%) scale(0);
+  }
 }
 
 .board-lines path.cross {

@@ -9,6 +9,7 @@ import SavedGamesView from '@/views/SavedGamesView.vue';
 import GamePlayView from '@/views/game/GamePlayView.vue';
 import GameMenuView from '@/views/game/GameMenuView.vue';
 import GameSettingsView from '@/views/game/GameSettingsView.vue';
+import UpdateDetailsView from '@/views/account/UpdateDetailsView.vue';
 
 const homeFooter = {
   "account 1": "/account",
@@ -27,21 +28,45 @@ const routes: Array<RouteRecordRaw> = [
     path: '/account',
     name: 'Account',
     component: AccountView,
-    meta: {
-      footer: homeFooter,
-      hash: {
-        "#appearance": "Appearance",
-        "#sound": "Sound",
-        "#animation": "Animation",
-        "#behaviour": "Behaviour"
-      },
-    },
+    // async component() {
+    //   console.log("huh")
+    //   await new Promise((resolve) => setTimeout(() => resolve(0), 1000));
+
+    //   if (await useFireStore().getStatus()) {
+    //     if (useUserStore().isSetup)
+    //       return AccountProfileView;
+
+    //     return AccountSetupView;
+    //   }
+
+    //   return AccountView;
+    // },
+
+    meta: { footer: homeFooter },
+  },
+  {
+    path: '/account/edit',
+    name: 'Edit Profile',
+    component: UpdateDetailsView,
+    meta: { title: 'Edit', transition: 'blur', fast: true, footer: { 'cross': '/account' } }
+  },
+  {
+    path: '/account/update',
+    name: 'Update Account',
+    component: UpdateDetailsView,
+    meta: { title: 'Update', transition: 'blur', fast: true, footer: { 'cross': '/account#actions' } }
+  },
+  {
+    path: '/account/delete',
+    name: 'Delete Account',
+    component: AuthenticationView,
+    meta: { title: 'Delete', transition: 'blur', fast: true, footer: { 'cross': '/account#actions' } }
   },
   {
     path: '/account/login',
     name: 'Log In',
     component: AuthenticationView,
-    meta: { title: 'Login', transition: 'blur', fast: true, footer: { 'cross': '/account' } }
+    meta: { title: 'Log In', transition: 'blur', fast: true, footer: { 'cross': '/account' } }
   },
   {
     path: '/account/sign-up',
@@ -49,12 +74,12 @@ const routes: Array<RouteRecordRaw> = [
     component: AuthenticationView,
     meta: { title: 'Sign Up', transition: 'blur', fast: true, footer: { 'cross': '/account' } }
   },
-  {
-    path: '/account/delete',
-    name: 'Delete Account',
-    component: AuthenticationView,
-    meta: { title: 'Delete', transition: 'blur', fast: true, footer: { 'cross': '/account' } }
-  },
+  // {
+  //   path: '/account/setup',
+  //   name: 'Account Setup',
+  //   component: AccountSetupView,
+  //   meta: { title: 'Setup', footer: homeFooter }
+  // },
   {
     path: '/settings',
     name: 'Settings',
@@ -65,6 +90,12 @@ const routes: Array<RouteRecordRaw> = [
         "#sound": "Sound",
         "#animation": "Animation",
         "#behaviour": "Behaviour"
+      },
+      sideNav: {
+        "appearance": "#appearance",
+        "sound": "#sound",
+        "animation": "#animation",
+        "behaviour": "#behaviour",
       },
       footer: homeFooter
     },
@@ -146,13 +177,13 @@ router.beforeEach((to, from, next) => {
   const gameStore = useGameStore();
 
   if (gameStore.isPlaying) {
-    // console.log("gamep")
-    if (to.path.indexOf('game-play') == -1)
+    if (!to.path.includes('game-play'))
       return next({ name: 'Game Play' });
-  } else if (to.path.indexOf('game-play') != -1) {
-    // console.log("refused")
+  } else if (to.path.includes('game-play')) {
     return next({ name: '2 Player' });
   }
+
+  if (to.path.includes('Account Setup')) console.log("f")
   next();
 
 })

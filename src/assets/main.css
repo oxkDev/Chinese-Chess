@@ -6,22 +6,40 @@
   text-align: center;
 }
 
-#main {
-  height: 100%;
-  max-width: 300px;
-  margin: auto;
-  padding: 0 30px;
+h1 {
+  font: var(--font-title);
+  letter-spacing: 5px;
+  /* margin-right: -5px; */
+  text-transform: uppercase;
+  text-align: left;
 }
 
-#title {
-  width: 100%;
-  max-width: 300px;
+h2 {
   height: 30px;
-  margin: auto;
-  overflow: hidden;
-  position: fixed;
-  top: 15%;
-  z-index: 100;
+  font: var(--font-heading-1);
+  letter-spacing: 3px;
+  /* margin-right: -3px; */
+  text-transform: uppercase;
+}
+
+h3 {
+  height: 30px;
+  font: var(--font-label);
+  letter-spacing: 2px;
+  /* margin-right: -2px; */
+  text-transform: capitalize;
+  text-align: left;
+}
+
+p {
+  height: 20px;
+  font: var(--font-subtitle);
+  letter-spacing: 1px;
+  /* margin-right: -1px; */
+}
+
+b {
+  font-weight: 500;
 }
 
 footer {
@@ -32,6 +50,20 @@ footer {
   justify-content: space-between;
   align-items: center;
   z-index: 10;
+}
+
+nav#sideNav {
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  justify-content: center;
+  right: 0px;
+  height: 100%;
+  top: 0px;
+}
+
+nav#sideNav path {
+  transition: var(--transition-m);
 }
 
 nav.navbar {
@@ -69,12 +101,6 @@ nav.navbar.main {
   position: absolute;
 }
 
-.v-enter-from .footer nav,
-.v-leave-to .footer nav {
-  opacity: 0;
-  transform: scale(.9);
-}
-
 .v-leave-to.blur {
   opacity: 0;
 }
@@ -93,40 +119,4 @@ body.blur-l .v-leave-to.blur {
   height: 0px;
   opacity: 0;
   transform: translateY(30px);
-}
-
-h1 {
-  font: var(--font-title);
-  letter-spacing: 5px;
-  /* margin-right: -5px; */
-  text-transform: uppercase;
-  text-align: left;
-}
-
-h2 {
-  height: 30px;
-  font: var(--font-heading-1);
-  letter-spacing: 3px;
-  /* margin-right: -3px; */
-  text-transform: uppercase;
-}
-
-h3 {
-  height: 30px;
-  font: var(--font-label);
-  letter-spacing: 2px;
-  /* margin-right: -2px; */
-  text-transform: capitalize;
-  text-align: left;
-}
-
-p {
-  height: 20px;
-  font: var(--font-subtitle);
-  letter-spacing: 1px;
-  /* margin-right: -1px; */
-}
-
-b {
-  font-weight: 500;
 }

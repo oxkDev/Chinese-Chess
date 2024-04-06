@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import SnapSection from '@/components/SnapSection.vue';
+import SequenceTransition from '@/components/SequenceTransition.vue';
 import ButtonMain from '@/components/mains/ButtonMain.vue';
 import IconButtonMain from '@/components/IconButtonMain.vue';
 import { useFireStore, useUserStore } from '@/store';
 import { computed, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import IconMain from '@/components/IconMain.vue';
-import { getAuth } from 'firebase/auth';
+import IconMain from '@/components/mains/IconMain.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -17,6 +17,12 @@ const sideNav = {
   "account 2": "#profile",
   "data": "#statistics",
   "warn": "#actions",
+}
+
+const types: { [key: string]: string } = {
+  "tp": "2 Player",
+  "ol": "Online",
+  "cp": "Computer"
 }
 
 function rankSuffix(n: number) {
@@ -30,94 +36,147 @@ function rankSuffix(n: number) {
   return prefixes[numList[0]]
 }
 
+function formatTiming(time: number) {
+  let s = time % 60, m = Math.floor(time / 60), h = Math.floor(m / 60);
+
+  return `${h ? h + ' : ' : ''}${m} : ${s}`;
+}
+
 const statShow = ref("");
 
-const stats = computed((): { [key: string]: { title: string, val: number, sub?: boolean, suffix?: boolean, show?: string } } => {
+interface Stats {
+  [key: string]: {
+    title: string,
+    val: string | number,
+    sub?: {
+      [key: string]: {
+        title: string,
+        val: string | number,
+        suffix?: string,
+      }
+    },
+    suffix?: string,
+    show?: string
+  }
+}
+
+const stats = computed((): Stats => {
   const raw = userStore.getStatistics
-  let totals = {} as { [key: string]: { title: string, val: number, sub?: boolean, show: string } };
+  let totals: Stats = {};
   for (const i of Object.keys(raw)) {
-    if (typeof (raw[i]) == 'object') {
+    if (["games", "wins", "moves"].includes(i)) {
       totals[i] = { title: `Total ${i}`, val: raw[i]["tp"] + raw[i]["cp"] + raw[i]["ol"], show: i };
-      totals[`${i}-tp`] = { title: "2 Player", val: raw[i]["tp"], sub: true, show: i }
-      totals[`${i}-cp`] = { title: "Computer", val: raw[i]["cp"], sub: true, show: i }
-      totals[`${i}-ol`] = { title: "Online", val: raw[i]["ol"], sub: true, show: i }
+      totals[i].sub = {
+        "tp": { title: "2 Player", val: raw[i]["tp"] },
+        "cp": { title: "Computer", val: raw[i]["cp"] },
+        "ol": { title: "Online", val: raw[i]["ol"] }
+      }
+    } else if (i == 'playTime') {
+      const totalVal = raw[i]["tp"] + raw[i]["cp"] + raw[i]["ol"];
+
+      totals[i] = { title: `Total Time`, val: formatTiming(totalVal), show: i };
+      const sub: { [key: string]: { title: string, val: string | number } } = {};
+      for (const cat of ["tp", "cp", "ol"])
+        sub[cat] = { title: types[cat], val: formatTiming(raw[i][cat]) }
+
+      totals[i].sub = sub;
     }
   }
 
   return {
-    "bestRank": { title: "Best Rank", val: raw.bestRank, suffix: true },
+    "bestRank": { title: "Best Rank", val: raw.bestRank ? raw.bestRank : "unknown", suffix: raw.bestRank ? rankSuffix(raw.bestRank) : '' },
     ...totals,
   }
 });
 
-console.log(stats)
-
 watch(route, () => {
-  if (Object.values(sideNav).indexOf(route.hash) == -1) router.push(sideNav['account 2']);
+  // statShow.value = "";
+  if (!Object.values(sideNav).includes(route.hash)) router.push(sideNav['account 2']);
 });
-
-// function edit() {
-//   if (userStore.user) userStore.user.username = "testers";
-// }
 </script>
 
 <template>
-  <div id="accountProfile">
-    <div id="profileScreen">
-      <snap-section title="profile" route-name="/account">
-        <img src="@/assets/logo/favicon-jiang (dark).svg" id="userPicture" />
-        <label class="profile-text-wrap">
-          <h3 id="username" class="user-details">{{ user.username }}</h3>
+  <div id="accountProfile" class="scroll-snap-view">
+    <!-- <div id="profileScreen" class="scroll-page-view"> -->
+    <snap-section title="profile" route-name="/account">
+      <img src="@/assets/logo/favicon-jiang (dark).svg" id="profilePicture" />
+      <label class="profile-text-wrap">
+        <h3 id="username" class="user-details">{{ user.username }}</h3>
+      </label>
+      <label class="profile-text-wrap">
+        <p id="userEmail" class="user-details">{{ user.email }}</p>
+      </label>
+      <div id="userScoreData">
+        <label class="data-score data-wrap">
+          <icon-main icon="rank 1" class="data-icon" />
+          <label class="profile-text-wrap user-score">
+            <p class="data-value"><b>{{ user.score }}</b></p>
+          </label>
         </label>
-        <label class="profile-text-wrap">
-          <p id="userEmail" class="user-details">{{ user.email }}</p>
+        <p class="separator">:</p>
+        <label class="data-rank data-wrap">
+          <icon-main icon="rank 2" class="data-icon" />
+          <label class="profile-text-wrap user-rank">
+            <p class="data-value"><b>{{ user.rank || "?" }} </b> {{ user.rank ? rankSuffix(user.rank) : "" }}</p>
+          </label>
         </label>
-        <label class="profile-text-wrap">
-          <div id="scoreData">
-            <icon-main icon="rank 1" class="score-icon" />
-            <p class="score-value"><b>{{ user.score }}</b></p>
-            <p class="separator">:</p> <icon-main icon="rank 2" class="score-icon" />
-            <p class="score-value"><b>{{ user.rank }} </b> {{ rankSuffix(user.rank) }}</p>
-          </div>
-        </label>
-        <button-main @click="useFireStore().loadFirebase()">Edit</button-main>
-      </snap-section>
+      </div>
+      <button-main @click="router.push('/account/edit')">Edit Profile</button-main>
+    </snap-section>
 
-      <snap-section title="statistics" route-name="/account">
-        <transition-group :duration="userStore.getSettings.animationSpeed * 5">
-          <!-- <label class="stat-row" key="bestRank">
-            <h3 class="stat-title">Best Rank</h3>
-            <p class="stat-value"><b>{{ userStore.getStatistics["bestRank"] }}</b> {{
-            rankSuffix(userStore.getStatistics["bestRank"]) }}</p>
-          </label> -->
-          <template v-for="(stat, i) in stats" :key="i">
-
-            <label v-if="!stat.sub || stat.show == statShow" :on-click="() => { statShow = i; }" class="stat-row"
-              :class="{ sub: stat.sub }">
-              <h3 class="stat-title">{{ stat.title }}</h3>
-              <p class="stat-value"><b>{{ stat.val }}</b> {{ stat.suffix ? rankSuffix(stat.val)
-            :
-            "" }}</p>
+    <snap-section title="statistics" route-name="/account" class="statistics-page">
+      <transition-group :duration="userStore.getSettings.animationSpeed * 5">
+        <template v-for="(stat, i) in stats" :key="i">
+          <label @click="() => { statShow = stat.show == statShow ? '' : stat.show || ''; userStore.feedback(); }"
+            class="stat-row group-heading">
+            <h3 class="stat-title group-title">{{ stat.title }}</h3>
+            <p class="stat-value group-value"><b>{{ stat.val }}</b> {{ stat.suffix ? stat.suffix : "" }}</p>
+          </label>
+          <sequence-transition v-if="stat.sub && statShow == stat.show" class="stat-sub" key="sub">
+            <label v-for="(sub, i) in stat.sub" :key="i" @click="() => { statShow = ''; }"
+              class="stat-row group-heading">
+              <h3 class="stat-title group-title">{{ sub.title }}</h3>
+              <p class="stat-value group-value"><b>{{ sub.val }}</b> {{ stat.suffix ? sub.suffix : "" }}</p>
             </label>
-          </template>
-        </transition-group>
-      </snap-section>
 
-      <snap-section title="actions" route-name="/account">
-        <button-main @click="userStore.signOut()">Log out</button-main>
-        <button-main>Reset</button-main>
-        <button-main @click="router.push('/account/delete')">Delete</button-main>
-      </snap-section>
-    </div>
+          </sequence-transition>
+        </template>
+      </transition-group>
+    </snap-section>
+
+    <snap-section title="actions" route-name="/account">
+      <button-main @click="router.push('/account/update')">Update</button-main>
+      <button-main @click="userStore.resetAccount()">Reset</button-main>
+      <button-main @click="router.push('/account/delete')">Delete</button-main>
+      <button-main @click="userStore.signOut()">Log out</button-main>
+    </snap-section>
+    <!-- </div> -->
     <nav id="sideNav">
       <icon-button-main v-for="( value, key ) in sideNav " :active="route.hash == value" :key="key" :to="value"
         :icon="key" class="side-nav" />
     </nav>
+    <transition :duration="{ enter: 700, leave: 500 }" mode="out-in">
+      <div :key="String(route.name != 'Account')" id="profileOverlay" class="overlay-view"
+        v-if="route.name != 'Account'">
+        <section class="page-view">
+          <router-view></router-view>
+        </section>
+        <!-- <div class="footer bottom">
+          <nav class="navbar main">
+            <transition-group name="footer-nav" :duration="500 * userStore.getSettings.animationSpeed">
+              <icon-button-main v-if="route.path.includes('menu') && (!!route.hash || route.name != 'Menu')"
+                type="button" @click="router.push('/game-play/menu')" icon="back 1" />
+              <icon-button-main type="button" @click="router.push('/game-play')" icon="cross" key="cross" />
+            </transition-group>
+          </nav>
+        </div> -->
+      </div>
+    </transition>
   </div>
 </template>
 
 <style>
-#accountProfile {
+/* #accountProfile {
   width: 100vw;
   height: 100vh;
   position: fixed;
@@ -134,9 +193,9 @@ watch(route, () => {
   padding: 0 60px;
   overflow-y: scroll;
   scroll-snap-type: y mandatory;
-}
+} */
 
-#userPicture {
+#profilePicture {
   width: 60%;
   align-self: center;
   transition: var(--transition-m);
@@ -145,31 +204,51 @@ watch(route, () => {
 
 #username {
   text-align: center;
+  text-transform: none;
 }
 
 #userEmail {
   font-style: italic;
+  opacity: .7;
+  letter-spacing: 2px;
 }
 
-#scoreData {
+#userScoreData {
   height: 30px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   margin: 15px 0;
+
+  .separator {
+    margin: 0 5%;
+  }
+
+  .data-wrap {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .data-score {
+    justify-content: right;
+  }
+
+  .data-rank {
+    justify-content: left;
+  }
 }
 
-#scoreData>.separator {
-  margin: 0 5%;
+#userScoreData,
+#userScoreData .data-wrap {
+  display: flex;
+  align-items: center;
 }
 
-#scoreData>.score-value,
-svg.score-icon {
+#userScoreData .data-value,
+svg.data-icon {
   margin: 3px;
 }
 
-svg.score-icon {
+svg.data-icon {
   width: 30px;
+  height: 30px;
   padding: 0;
 }
 
@@ -178,62 +257,77 @@ svg.score-icon {
 }
 
 .stat-row {
-  width: 100%;
   margin: 5px 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
 }
 
-.stat-row.sub {
+.stat-sub {
   width: calc(100% - 20px);
   padding-left: 20px;
+}
+
+.stat-sub .stat-row {
   margin: 2px 0;
 }
 
-nav#sideNav {
-  display: flex;
-  flex-direction: column;
+.stat-sub.v-leave-active {
   position: absolute;
-  justify-content: center;
-  right: 0px;
-  height: 100%;
-  top: 0px;
+  transition-duration: 100s;
 }
 
-nav#sideNav path {
-  transition: var(--transition-m);
+.v-enter-from,
+.v-leave-to {
+
+  &.stat-row,
+  .stat-row {
+    opacity: 0;
+  }
+
+  /* .stat-row .stat-value,
+  &.stat-sub .stat-row .stat-value {
+    transform: scale(.8);
+    opacity: 0;
+  } */
+
+  #userScoreData {
+
+    .data-icon,
+    .separator {
+      transform: scale(.8);
+      opacity: 0;
+
+    }
+
+    .profile-text-wrap>.data-value {
+      transform: translateX(-100%);
+      opacity: 0;
+    }
+  }
+
+  #profilePicture {
+    transform: scale(.9);
+    opacity: 0;
+  }
 }
 
-.v-enter-from #userPicture,
-.v-leave-to #userPicture {
-  transform: scale(.9);
-  opacity: 0;
+.stat-sub.v-enter-from .stat-row .stat-title,
+.stat-sub.v-enter-from .stat-row .stat-value {
+  transform: translateY(-100%);
+}
+
+.stat-sub.v-leave-to .stat-row .stat-title,
+.stat-sub.v-leave-to .stat-row .stat-value {
+  transform: translateY(100%);
 }
 
 .v-enter-from .user-details {
   transform: translateY(-100%);
-  opacity: 0;
 }
 
 .v-leave-to .user-details {
   transform: translateY(100%);
-  opacity: 0;
 }
 
-.v-enter-from #scoreData>*,
-.v-leave-to #scoreData>* {
-  transform: scale(.9);
-  opacity: 0;
-}
-
-.v-enter-from #scoreData>.separator {
-  margin: 0 5px;
-}
-
-.v-enter-from a.side-nav,
-.v-leave-to a.side-nav {
-  transform: scale(.9);
-  opacity: 0;
+.v-enter-active #userScoreData .profile-text-wrap>.data-value {
+  transition-delay: calc(.4s * var(--animation-speed)) !important;
 }
 </style>

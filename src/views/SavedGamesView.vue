@@ -14,6 +14,12 @@ const settings = userStore.getSettings;
 const saves = ref();
 const games = ref(gameStore.getSavedGames);
 
+const types = {
+  "tp": "2 Player",
+  "ol": "Online",
+  "cp": "Computer"
+}
+
 function transitionDelays() {
   let pieces = [];
   if (saves.value) {
@@ -58,14 +64,32 @@ onMounted(transitionDelays);
 
 
 <template>
-  <div id="savedGameView">
-    <sequence-transition :interval="0.15">
+  <div id="savedGames" class="scroll-snap-view">
+    <sequence-transition id="gamesWrap" class="snap-section" :interval="0.15">
+      <template v-if="!Object.keys(games).length">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" id="fillerIcon">
+          <circle cx="12" cy="12" r="11.5" stroke-linecap="round" stroke-linejoin="round" />
+          <path
+            d="M8 12.5H12M16 12.5H12M12 5.5L11 4M12 12.5V18M12 18H17.5M12 18H6.5M6 8.5V7.5C6 6.94772 6.44772 6.5 7 6.5H17C17.5523 6.5 18 6.94772 18 7.5V8.5M18.5 12.5L14.5 8.5M5.5 12.5L9.5 8.5"
+            stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        <label class="filler-text-wrap">
+          <h2 class="filler-text">No Saved Games</h2>
+        </label>
+      </template>
       <button v-for="(gameData, key) in games" :key="key" v-on:click="() => start(key.toString())" class="saved-game"
         ref="saves">
         <div class="game-info">
-          <h2 class="game-type">{{ gameData.settings.type }}</h2>
+          <h2 class="game-type">{{ types[gameData.settings.type] }}</h2>
+          <label class="game-date-wrap">
+            <p class="game-date">{{ new Date(parseInt(key.toString())).toLocaleDateString().replaceAll("/", " : ")
+              }}
+            </p>
+          </label>
           <div class="game-timings">
-            <p v-for="timing in formatTimings(gameData)" :key="timing" class="game-timing">{{ timing }}</p>
+            <label class="wrap" v-for="timing in formatTimings(gameData)" :key="timing">
+              <p class="game-timing">{{ timing }}</p>
+            </label>
           </div>
           <div class="game-durations">
             <p class="game-duration-game">
@@ -100,22 +124,42 @@ onMounted(transitionDelays);
 
 
 <style>
-#savedGameView {
+#savedGames {
   height: 100vh;
-  width: 100%;
+  width: calc(100vw - 60px);
   padding: 0 30px;
-  margin: 0 -30px;
+  /* margin: 0 -30px; */
   overflow-y: scroll;
 }
 
-#savedGameView>.sequence-transition {
+/* #gamesWrap {
+  width: 100%;
+  max-width: 300px;
+  min-height: var(--safe-height);
+  margin: 0 auto;
+  padding: var(--vertical-padding) 0;
+  position: relative;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  min-height: calc(min(70vh, calc(85vh - 75px)) - 30px);
-  padding: calc(15vh + 30px) 0 max(calc(15vh), 75px);
   scroll-snap-align: start;
-  overflow-y: visible;
+  overflow: visible;
+} */
+
+#fillerIcon {
+  stroke: var(--translucent);
+  /* filter: drop-shadow(10px 5px 0px #22f) drop-shadow(-10px -5px 0px #f22); */
+  filter: drop-shadow(0 0 15px var(--generic));
+}
+
+.filler-text-wrap {
+  overflow: hidden;
+  display: block;
+  margin-top: 10px;
+}
+
+.filler-text {
+  opacity: .7;
 }
 
 button.saved-game {
@@ -142,12 +186,18 @@ div.game-info {
 
 .game-type {
   width: 100%;
+  height: 20px;
   text-align: left;
 }
 
-.game-timing {
+.game-date-wrap {
   width: 100%;
-  text-align: center;
+  text-align: left;
+}
+
+.game-timings .wrap,
+.game-date-wrap {
+  display: block;
 }
 
 .game-durations {
@@ -158,8 +208,9 @@ div.game-info {
   align-items: flex-end;
 }
 
-.game-timings,
 .game-info,
+.wrap,
+.game-date-wrap,
 .game-durations {
   overflow: hidden;
 }
@@ -207,10 +258,6 @@ button.saved-game:hover .game-type {
   letter-spacing: 4px;
 }
 
-button.saved-game:hover g[player]>circle.piece-background {
-  filter: drop-shadow(var(--icon-glow));
-}
-
 button.saved-game:active {
   aspect-ratio: 2;
   padding: 14px;
@@ -218,42 +265,52 @@ button.saved-game:active {
 }
 
 button.saved-game:active .game-type {
-  letter-spacing: 2px;
+  letter-spacing: 3px;
 }
 
-.v-enter-from .saved-game,
-.v-leave-to .saved-game {
-  opacity: 0;
+.v-enter-from,
+.v-leave-to {
+
+  & .saved-game,
+  .filler-text,
+  g.piece-wrap {
+    opacity: 0;
+  }
+
+  #fillerIcon {
+    /* filter: drop-shadow(0px 0px 0px #000) drop-shadow(0px 0px 0px #000); */
+    filter: none;
+    transform: scale(.9);
+    opacity: 0;
+  }
+
+  .game-type {
+    transform: translateX(-50%);
+  }
+
+  .game-duration-game {
+    transform: translateX(-50%);
+  }
+
+  .game-duration-turn {
+    transform: translateX(50%);
+  }
+
+  circle.piece-background {
+    r: 3px;
+  }
 }
 
-.v-enter-from .game-type,
-.v-leave-to .game-type {
-  transform: translateX(-50%);
-}
-
-.v-enter-from .game-duration-game,
-.v-leave-to .game-duration-game {
-  transform: translateX(-50%);
-}
-
-.v-enter-from .game-duration-turn,
-.v-leave-to .game-duration-turn {
-  transform: translateX(50%);
-}
-
+.v-enter-from .game-date,
 .v-enter-from .game-timing,
-.v-leave-to .game-timing {
-  transform: translateX(-50%);
+.v-enter-from .filler-text {
+  transform: translateY(-100%);
 }
 
-.v-enter-from g.piece-wrap,
-.v-leave-to g.piece-wrap {
-  opacity: 0;
-}
-
-.v-enter-from circle.piece-background,
-.v-leave-to circle.piece-background {
-  r: 3px;
+.v-leave-to .game-date,
+.v-leave-to .game-timing,
+.v-leave-to .filler-text {
+  transform: translateY(100%);
 }
 
 .v-enter-active g.piece-wrap,

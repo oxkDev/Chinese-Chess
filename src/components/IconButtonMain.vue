@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useUserStore } from '@/store';
-import IconMain from './IconMain.vue';
+import IconMain from './mains/IconMain.vue';
 
 const userStore = useUserStore();
 
@@ -22,23 +22,29 @@ const rotate = ["cross", "restart", "settings 1", "undo"];
 </script>
 
 <template>
-  <button v-if="type == 'button'" @click="() => { emits('click'); userStore.feedback(); }"
-    :active="String(props.active) != 'route' ? !!props.active : ''" :disable="!!props.disable" class="icon-button-main">
-    <icon-main :icon="icon"
-      :class="`buttonIcon ${rotate.indexOf(props.icon) != -1 ? 'rotate' : ''} ${big ? 'big' : ''}`" ref="svg" />
-  </button>
+  <a v-if="type == 'button'" @click="() => { emits('click'); userStore.feedback(); }"
+    :active="String(props.active) != 'route' ? !!props.active : ''" :disable="!!props.disable" class="icon-button-main"
+    :class="{ big }">
+    <icon-main :icon="icon" :class="{ rotate: rotate.includes(props.icon) }" ref="svg" />
+  </a>
   <router-link v-else :onclick="() => userStore.feedback()"
     :active="String(props.active) != 'route' ? !!props.active : ''" :disable="!!props.disable" :to="to ? to : ''"
-    class="icon-button-main">
-    <icon-main :icon="icon" :class="`${rotate.indexOf(props.icon) != -1 ? 'rotate' : ''} ${big ? 'big' : ''}`"
-      ref="svg" />
-
+    class="icon-button-main" :class="{ big }">
+    <icon-main :icon="icon" :class="{ rotate: rotate.includes(props.icon) }" ref="svg" />
   </router-link>
 </template>
 
 <style scoped>
 .icon-button-main {
+  height: 8vw;
+  max-height: 40px;
+  min-height: 15px;
+  width: 8vw;
+  max-width: 40px;
+  min-width: 15px;
+  padding: 7.5px;
   margin: 5px;
+  /* padding: 10px; */
   color: var(--text);
   text-shadow: var(--icon-shadow);
   background: none;
@@ -53,7 +59,7 @@ svg path {
   stroke-opacity: 1;
 }
 
-svg.big {
+.icon-button-main.big {
   height: 12vw;
   max-height: 60px;
   min-height: 30px;
@@ -62,12 +68,13 @@ svg.big {
   min-width: 30px;
 }
 
-svg.big:deep(path) {
+.icon-button-main.big svg:deep(path) {
   stroke-width: 1.5px;
 }
 
 .icon-button-main[disable="false"]:not([active="true"]):hover {
   opacity: 1;
+  cursor: pointer;
   filter: drop-shadow(var(--icon-shadow));
 }
 
@@ -92,7 +99,6 @@ a.router-link-exact-active.icon-button-main:not([active="false"]) {
   opacity: 1;
 }
 
-/* svg.buttonIcon:active path, */
 .icon-button-main[active="true"] svg:deep(path),
 a.router-link-exact-active.icon-button-main:not([active="false"]) svg:deep(path) {
   stroke: var(--secondary);
@@ -107,14 +113,11 @@ a.router-link-exact-active.icon-button-main:not([active="false"]) svg.rotate {
 .v-enter-from .icon-button-main,
 .footer-nav-leave-to.icon-button-main,
 .v-leave-to .icon-button-main {
-  transform: scale(.9);
-}
+  transform: scale(.8);
 
-.footer-nav-enter-from svg,
-.v-enter-from svg,
-.footer-nav-leave-to svg,
-.v-leave-to svg {
-  opacity: 0;
+  svg {
+    opacity: 0;
+  }
 }
 
 .footer-nav-enter-from svg.rotate,
@@ -122,8 +125,8 @@ a.router-link-exact-active.icon-button-main:not([active="false"]) svg.rotate {
   transform: rotate(135deg);
 }
 
-.footer-nav-leave-to .icon-button-main>svg.rotate,
+.footer-nav-leave-to.icon-button-main>svg.rotate,
 .v-leave-to .icon-button-main>svg.rotate {
   transform: rotate(-135deg) !important;
 }
-</style>
+</style>./mains/IconMain.vue

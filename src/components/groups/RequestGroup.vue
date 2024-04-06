@@ -18,12 +18,10 @@ const emits = defineEmits<{
         <slot />
       </h3>
       <div class="request-buttons">
-        <button-main class="request-deny"
-          @click="(e: MouseEvent) => { (e.target as Element).classList.add('request-choice'); emits('update', false) }">{{
-            options[0] }}</button-main>
-        <button-main class="request-accept"
-          @click="(e: MouseEvent) => { (e.target as Element).classList.add('request-choice'); emits('update', true) }">{{
-            options[1] }}</button-main>
+        <button-main v-for="(value, i) in [false, true]" :key="i" :class="{ 'request-accept': Boolean }"
+          @click="(e: MouseEvent) => { (e.target as Element).classList.add('request-choice'); emits('update', value) }">
+          {{ options[i] }}
+        </button-main>
       </div>
     </div>
   </transition>
@@ -63,20 +61,21 @@ const emits = defineEmits<{
   margin: 0 10px;
 }
 
-.v-enter-from.request-group,
-.v-leave-to.request-group {
-  opacity: 0;
-}
+.v-enter-from,
+.v-leave-to {
 
+  &.request-group {
+    opacity: 0;
+  }
+
+  .request-title {
+    transform: translateY(-5px);
+  }
+}
 
 .v-enter-active .request-accept,
 .request-choice,
 .v-leave-to.request-group {
   transition-delay: calc(var(--animation-speed) * 0.1s);
-}
-
-.v-enter-from .request-title,
-.v-leave-to .request-title {
-  transform: translateY(-5px);
 }
 </style>

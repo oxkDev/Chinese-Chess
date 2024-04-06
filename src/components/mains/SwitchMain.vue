@@ -9,6 +9,7 @@ const input = ref();
 defineProps<{
   name?: string,
   value?: boolean,
+  id?: string,
 }>();
 
 const emits = defineEmits<{
@@ -26,9 +27,9 @@ onMounted(() => {
 </script>
 
 <template>
-  <label class="switch-main">
+  <label class="switch-main" :for="id">
     <span class="knob">
-      <input type="checkbox" ref="input" :checked="value">
+      <input type="checkbox" ref="input" :id="id" :checked="value">
     </span>
   </label>
 </template>

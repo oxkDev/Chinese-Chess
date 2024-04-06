@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { ref } from 'vue';
 import SliderMain from '@/components/mains/SliderMain.vue';
 import { useUserStore } from '@/store';
 
@@ -20,45 +20,48 @@ const emits = defineEmits<{
   (e: "set", value: number): void,
 }>();
 
-const output = ref(0);
+const id = props.name ? props.name.toLowerCase().replaceAll(' ', '-') : undefined;
+
+const display = ref(0);
+const output = defineModel<number>();
 
 let interv: number;
 
 function update(newValue: number) {
   if (interv) cancelAnimationFrame(interv);
   newValue = parseInt(newValue.toString());
-  if (newValue == output.value) return;
+  if (newValue == display.value) return;
 
-  const change = newValue - output.value;
+  const change = newValue - display.value;
   const duration = Math.round(props.duration * settings.animationSpeed / 100);
   const startTime = performance.now();
 
   const intervFunc = () => {
     const percentage = (performance.now() - startTime) / duration;
-    if (percentage > 1) return output.value = newValue;
-    output.value = Math.round(newValue - (change * (1 - percentage)));
-    if (output.value != newValue) interv = requestAnimationFrame(intervFunc);
+    if (percentage > 1) return display.value = newValue;
+    display.value = Math.round(newValue - (change * (1 - percentage)));
+    if (display.value != newValue) interv = requestAnimationFrame(intervFunc);
   };
 
   if (duration) interv = requestAnimationFrame(intervFunc);
-  else output.value = newValue;
+  else display.value = newValue;
 }
 
 // onMounted(() => setTimeout(() => update(props.value), settings.animationSpeed));
-output.value = props.value;
+display.value = props.value;
 </script>
 
 <template>
   <div class="slider-group">
-    <label class="slider-heading">
-      <h3 class="slider-title">{{ name }}</h3>
-      <p v-if="props.options[output]" class="slider-reading"><b>{{ props.options[output] }}</b></p>
-      <p v-else class="slider-reading"><b>{{ output }}</b> {{ unit }}</p>
+    <label class="group-heading" :for="id">
+      <h3 class="group-title">{{ name }}</h3>
+      <p v-if="props.options[display]" class="group-value"><b>{{ props.options[display] }}</b></p>
+      <p v-else class="group-value"><b>{{ display }}</b> {{ unit }}</p>
     </label>
-    <slider-main class="slider" :id="name?.toLowerCase()" :max="max" :value="value"
+    <slider-main class="slider" :id="id" :max="max" :value="value" v-model="output"
       @on-input="v => { emits('update', v); update(v); }" @on-set="v => emits('set', v)" :step="step"></slider-main>
     <p class="slider-label-wrap">
-      <datalist :id="name?.toLowerCase()" class="slider-labels">
+      <datalist :id="id" class="slider-labels">
         <slot></slot>
       </datalist>
     </p>
@@ -69,18 +72,6 @@ output.value = props.value;
 .slider-group {
   width: 100%;
   margin: 15px 0;
-}
-
-.slider-heading {
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  overflow: hidden;
-}
-
-.slider-title {
-  min-width: 50%;
 }
 
 .slider-label-wrap {
@@ -99,30 +90,24 @@ datalist.slider-labels {
   /* font-weight: 200; */
 }
 
-datalist.slider-labels * {
+datalist.slider-labels>* {
   min-width: 30px;
 }
 
-.v-enter-from h3.slider-title,
-.v-leave-to h3.slider-title {
-  transform: translateX(-50%);
-  opacity: 0;
+.v-enter-from,
+.v-leave-to {
+
+  .slider-labels>* {
+    transform: scale(.9) translateY(-100%);
+    opacity: 0;
+  }
+
+  .slider {
+    opacity: 0;
+  }
 }
 
-.v-enter-from .slider-reading,
-.v-leave-to .slider-reading {
-  transform: translateX(100%);
-  opacity: 0;
-}
-
-.v-enter-from .slider-labels>*,
-.v-leave-to .slider-labels>* {
-  transform: scale(.9);
-  opacity: 0;
-}
-
-.v-enter-from .slider,
-.v-leave-to .slider {
-  opacity: 0;
+.v-enter-active .slider-labels>*{
+  transition-delay: calc(var(--sequence-delay) + .1s * var(--animation-speed));
 }
 </style>

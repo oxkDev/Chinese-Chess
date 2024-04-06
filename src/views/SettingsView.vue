@@ -36,64 +36,62 @@ watch(route, () => {
 </script>
 
 <template>
-  <div id="settings">
-    <div id="settingsScreen">
-      <snap-section title="appearance" route-name="/settings">
-        <grid-group margin="20px" name="Colour Palette">
-          <colour-theme-icon v-for="(theme, k) in colourThemes" :key="k" :theme="theme"
-            :selected="JSON.stringify(theme) == JSON.stringify(settings.colourTheme)"
-            @click="setSetting('colourTheme', theme);" />
-        </grid-group>
-        <grid-group margin="20px" name="Design Theme">
-          <div class="theme">e</div>
-          <div class="theme">f</div>
-          <div class="theme">g</div>
-          <div class="theme">h</div>
-        </grid-group>
-        <slider-group :value="parseInt(settings.blur.toString())" @update="v => setSetting('blur', v)" name="Blur"
-          :max="2" :options="{
-            0: 'None',
-            1: 'Minimal',
-            2: 'Fancy',
-          }">
-          <option value="0" label="None"></option>
-          <option value="1" label="Minimal"></option>
-          <option value="2" label="Fancy"></option>
-        </slider-group>
-      </snap-section>
+  <div id="settings" class="scroll-snap-view">
+    <snap-section title="appearance" route-name="/settings">
+      <grid-group margin="20px" name="Colour Palette">
+        <colour-theme-icon v-for="(theme, k) in colourThemes" :key="k" :theme="theme"
+          :selected="JSON.stringify(theme) == JSON.stringify(settings.colourTheme)"
+          @click="setSetting('colourTheme', theme);" />
+      </grid-group>
+      <grid-group margin="20px" name="Design Theme">
+        <div class="theme">e</div>
+        <div class="theme">f</div>
+        <div class="theme">g</div>
+        <div class="theme">h</div>
+      </grid-group>
+      <slider-group :value="parseInt(settings.blur.toString())" @update="v => setSetting('blur', v)" name="Blur"
+        :max="2" :options="{
+          0: 'None',
+          1: 'Minimal',
+          2: 'Fancy',
+        }">
+        <option value="0" label="None"></option>
+        <option value="1" label="Minimal"></option>
+        <option value="2" label="Fancy"></option>
+      </slider-group>
+    </snap-section>
 
-      <snap-section title="sound" route-name="/settings">
-        <switch-group @update="v => setSetting('music', v)" :value="settings.music">Music</switch-group>
-        <switch-group @update="v => setSetting('game', v)" :value="settings.game">Gameplay</switch-group>
-        <switch-group @update="v => setSetting('atmos', v)" :value="settings.atmos">Atmosphere</switch-group>
-        <switch-group @update="v => setSetting('haptic', v)" :value="settings.haptic">Vibrations</switch-group>
-      </snap-section>
+    <snap-section title="sound" route-name="/settings">
+      <switch-group @update="v => setSetting('music', v)" :value="settings.music">Music</switch-group>
+      <switch-group @update="v => setSetting('game', v)" :value="settings.game">Gameplay</switch-group>
+      <switch-group @update="v => setSetting('atmos', v)" :value="settings.atmos">Atmosphere</switch-group>
+      <switch-group @update="v => setSetting('haptic', v)" :value="settings.haptic">Vibrations</switch-group>
+    </snap-section>
 
-      <snap-section title="animation" route-name="/settings">
-        <slider-group :value="parseInt(settings.animationSpeed.toString())" @set="v => setSetting('animationSpeed', v)"
-          name="Speed" unit="%">
-          <option value="0" label="0%"></option>
-          <option value="100" label="100%"></option>
-        </slider-group>
-        <slider-group :value="parseInt(settings.animationLevel.toString())"
-          @update="v => setSetting('animationLevel', v)" name="Style" :max="2" :options="{
-            0: 'Minimal',
-            1: 'Standard',
-            2: 'Fancy'
-          }">
-          <option value="0" label="Minimal"></option>
-          <option value="50" label="Standard"></option>
-          <option value="100" label="Fancy"></option>
-        </slider-group>
-      </snap-section>
+    <snap-section title="animation" route-name="/settings">
+      <slider-group :value="parseInt(settings.animationSpeed.toString())" @set="v => setSetting('animationSpeed', v)"
+        name="Speed" unit="%">
+        <option value="0" label="0%"></option>
+        <option value="100" label="100%"></option>
+      </slider-group>
+      <slider-group :value="parseInt(settings.animationLevel.toString())" @update="v => setSetting('animationLevel', v)"
+        name="Style" :max="2" :options="{
+          0: 'Minimal',
+          1: 'Standard',
+          2: 'Fancy'
+        }">
+        <option value="0" label="Minimal"></option>
+        <option value="50" label="Standard"></option>
+        <option value="100" label="Fancy"></option>
+      </slider-group>
+    </snap-section>
 
-      <snap-section title="behaviour" route-name="/settings">
-        <switch-group @update="v => setSetting('positionAid', v)" :value="settings.positionAid">Position
-          Aid</switch-group>
-        <switch-group @update="v => setSetting('stalemateAid', v)" :value="settings.stalemateAid">Stalemate
-          Aid</switch-group>
-      </snap-section>
-    </div>
+    <snap-section title="behaviour" route-name="/settings">
+      <switch-group @update="v => setSetting('positionAid', v)" :value="settings.positionAid">Position
+        Aid</switch-group>
+      <switch-group @update="v => setSetting('stalemateAid', v)" :value="settings.stalemateAid">Stalemate
+        Aid</switch-group>
+    </snap-section>
     <nav id="sideNav">
       <icon-button-main v-for="( value, key ) in sideNav " :active="route.hash == value" :key="key" :to="value"
         :icon="key" class="side-nav" />
@@ -103,50 +101,11 @@ watch(route, () => {
 
 
 <style>
-#settings {
-  width: 100vw;
-  height: 100vh;
-  position: fixed;
-  left: 0px;
-  top: 0px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-#settingsScreen {
-  height: 100vh;
-  width: calc(100% - 120px);
-  padding: 0 60px;
-  overflow-y: scroll;
-  scroll-snap-type: y mandatory;
-}
-
 .theme {
   width: 55px;
   aspect-ratio: 1;
   border-radius: 10px;
   color: white;
   background-color: grey;
-}
-
-nav#sideNav {
-  display: flex;
-  flex-direction: column;
-  position: absolute;
-  justify-content: center;
-  right: 0px;
-  height: 100%;
-  top: 0px;
-}
-
-nav#sideNav path {
-  transition: var(--transition-m);
-}
-
-.v-enter-from a.side-nav,
-.v-leave-to a.side-nav {
-  transform: scale(.9);
-  opacity: 0;
 }
 </style>

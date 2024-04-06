@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import SequenceTransition from '@/components/SequenceTransition.vue';
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useUserStore } from '@/store';
 
@@ -8,7 +8,7 @@ const router = useRouter();
 const route = useRoute();
 const userStore = useUserStore();
 
-const settings = userStore.getSettings;
+const settings = computed(() => userStore.getSettings);
 
 const props = defineProps<{
   title: string,
@@ -17,17 +17,25 @@ const props = defineProps<{
 
 const section = ref();
 const show = ref(false);
+let intersecting = false;
 let timeout = 0;
 
+function scrollToSection(behaviour: "auto" | "smooth" | "instant" = "auto") {
+  if (section.value) section.value.scrollIntoView({ behavior: behaviour, inline: "nearest" });
+  show.value = true;
+}
+
 watch(route, () => {
-  if (route.path.indexOf(props.routeName) != -1) {
+  if (route.path.includes(props.routeName)) {
     clearTimeout(timeout);
-    if (route.hash == `#${props.title}` && !show.value) {
-      if (section.value) timeout = setTimeout(() => {
-        section.value.scrollIntoView({ behavior: "auto", inline: "nearest", block: "start" });
-        show.value = true;
-      }, 5 * settings.animationSpeed) as unknown as number;
-    } else if (route.hash != `#${props.title}`) {
+    console.log(intersecting, props.title);
+    if (route.hash == `#${props.title}` && !intersecting) {
+      if (settings.value.animationLevel >= 1) {
+        show.value = false;
+        timeout = setTimeout(scrollToSection, 5 * settings.value.animationSpeed);
+      } else
+        scrollToSection("smooth");
+    } else if (settings.value.animationLevel >= 1) {
       show.value = false;
       // if (elm) timeout = setTimeout(() => elm?.scrollIntoView({ behavior: "auto", inline: "nearest", block: "end" }), 5 * settings.animationSpeed);
     }
@@ -35,9 +43,14 @@ watch(route, () => {
 });
 
 onMounted(() => {
+  if (route.hash == `#${props.title}`) {
+    scrollToSection();
+  }
+
   const observer = new IntersectionObserver((e) => {
-    show.value = e[0].isIntersecting;
-    if (show.value && route.hash != `#${props.title}`) {
+    intersecting = e[0].isIntersecting;
+    show.value = intersecting || settings.value.animationLevel < 1;
+    if (intersecting && route.hash != `#${props.title}`) {
       router.push(`#${props.title}`);
       userStore.feedback();
     }
@@ -63,25 +76,26 @@ onMounted(() => {
 </template>
 
 <style scoped>
-section {
+/* section.snap-section {
+  width: 100%;
+  max-width: 300px;
+  min-height: var(--safe-height);
+  margin: 0 auto;
+  padding: var(--vertical-padding) 0;
+  position: relative;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  max-width: 300px;
-  margin: auto;
-  min-height: calc(70vh - 50px);
-  padding: calc(15vh + 25px) 0;
-  width: 100%;
   scroll-snap-align: start;
   overflow: visible;
-}
+} */
 
 .innerWrap {
   display: flex;
   flex-direction: column;
-}
 
-.innerWrap * {
-  transition-delay: inherit;
+  * {
+    transition-delay: inherit;
+  }
 }
 </style>

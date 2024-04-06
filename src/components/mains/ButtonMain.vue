@@ -8,6 +8,7 @@ defineProps<{
   small?: boolean,
   disable?: boolean,
   active?: boolean,
+  type?: "button" | "submit" | "reset",
 }>();
 
 const emits = defineEmits<{
@@ -17,9 +18,9 @@ const emits = defineEmits<{
 </script>
 
 <template>
-  <button :disabled="!!disable" class="button-main" :class="{ small, active }"
+  <button :disabled="!!disable" class="button-main" :class="{ small, active }" :type="type"
     :onclick="(e: MouseEvent) => { if (!disable) { emits('click', e); userStore.feedback(10); } }">
-    <h2 id="text">
+    <h2 class="button-text">
       <slot></slot>
     </h2>
   </button>
@@ -45,7 +46,7 @@ button.button-main.small {
   max-width: 140px;
 }
 
-#text {
+.button-text {
   height: 100%;
   /* line-height: 100%; */
   margin: 0;
@@ -78,28 +79,33 @@ button.button-main::after {
 
 button.button-main:hover {
   box-shadow: var(--default-glow);
+
+  &::after {
+    width: 120%;
+    left: -10%;
+    opacity: 0.15;
+  }
+
+  .button-text {
+    letter-spacing: 4px;
+  }
 }
 
-button.button-main:hover::after {
-  width: 120%;
-  left: -10%;
-  opacity: 0.15;
+button.button-main:active {
+
+  &::after {
+    background-color: var(--contrast);
+  }
+
+  .button-text {
+    letter-spacing: 2px;
+  }
 }
 
-button.button-main:hover #text {
-  letter-spacing: 4px;
-}
-
-button.button-main:active::after {
-  background-color: var(--contrast);
-}
-
-button.button-main:active #text {
-  letter-spacing: 2px;
-}
-
+.v-enter-from button.button-main,
 .v-leave-to button.button-main,
-.v-enter-from button.button-main {
+button.button-main.v-enter-from,
+button.button-main.v-leave-to {
   /* transform: translateX(-50px); */
   transform: scale(.9);
   box-shadow: none;
@@ -111,9 +117,9 @@ button.button-main[disabled] {
   pointer-events: none;
   background: var(--translucent);
   box-shadow: var(--inner-shadow);
-}
 
-button.button-main[disabled] #text {
-  opacity: .5;
+  .button-text {
+    opacity: .5;
+  }
 }
 </style>

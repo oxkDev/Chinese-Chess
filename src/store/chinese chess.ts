@@ -2,7 +2,7 @@
 export interface Pieces { [key: string]: number[] }
 
 export interface GameSettings {
-  type: "2 Player" | "Computer" | "Online",
+  type: "tp" | "cp" | "ol",
   names: string[],
   gameDuration: number,
   turnDuration: number,
@@ -369,14 +369,14 @@ export class Game {
       const coord = pieces[key], splitKey = key.split(" "), piece = splitKey[0], player = parseInt(splitKey[1]);
       // console.log(key, pieces)
       if (
-        "CMJPB".indexOf(piece[0]) == -1 ||
+        !"CMJPB".includes(piece[0]) ||
         player == checkPlayer ||
         (!(coord[0] == general.coord[0] || coord[1] == general.coord[1]) && (coord[1] < zone[0] || coord[1] > zone[1]))
       ) continue;
 
       const pieceDat = this.movesCheck({ type: piece, player: 1 - checkPlayer }, pieces);
       // console.log(pieceDat)
-      if (pieceDat.attacks.indexOf(general.key) > -1) attackers.push(key);
+      if (pieceDat.attacks.includes(general.key)) attackers.push(key);
 
     }
     return attackers;
@@ -507,17 +507,18 @@ export default class Board extends Game {
     this.names = [gameSettings.names[0], gameSettings.names[0] == gameSettings.names[1] ? gameSettings.names[1] + "2" : gameSettings.names[1]];
     this.startTime = Date.now().toString();
 
+    this.settings = gameSettings;
+    
     this.boardHist = {
       0: {
         board: { ...this.pieces },
-        turn: gameSettings.starter,
+        turn: this.settings.starter,
         time: {
-          0: gameSettings.gameDuration,
-          1: gameSettings.gameDuration
+          0: this.settings.gameDuration,
+          1: this.settings.gameDuration
         }
       }
     };
-    this.settings = gameSettings;
 
     this.timer = {
       0: new Timer(),
@@ -525,9 +526,9 @@ export default class Board extends Game {
     };
 
     this.turn = {
-      player: gameSettings.starter,
+      player: this.settings.starter,
       timer: new Timer(), iteration: 0,
-      actions: this.checkmateCheck(gameSettings.starter)
+      actions: this.checkmateCheck(this.settings.starter)
     };
 
     this.onWin = onWin;
@@ -536,9 +537,11 @@ export default class Board extends Game {
   }
 
   updateSettings(gameSettings: GameSettings) {
+    console.log("game: updateSettings");
     this.names = [gameSettings.names[0], gameSettings.names[0] == gameSettings.names[1] ? gameSettings.names[1] + "2" : gameSettings.names[1]];
     this.settings = gameSettings;
-    if (gameSettings.turnDuration <= this.turn.timer.getRunning() && gameSettings.turnDuration > 0) this.turn.timer.set(0);
+
+    if (this.settings.turnDuration <= this.turn.timer.getRunning() && this.settings.turnDuration > 0) this.turn.timer.set(0);
     this.timer[0].updateEvent();
     this.timer[1].updateEvent();
   }
@@ -561,6 +564,7 @@ export default class Board extends Game {
       1: 0
     }
   }) {
+    console.log("game: updateGame");
     this.pause(true);
 
     this.startTime = gameData.start;
@@ -597,19 +601,6 @@ export default class Board extends Game {
     }
   }
 
-  pause(set = true) {
-    if (this.winner == undefined) {
-      console.log("pause", set)
-      this.turn.timer.pause(set);
-      this.timer[this.turn.player].pause(set);
-      this.timer[1 - this.turn.player].pause(true);
-    } else {
-      this.timer[0].pause(true);
-      this.timer[1].pause(true);
-      this.turn.timer.pause(true);
-    }
-  }
-
   start(gameData?: GamePlayData) {
     for (const i in this.timer) {
       const player = parseInt(i);
@@ -638,6 +629,7 @@ export default class Board extends Game {
   }
 
   move(piece: string, coord: number[]) {
+    console.log("game: move");
     this.pause(true);
 
     for (const i in this.pieces) if (String(this.pieces[i]) == String(coord)) delete this.pieces[i];
@@ -666,6 +658,7 @@ export default class Board extends Game {
   }
 
   undo(to = this.turn.iteration - 1) {
+    console.log("game: undo");
     this.pause(true);
     this.winner = undefined;
 
@@ -693,6 +686,19 @@ export default class Board extends Game {
 
     this.onUpdate(this.turn.actions, this.stalemateCheck(this.turn.player), this.getGame());
     this.pause(false);
+  }
+
+  pause(set = true) {
+    console.log("pause", set);
+    if (this.winner == undefined) {
+      this.turn.timer.pause(set);
+      this.timer[this.turn.player].pause(set);
+      this.timer[1 - this.turn.player].pause(true);
+    } else {
+      this.timer[0].pause(true);
+      this.timer[1].pause(true);
+      this.turn.timer.pause(true);
+    }
   }
 
   win(player = 1 - this.turn.player) {

@@ -4,77 +4,85 @@ import { useUserStore } from '@/store';
 
 const userStore = useUserStore();
 
-const input = ref();
-const width = ref(36);
-
 const props = defineProps({
-  id: { type: String, default: "options" },
+  id: { type: String },
   max: { type: Number, default: 100 },
   value: { type: Number, default: -1 },
-  step: { type: Number, defualt: 1 },
+  step: { type: Number, default: 1 },
 });
-
-let defValue = props.value;
 
 const emits = defineEmits<{
   (e: "onInput", newValue: number): void,
   (e: "onSet", newValue: number): void,
 }>();
 
-watch(props, () => {
+const input = ref();
+const width = ref(36);
+const output = defineModel({ default: 0 });
+
+let defValue = props.value;
+
+let timeouts = {
+  fb: 0,
+  pos: 0,
+};
+
+watch(() => props.max, () => {
   if (input.value && input.value.value > props.max) {
     input.value.value = props.max;
+    setPosition();
     emits("onInput", input.value.value);
-  } else if (props.value != defValue) {
+  } else
+    setPosition();
+});
+
+watch(() => props.value, () => {
+  if (props.value != input.value.value) {
+    console.log("update");
     defValue = props.value;
     input.value.value = defValue;
+    setPosition();
     emits("onInput", input.value.value);
   }
-  setPosition();
 });
 
 function setPosition() {
+  output.value = parseInt(input.value.value);
+  if (!timeouts.pos) {
+    width.value = input.value.value / props.max;
+    timeouts.pos = setTimeout(() => {
+      timeouts.pos = 0;
+      width.value = input.value.value / props.max;
+    }, 0.5 * userStore.getSettings.animationSpeed);
+  }
   // status.value = input.value.value;
-  width.value = input.value.value / props.max;
 }
 
-
 onMounted(() => {
-  let timeouts = {
-    fb: 0,
-    pos: 0,
-  };
   input.value.value = props.value == -1 ? props.max / 2 : props.value;
-  width.value = input.value.value / props.max;
+  setPosition();
+
   input.value.addEventListener("input", () => {
-    emits("onInput", input.value.value);
+    setPosition();
+    emits("onInput", parseInt(input.value.value));
+
     if (!timeouts.fb && userStore.getSettings.haptic) {
       timeouts.fb = setTimeout(() => {
         timeouts.fb = 0;
         userStore.feedback();
       }, 10);
     }
-    if (!timeouts.pos) {
-      setPosition();
-      timeouts.pos = setTimeout(() => {
-        timeouts.pos = 0;
-        setPosition();
-      }, 0.5 * userStore.getSettings.animationSpeed);
-    }
   });
-  input.value.addEventListener("mouseup", () => {
-    emits("onSet", input.value.value);
-  });
-  input.value.addEventListener("touchend", () => {
-    emits("onSet", input.value.value);
-  });
+
+  input.value.addEventListener("mouseup", () => emits("onSet", parseInt(input.value.value)));
+  input.value.addEventListener("touchend", () => emits("onSet", parseInt(input.value.value)));
 });
 
 </script>
 
 <template>
   <div class="slider-main">
-    <input type="range" min="0" :max="max" :list="id" :step="step" ref="input">
+    <input type="range" min="0" :max="max" :id="id" :list="id" :step="step" ref="input">
     <div class="progress"><span class="knob"></span></div>
   </div>
 </template>
@@ -87,7 +95,7 @@ onMounted(() => {
 .slider-main {
   height: 36px;
   max-width: 300px;
-  margin: 10px 0 0;
+  margin-top: 10px;
   border-radius: 20px;
   background: var(--translucent);
   position: relative;
@@ -114,16 +122,16 @@ input:hover {
   display: flex;
   justify-content: flex-end;
   align-items: center;
-}
 
-.progress>.knob {
-  height: 26px;
-  min-width: 26px;
-  margin: 5px;
-  border-radius: 20px;
-  background: var(--contrast-translucent);
-  box-shadow: var(--default-shadow);
-  display: block;
+  .knob {
+    height: 26px;
+    min-width: 26px;
+    margin: 5px;
+    border-radius: 20px;
+    background: var(--contrast-translucent);
+    box-shadow: var(--default-shadow);
+    display: block;
+  }
 }
 
 .slider-main:hover .progress {

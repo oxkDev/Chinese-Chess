@@ -2,19 +2,17 @@
 import SequenceTransition from '@/components/SequenceTransition.vue';
 import TextInput from '@/components/TextInput.vue';
 import ButtonMain from '@/components/mains/ButtonMain.vue';
-import { useUserStore } from '@/store';
+import { useFireStore, useUserStore } from '@/store';
 import { ref } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRouter } from 'vue-router';
 
-const userStore = useUserStore();
-const route = useRoute();
+const userStore = useUserStore(), fireStore = useFireStore();
+const router = useRouter();
 
 const username = ref(userStore.email?.split('@')[0]);
 
-route.meta.title = 'Welcome';
-
 function setup() {
-  if (username.value) userStore.setupAccount(username.value);
+  if (username.value) userStore.setupAccount(username.value).then(() => router.push("/account"));
 }
 
 addEventListener("keypress", e => {
@@ -24,17 +22,11 @@ addEventListener("keypress", e => {
 
 <template>
   <sequence-transition id="accountSetup" class="page-view">
-    <img src="@/assets/logo/favicon-jiang (dark).svg" id="userPicture" />
+    <img src="@/assets/logo/favicon-jiang (dark).svg" class="profile-picture" />
     <text-input name="username" :value="username" v-model="username">Username</text-input>
     <button-main :disable="!username" @click="setup()">Confirm</button-main>
   </sequence-transition>
 </template>
 
 <style>
-#userPicture {
-  width: 60%;
-  align-self: center;
-  transition: var(--transition-m);
-  margin-bottom: 20px;
-}
 </style>

@@ -173,7 +173,7 @@ onMounted(() => {
         <icon-button-main to="/game-play/menu" icon="menu" />
       </nav>
     </div>
-    <transition :duration="{ enter: 700, leave: 500 }" mode="out-in">
+    <transition :duration="700" mode="out-in">
       <div v-if="route.name != 'Game Play'" :key="String(route.name != 'Game Play')" id="gameOverlay"
         class="overlay-view">
         <section class="page-view">
@@ -181,7 +181,7 @@ onMounted(() => {
         </section>
         <div class="footer bottom">
           <nav class="navbar main">
-            <transition-group name="footer-nav" :duration="500 * userStore.getSettings.animationSpeed">
+            <transition-group name="footer-nav" :duration="5 * userStore.getSettings.animationSpeed">
               <icon-button-main v-if="route.path.includes('menu') && (!!route.hash || route.name != 'Menu')"
                 type="button" @click="router.push('/game-play/menu')" icon="back 1" />
               <icon-button-main type="button" @click="router.push('/game-play')" icon="cross" key="cross" />
@@ -231,16 +231,6 @@ onMounted(() => {
 
 .request-group.top {
   top: 80px;
-}
-
-.footer {
-  width: 100%;
-  position: fixed;
-  left: 0px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  z-index: 10;
 }
 
 .footer.top {

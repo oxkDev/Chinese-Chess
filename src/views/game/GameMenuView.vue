@@ -23,7 +23,6 @@ const emits = defineEmits<{
 
 <template>
   <transition-group name="menu" tag="div" class="menu-screen">
-
     <icon-button-main v-if="route.hash == '#home' || !route.hash" :active="route.hash == '#home'" type="button"
       key="home" icon="home" :big="true" @click="router.push('#home')" class="menu-button" />
     <icon-button-main v-if="!route.hash" type="button" key="settings 1" icon="settings 1" :big="true"
@@ -43,7 +42,7 @@ const emits = defineEmits<{
     </div>
   </transition>
   <router-view v-slot="{ Component }">
-    <transition :duration="500 * settings.animationSpeed">
+    <transition :duration="5 * settings.animationSpeed">
       <component :is="Component" />
     </transition>
   </router-view>

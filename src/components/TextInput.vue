@@ -63,7 +63,7 @@ onMounted(() => {
 	box-shadow: var(--inner-shadow);
 }
 
-input {
+.text-input>input {
 	margin: 5px 10px;
 	width: calc(100% - 20px);
 	height: calc(100% - 10px);

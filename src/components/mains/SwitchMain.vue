@@ -35,11 +35,6 @@ onMounted(() => {
 </template>
 
 <style scoped>
-input {
-  opacity: 0;
-  height: 0;
-  width: 0;
-}
 
 .switch-main {
   height: 36px;
@@ -48,6 +43,12 @@ input {
   background: var(--translucent);
   box-shadow: var(--inner-shadow);
   display: flex;
+}
+
+.switch-main input {
+  opacity: 0;
+  height: 0;
+  width: 0;
 }
 
 .switch-main:has(input:checked) {
@@ -100,34 +101,4 @@ input {
   margin-right: 34px;
   transform: scale(.9);
 }
-
-/* .v-enter-active .switch-main {
-  animation: forwards .5s animate ease;
-}
-
-.v-leave-active .switch-main {
-  animation: forwards reverse .5s animate ease;
-}
-
-@keyframes animate {
-  0% {
-    width: 36px;
-    margin-right: 34px;
-    transform: scale(.9);
-  }
-  
-  25% {
-    width: 36px;
-    margin-right: 34px;
-  }
-
-  75% {
-    transform: scale(1);
-  }
-  
-  100% {
-    width: 70px;
-    margin-right: 0px;
-  }
-} */
 </style>

@@ -167,6 +167,11 @@ input::-webkit-slider-thumb {
   width: 36px;
 }
 
+.v-enter-active.sequence-transition .progress,
+.v-enter-active .sequence-transition .progress {
+  transition-delay: calc(var(--sequence-delay) * 1.5);
+}
+
 .v-enter-active .progress,
 .v-leave-active .progress {
   transition: var(--transition-m);

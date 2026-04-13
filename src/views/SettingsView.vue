@@ -6,9 +6,10 @@ import SwitchGroup from '@/components/groups/SwitchGroup.vue';
 import IconButtonMain from '@/components/IconButtonMain.vue';
 import ColourThemeIcon from '@/components/ColourThemeIcon.vue';
 import { useRoute, useRouter } from 'vue-router';
-import { Settings, useUserStore } from '@/store';
+import { useUserStore } from '@/store';
 import { computed, watch } from 'vue';
 import { ColourTheme, colourThemes } from '@/store/themes';
+import type { Settings } from '@/store/types';
 
 const route = useRoute();
 const router = useRouter();
@@ -105,7 +106,10 @@ watch(route, () => {
   width: 55px;
   aspect-ratio: 1;
   border-radius: 10px;
-  color: white;
-  background-color: grey;
+  color: var(--text);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--background-secondary);
 }
 </style>

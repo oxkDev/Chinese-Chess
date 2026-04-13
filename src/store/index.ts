@@ -1,10 +1,12 @@
 import { defineStore } from 'pinia'
-import { ColourTheme } from './themes';
 import { type GamePlayData, type GameSettings } from './chinese chess';
 import { deleteDoc, doc, getDoc, onSnapshot, setDoc } from 'firebase/firestore';
 import { db } from './firebase';
-import { EmailAuthProvider, createUserWithEmailAndPassword, getAuth, reauthenticateWithCredential, sendEmailVerification, signInWithEmailAndPassword, updateEmail, updatePassword, updateProfile } from 'firebase/auth';
+import { EmailAuthProvider, createUserWithEmailAndPassword, getAuth, reauthenticateWithCredential, sendEmailVerification, signInWithEmailAndPassword, updateEmail, updatePassword, updateProfile, verifyBeforeUpdateEmail } from 'firebase/auth';
 import { ref, toRaw } from 'vue';
+import { UserData, Settings } from './types';
+import { FirebaseError } from 'firebase/app';
+import { useRoute } from 'vue-router';
 
 const auth = getAuth();
 
@@ -12,103 +14,8 @@ export const errorMessage: { [key: string]: string } = {
   "auth/invalid-credential": "The email or password provided is invalid",
   "auth/invalid-email": "The email provided is invalid",
   "auth/email-already-in-use": "This email is already in use",
-  "auth/too-many-requests": "This account is temporarily disabled due to too many failed login attempts"
-}
-
-export class Settings {
-  colourTheme: ColourTheme;
-  designTheme: "default" | "subtle" | "square";
-  blur: number;
-  music: boolean;
-  game: boolean;
-  atmos: boolean;
-  haptic: boolean;
-  animationSpeed: number;
-  animationLevel: number;
-  positionAid: boolean;
-  stalemateAid: boolean;
-  constructor({
-    colourTheme = new ColourTheme(),
-    designTheme = "default" as "default" | "subtle" | "square",
-    blur = 2,
-    music = false,
-    game = false,
-    atmos = false,
-    haptic = true,
-    animationSpeed = 100,
-    animationLevel = 2,
-    positionAid = true,
-    stalemateAid = true,
-  } = {}) {
-    this.colourTheme = colourTheme;
-    this.designTheme = designTheme;
-    this.blur = blur;
-    this.music = music;
-    this.game = game;
-    this.atmos = atmos;
-    this.haptic = haptic;
-    this.animationSpeed = animationSpeed;
-    this.animationLevel = animationLevel;
-    this.positionAid = positionAid;
-    this.stalemateAid = stalemateAid;
-  }
-}
-
-export class UserData {
-  email: string;
-  username: string;
-  score: number;
-  rank: number;
-  statistics: Statistics;
-  constructor({
-    email,
-    username,
-    score = 100,
-    rank = 0,
-    statistics = new Statistics({ bestRank: rank }),
-  }: {
-    email: string,
-    username: string,
-    score?: number,
-    rank?: number,
-    statistics?: Statistics,
-  }) {
-    this.email = email;
-    this.username = username;
-    this.score = score || 0;
-    this.rank = rank || 0;
-    this.statistics = { ...new Statistics(statistics) };
-  }
-}
-
-class Statistics {
-  bestRank: number;
-  games: { "tp": number, "cp": number, "ol": number, };
-  wins: { "tp": number, "cp": number, "ol": number, };
-  moves: { "tp": number, "cp": number, "ol": number, };
-  playTime: { "tp": number, "cp": number, "ol": number, };
-  constructor({
-    bestRank = 0,
-    games = { "tp": 0, "cp": 0, "ol": 0, },
-    wins = { "tp": 0, "cp": 0, "ol": 0, },
-    moves = { "tp": 0, "cp": 0, "ol": 0, },
-    playTime = { "tp": 0, "cp": 0, "ol": 0, }
-  } = {}) {
-    this.bestRank = bestRank;
-    this.games = games;
-    this.wins = wins;
-    this.moves = moves;
-    this.playTime = playTime;
-  }
-}
-
-export class GameData {
-  settings?: GameSettings;
-  play?: GamePlayData;
-  constructor({ settings, play }: { settings?: GameSettings, play?: GamePlayData }) {
-    this.settings = settings;
-    this.play = play;
-  }
+  "auth/too-many-requests": "This account is temporarily disabled due to too many failed login attempts",
+  "auth/network-request-failed": "Sorry, there is no internet connection at the moment."
 }
 
 export const useFireStore = defineStore('firestore', () => {
@@ -140,7 +47,7 @@ export const useFireStore = defineStore('firestore', () => {
       "playTime": sum(localStat.playTime) > sum(snapshotStat.playTime) ? localStat.playTime : snapshotStat.playTime,
     };
     return new UserData({
-      email: localData.email,
+      email: snapshotData.email,
       username: snapshotData.username || localData.username,
       score: snapshotData.score || localData.score,
       statistics: newStat,
@@ -159,41 +66,75 @@ export const useFireStore = defineStore('firestore', () => {
   // actions
   async function loadFirebase() {
     const user = auth.currentUser;
+
     if (user && user.email) {
-      userStore.email = user.email;
-      const snapshot = await getDoc(getUserDoc()).catch(e => {
-        console.error("saveFirebase error:", e);
-        throw e;
-      });
-
-      const rawData = { ...snapshot.data() } as { email: string, username: string, [key: string]: any };
-      if (!rawData || JSON.stringify(rawData) == '{}') {
-        if (userStore.user) saveFirebase();
-        return;
+      firebaseData.value = {
+        provider: user.providerId,
+        displayName: user.displayName,
+        email: user.email,
+        photoURL: user.photoURL,
+        verified: user.emailVerified,
       }
+      console.log("verified?:", user.emailVerified);
 
-      const snapUserData = new UserData(rawData.email && rawData.username ? rawData : { email: user.email, username: user.email.split("@")[0] });
+      if (firebaseData.value.displayName != userStore.user?.username)
+        updateUserMeta();
 
-      userStore.user = userStore.user ? merge(userStore.user, snapUserData) : snapUserData;
-      userStore.saveLocalStorage();
-      console.info("loadFirebase success:", userStore.user);
+      if (user.emailVerified) {
+        userStore.email = user.email;
+        const snapshot = await getDoc(getUserDoc()).catch(e => {
+          console.error("saveFirebase error:", e);
+          throw e;
+        });
 
-      if (JSON.stringify(snapUserData) != JSON.stringify(userStore.user)) saveFirebase();
+        const rawData = { ...snapshot.data() } as { email: string, username: string, [key: string]: any };
+        if (!rawData || JSON.stringify(rawData) == '{}') {
+          if (userStore.user) saveFirebase();
+          return;
+        }
 
-      return { rawData, userData: userStore.user };
+        const snapUserData = new UserData({ email: user.email, username: rawData.username || user.email.split("@")[0] });
+
+        userStore.user = userStore.user ? merge(userStore.user, snapUserData) : snapUserData;
+        userStore.saveLocalStorage();
+        console.info("loadFirebase success:", userStore.user, user);
+
+        if (JSON.stringify(snapUserData) != JSON.stringify(userStore.user)) saveFirebase();
+
+        return { rawData, userData: userStore.user };
+      } else throw "loadFirebase error: user not verified";
+    } else {
+      firebaseData.value = undefined;
+      throw "loadFirebase error: user not signed in";
     }
+
   }
 
   async function saveFirebase() {
     const user = auth.currentUser;
-    if (user && user.email) {
+    if (user && user.email && user.emailVerified) {
       // if (!userStore.user) userStore.user = new UserData({ email: user.email });
       await setDoc(getUserDoc(), { ...userStore.user }).catch(e => {
         console.error("saveFirebase error:", e);
         throw e;
       });
       console.info("saveFirebase success:", userStore.user);
-    }
+    } else throw "saveFirebase error: user not signed in or verified";
+  }
+
+  async function reloadUser() {
+    const user = auth.currentUser;
+    if (user) {
+      try {
+        await user.reload();
+
+        if (user.emailVerified) await loadFirebase();
+        console.log("reloadUser: success");
+      } catch (e) {
+        console.error("reloadUser error:", e);
+        throw e;
+      }
+    } else throw "reloadUser error: user not signed in";
   }
 
   async function updateUserMeta() {
@@ -204,6 +145,19 @@ export const useFireStore = defineStore('firestore', () => {
       });
       console.log('updateUserMeta: success');
     }
+  }
+
+  async function updateEmail(email: string) {
+    const user = auth.currentUser;
+    if (user && user.email && user.emailVerified) {
+      await verifyBeforeUpdateEmail(user, email).then(() => {
+        console.log("updateEmail success:", email);
+        // if (firebaseData.value) firebaseData.value.verified = false;
+      }).catch(e => {
+        console.error("updateEmail error:", e);
+        throw e;
+      });
+    } else throw "updateEmail error: user not signed in";
   }
 
   // initialise
@@ -218,33 +172,22 @@ export const useFireStore = defineStore('firestore', () => {
 
   auth.onAuthStateChanged(user => {
     console.log("status update", user)
-    userStore.loggedIn = !!user;
-    loadFirebase();
+    if (userStore.loggedIn = !!(user && user.email))
+      loadFirebase();
 
-    if (user && user.email) {
-      firebaseData.value = {
-        provider: user.providerId,
-        displayName: user.displayName,
-        email: user.email,
-        photoURL: user.photoURL,
-        verified: user.emailVerified,
-      }
-
-      if (firebaseData.value.displayName != userStore.user?.username)
-        updateUserMeta();
-    } else
-      firebaseData.value = undefined;
   });
 
   return {
     // states
     firebaseData,
     // actions
-    getUserDoc,
     loadFirebase,
     saveFirebase,
+    reloadUser,
+    updateEmail,
     updateUserMeta,
     // getters
+    getUserDoc,
     async getStatus() {
       await auth.authStateReady();
       return !!auth.currentUser;
@@ -255,11 +198,13 @@ export const useFireStore = defineStore('firestore', () => {
 export const useUserStore = defineStore('userStore', {
   state: () => {
     // localStorage.setItem("settings", "");
-    const userStore = localStorage.getItem("userStore"), userData = {
+    const userStore = localStorage.getItem("userStore");
+    const userData = {
       settings: new Settings(),
       user: undefined as UserData | undefined,
       email: undefined as string | undefined,
     };
+
     if (userStore) {
       const parsedData = JSON.parse(userStore);
 
@@ -274,23 +219,32 @@ export const useUserStore = defineStore('userStore', {
     getSettings(state): Settings {
       return state.settings;
     },
+
     getUser(state): UserData {
       // if (!this.user) throw "UserData not fuond";
       // return this.user
-      return state.user || new UserData({ email: "An unexpected error has occurred", username: "Error..." });
+      return state.user || new UserData({ email: "An unexpected error has occurred", username: "Error :O" });
     },
+
     getEmail(state) {
       return state.email;
     },
+
     getStatistics(state): { [key: string]: any } {
       if (state.user) return state.user.statistics;
       else return {};
     },
+
     isSetup(state): boolean {
       return !!state.user;
     },
+
     isLoggedIn(state) {
       return state.loggedIn;
+    },
+
+    isVerified() {
+      return useFireStore().firebaseData?.verified || false;
     }
   },
   actions: {
@@ -301,20 +255,25 @@ export const useUserStore = defineStore('userStore', {
         email: this.email,
       }));
     },
+
     loadLocalStorage() {
       const userStore = localStorage.getItem(this.$id), parsedData = JSON.parse(userStore ? userStore : "{}");
       this.settings = new Settings(parsedData.settings);
       this.user = parsedData.user;
       this.email = parsedData.email;
     },
+
     setSettings(settings: Settings) {
       this.settings = settings;
       this.saveLocalStorage();
     },
+
     async setupAccount(username: string) {
+      const fireStore = useFireStore();
       // if successful, add user to state.user;
-      if (!(await useFireStore().getStatus())) throw "setupAccount: user not signed in";
+      if (!(await fireStore.getStatus())) throw "setupAccount: user not signed in";
       if (!auth.currentUser || !auth.currentUser.email) throw "setupAccount: user email not found";
+      if (!fireStore.firebaseData?.verified) throw "setupAccount: account not verified";
 
       this.user = new UserData({ email: auth.currentUser.email, username });
       this.saveLocalStorage();
@@ -326,6 +285,7 @@ export const useUserStore = defineStore('userStore', {
       }
 
     },
+
     async signUp({ email, password }: {
       email: string,
       password: string,
@@ -335,10 +295,21 @@ export const useUserStore = defineStore('userStore', {
         console.error("signUp error:", e);
         throw e;
       });
-      const verify = await sendEmailVerification(result.user, { url: import.meta.url });
+
+      const route = useRoute();
+
+      const verify = await sendEmailVerification(result.user, { url: route.fullPath });
       console.log(verify);
       return result;
     },
+
+    async verifyEmail() {
+      await useFireStore().reloadUser();
+
+      const route = useRoute();
+      if (auth.currentUser && !auth.currentUser.emailVerified) await sendEmailVerification(auth.currentUser, { url: route.fullPath });
+    },
+
     async signIn({ email, password }: {
       email: string,
       password: string,
@@ -352,6 +323,7 @@ export const useUserStore = defineStore('userStore', {
       await useFireStore().loadFirebase();
       return result;
     },
+
     async signOut() {
       auth.signOut().catch(e => {
         console.info("signOut: error");
@@ -361,12 +333,14 @@ export const useUserStore = defineStore('userStore', {
       this.saveLocalStorage();
       return "success";
     },
+
     async reSignIn(password: string) {
       const user = auth.currentUser;
       if (!user || !user.email) throw "reSignIn error: user not signed in";
       const authCred = EmailAuthProvider.credential(user.email, password);
       await reauthenticateWithCredential(user, authCred);
     },
+
     async updateUserData({ username }: { username: string }) {
       const fireStore = useFireStore();
       if (this.user && fireStore.firebaseData) {
@@ -376,26 +350,31 @@ export const useUserStore = defineStore('userStore', {
         fireStore.saveFirebase();
       }
     },
+
     async updateAccount({ email, newPassword }: { email?: string, newPassword?: string }) {
       const user = auth.currentUser;
       if (!user) throw "updateAccount error: user not signed in";
 
       try {
-        if (email && user.email != email) updateEmail(user, email);
-        if (newPassword) updatePassword(user, newPassword);
+        if (newPassword) await updatePassword(user, newPassword);
+        await useFireStore().reloadUser();
+        
+        if (email && user.email != email && this.isVerified) await useFireStore().updateEmail(email);
       } catch (e) {
         console.error("updateAccount error:", e);
         throw e;
       }
     },
+
     async deleteAccount(password: string) {
       const user = auth.currentUser;
       if (user && user.email) {
         await this.reSignIn(password);
-        console.log("signed in")
+        console.log("deleteAccount: signed in")
         try {
           await user.delete().then(async () => {
             this.user = undefined;
+            this.email = undefined;
             this.saveLocalStorage();
             await deleteDoc(useFireStore().getUserDoc(user));
           });
@@ -406,6 +385,7 @@ export const useUserStore = defineStore('userStore', {
         }
       } else throw ("Not signed in");
     },
+
     async resetAccount() {
       const user = auth.currentUser;
       this.settings = new Settings();
@@ -420,9 +400,11 @@ export const useUserStore = defineStore('userStore', {
 
       useFireStore().saveFirebase();
     },
+
     updateStat(type: "tp" | "ol" | "cp", action: "games" | "moves" | "wins" | "playTime", value: number) {
-      if (this.user) this.user.statistics[action][type] = this.user.statistics[action][type] + value || 0;
+      if (this.user) this.user.statistics[action][type] += value || 0;
     },
+
     feedback(pattern: number | number[] = 5) {
       if (this.settings.haptic && navigator.vibrate) navigator.vibrate(pattern);
     }

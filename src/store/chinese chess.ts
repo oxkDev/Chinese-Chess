@@ -1,4 +1,3 @@
-
 export interface Pieces { [key: string]: number[] }
 
 export interface GameSettings {
@@ -69,7 +68,7 @@ export class Game {
     // console.log("movecheck", type, player, coord);
     const [x, y] = coord;
     const functions: { [fn: string]: () => { positions: number[][], attacks: string[] } } = {
-      C: () => {
+      C: () => { // "CHE" Checking Sequence
         // console.log("C")
         const limits: { [key: number]: number[] } = {
           0: [0, 8],
@@ -79,28 +78,25 @@ export class Game {
           1: { 0: "", 1: "" },
         };
         for (const secKey in pieces) {
-          const secCoord = pieces[secKey], secPlayer = parseInt(secKey.split(' ')[1]);
-
           if (secKey == pieceKey) continue;
+          
+          const secCoord = pieces[secKey], secPlayer = parseInt(secKey.split(' ')[1]);
           let axis = -1;
+          // Check if secondary piece "sec-" is aligned with the main piece "coord"
           if (secCoord[0] == x) axis = 1;
           else if (secCoord[1] == y) axis = 0;
-          else continue;
-
-          // console.log("debcheck", axis, secKey, coord, secCoord, limits[axis])
+          else continue; // if not aligned, skip
           if (secCoord[axis] < coord[axis]
             && secCoord[axis] >= limits[axis][0]
-          ) {
+          ) { // Check if secondary piece is between lower limit and main piece
             limits[axis][0] = secCoord[axis] + Number(player == secPlayer);
-            // console.log("deb min", secCoord, secKey, limits[axis][0], player == secPlayer)
             if ((player != secPlayer)) attacked[axis][0] = secKey;
             else attacked[axis][0] = "";
           }
           else if (secCoord[axis] > coord[axis]
             && secCoord[axis] <= limits[axis][1]
-          ) {
+          ) { // Check if secondary piece is between main piece and upper limit
             limits[axis][1] = secCoord[axis] - Number(player == secPlayer);
-            // console.log("deb max", axis, secCoord, secKey, limits[axis][1])
             if ((player != secPlayer)) attacked[axis][1] = secKey;
             else attacked[axis][1] = "";
           }
@@ -112,7 +108,7 @@ export class Game {
         for (const ax in attacked) for (const i in attacked[ax]) if (attacked[ax][i]) attackList.push(attacked[ax][i]);
         return { positions: positions, attacks: attackList };
       },
-      M: () => {
+      M: () => { // "MA" Checking Sequence
         // console.log("M")
         const limits: { [key: number]: number[] } = {
           0: [0, 8],
@@ -166,7 +162,7 @@ export class Game {
 
         return { positions: unblockedPos, attacks: attacked };
       },
-      P: () => {
+      P: () => { // "PAO" Checking Sequence
         // console.log("P");
         const limits: { [key: number]: number[] } = {
           0: [0, 8],
@@ -213,7 +209,7 @@ export class Game {
 
         return { positions: positions, attacks: attackPos };
       },
-      X: () => {
+      X: () => { // "XIANG" Checking Sequence
         // console.log("X");
         const positions: { [key: string]: number[] } = {
           ne: [x + 2, y + 2],
@@ -258,7 +254,7 @@ export class Game {
 
         return { positions: unblockedPos, attacks: attacked };
       },
-      S: () => {
+      S: () => { // "SHI" Checking Sequence
         // console.log("S");
         const positions: { [key: string]: number[] } = {
           ne: [x + 1, y + 1],
@@ -289,7 +285,7 @@ export class Game {
 
         return { positions: unblockedPos, attacks: attacked };
       },
-      J: () => {
+      J: () => { // "JIANG" Checking Sequence
         // console.log("J");
         const positions: { [key: string]: number[] } = {
           n: [x, y + 1],
@@ -325,7 +321,7 @@ export class Game {
 
         return { positions: unblockedPos, attacks: attacked };
       },
-      B: () => {
+      B: () => { // "BING" Checking Sequence
         // console.log("B");
         let positions: { [key: string]: number[] } = {
           n: [x, y + 1 - player * 2],

@@ -84,7 +84,7 @@ input:hover+.selector {
   z-index: 1;
 }
 
-input {
+.options-main > input {
   height: 100%;
   width: calc(100% - 10px);
   margin: 0 5px;

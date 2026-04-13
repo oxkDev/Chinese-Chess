@@ -56,9 +56,8 @@ function onFocus(f: boolean, p: string) {
   <div class="chess-board-group" ref="boardWrap">
     <transition-group name="pieces" tag="div" class="board-grid-wrap" :duration="5 * settings.animationSpeed">
       <div v-for="(piece, i) in getPositions()" :key="piece ? piece : i" class="position">
-        <div class="position-content-wrap">
           <chess-piece-icon v-if="piece != ''" :type="piece[0] + piece[piece.length - 1]"
-            :coord="[Math.floor(i / 9), i % 9]" :rotate="!(rotateOpponent === false)"
+            :coord="[Math.floor(i / 9), i % 9]" :rotate="rotateOpponent"
             :active="turn.toString() == piece[piece.length - 1]" :danger="stalemate.length > 0 && settings.stalemateAid"
             :attacker="stalemate.includes(piece) && settings.stalemateAid" @focus="f => onFocus(f, piece)"
             class="chess-piece" />
@@ -72,11 +71,10 @@ function onFocus(f: boolean, p: string) {
               </svg>
             </div>
             <svg v-else-if="checkDisplay.blocks.includes(`${i % 9},${9 - Math.floor(i / 9)}`)" viewBox="0 0 18 18"
-              fill="none" xmlns="http://www.w3.org/2000/svg" class="blocked-move">
+              fill="none" xmlns="http://www.w3.org/2000/svg" class="moves-check blocked-move">
               <path d="M15 3L9 9M9 9L3 15M9 9L15 15M9 9L3 3" stroke="white" stroke-width="3" />
             </svg>
           </transition>
-        </div>
       </div>
     </transition-group>
     <div class="board-lines">
@@ -141,17 +139,18 @@ function onFocus(f: boolean, p: string) {
   z-index: 2;
 }
 
-.chessRowWrap {
+.chess-row-warp {
   display: grid;
   grid-template-columns: repeat(9, 1fr);
 }
 
 .position {
-  height: 100%;
-  /* width: 100%; */
+  /* min-height: 100%; */
+  width: 100%;
   aspect-ratio: 1;
-  border-radius: 100%;
-  /* position: relative; */
+  /* border-radius: 100%; */
+  position: relative;
+  z-index: 2;
 }
 
 .position-content-wrap {
@@ -165,31 +164,32 @@ function onFocus(f: boolean, p: string) {
 
 .pieces-leave-from.position {
   height: auto;
-  /* position: absolute !important; */
+  width: auto;
 }
 
 .pieces-leave-active.position {
   height: 10%;
+  width: calc(100%/9);
   position: absolute !important;
   transition-duration: 100s;
 }
 
 .pieces-move {
   z-index: 3;
+  /* position: absolute !important; */
   transition: var(--transition-m);
 }
 
-.pieces-enter-from.position>.position-content-wrap,
-.pieces-leave-to.position>.position-content-wrap {
+.pieces-enter-from.position,
+.pieces-leave-to.position {
   transform: scale(.7);
+  z-index: 1;
   opacity: 0;
 }
 
 .chess-piece:hover,
 .moves-check:hover {
   cursor: pointer;
-
-
 }
 
 .moves-check {
@@ -215,7 +215,7 @@ function onFocus(f: boolean, p: string) {
 }
 
 .blocked-move {
-  position: absolute;
+  /* position: absolute; */
   top: 20%;
   left: 20%;
   z-index: 3;

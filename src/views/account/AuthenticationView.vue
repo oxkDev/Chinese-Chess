@@ -29,6 +29,7 @@ const error = ref("");
 
 async function submit(e: SubmitEvent) {
   e.preventDefault();
+  error.value = "";
 
   if (!form.email.toLowerCase().match(
     /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
@@ -82,7 +83,7 @@ async function submit(e: SubmitEvent) {
           required>Password</text-input>
         <text-input v-if="route.name == 'Sign Up'" key="cfmPassword" name="confirm-password" type="password"
           v-model="form.cfmPassword" required>Confirm Password</text-input>
-        <label v-if="error" :key="error" class="error">
+        <label v-if="error" :key="error" class="info error">
           <p class="auth-subtext">{{ error }}</p>
         </label>
         <button v-if="route.name == 'Log In'" type="button" key="reset" :onclick="() => router.push('/')"
@@ -95,45 +96,7 @@ async function submit(e: SubmitEvent) {
   </form>
 </template>
 
-<style>
-.reset-password,
-label.error {
-  display: block;
-  width: 100%;
-  margin: 10px 0;
-  text-align: left;
-  background: transparent;
-  overflow: hidden;
-}
-
-label.error {
-  margin: 0 0 10px;
-}
-
-label.error>p {
-  height: auto;
-}
-
-.reset-password:active>p {
-  letter-spacing: 1.5px;
-}
-
-.reset-password:hover>p,
-.reset-password:focus>p {
-  color: var(--secondary);
-}
-
-.v-enter-from p.auth-subtext {
-  opacity: 0;
-  transform: translateY(-100%);
-}
-
-.v-leave-to p.auth-subtext {
-  opacity: 0;
-  transform: translateY(100%);
-}
-
-/* #authentication .v-enter-from, */
+<style scoped>
 #authentication .v-leave-active {
   position: absolute !important;
   transition-duration: 100s;

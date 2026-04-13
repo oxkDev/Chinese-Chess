@@ -106,8 +106,10 @@ function getTitle(): string {
     <footer v-if="route.meta.footer" :key="route.meta.footer.toString()">
       <nav class="navbar main" id="footer">
         <transition-group name="footer-nav" :duration="5 * settings.animationSpeed">
-          <icon-button-main v-for="(value, key) in route.meta.footer" active="route" :key="key" :to="value"
-            :icon="key" />
+          <template v-for="(value, key) in route.meta.footer" :key="key">
+            <icon-button-main v-if="key == 'back'" type="button" @click="router.push(value)" icon="cross" />
+            <icon-button-main v-else active="route" :to="value" :icon="key" />
+          </template>
         </transition-group>
       </nav>
     </footer>
@@ -133,104 +135,14 @@ function getTitle(): string {
   z-index: 100;
 }
 
-.group-heading {
-  width: 100%;
-  max-width: 300px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  overflow: hidden;
+.title-enter-from {
+  opacity: 0;
+  transform: translateY(-30px);
 }
 
-.group-title {
-  min-width: 50%;
-}
-
-.page-view {
-  width: 100%;
-  max-width: 300px;
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  position: relative;
-}
-
-.scroll-snap-view {
-  width: calc(100vw - 120px);
-  height: 100vh;
-  padding: 0 60px;
-  position: fixed;
-  left: 0px;
-  top: 0px;
-  overflow-y: scroll;
-  scroll-snap-type: y mandatory;
-}
-
-.scroll-list-view {
-  width: calc(100vw - 60px);
-  height: 100vh;
-  padding: 0 30px;
-  position: fixed;
-  left: 0px;
-  top: 0px;
-  overflow-y: scroll;
-  scroll-snap-type: y proximity;
-}
-
-.snap-section {
-  width: 100%;
-  max-width: 300px;
-  min-height: var(--safe-height);
-  margin: 0 auto;
-  padding: var(--vertical-padding) 0;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  scroll-snap-align: start;
-  overflow: visible;
-}
-
-.overlay-view {
-  width: calc(100vw - 60px);
-  height: 100vh;
-  padding: 0 30px;
-  position: fixed;
-  left: 0px;
-  top: 0px;
-  z-index: 50;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  transition: var(--transition-l);
-  background: var(--background-primary);
-  backdrop-filter: none;
-}
-
-.blur-l .overlay-view {
-  background: var(--background-primary-translucent);
-  backdrop-filter: var(--blur-l);
-}
-
-.v-enter-from,
-.v-leave-to {
-
-  .group-title {
-    transform: translateX(-50%);
-    opacity: 0;
-  }
-
-  .group-value {
-    transform: translateX(100%);
-    opacity: 0;
-  }
-
-  &.overlay-view {
-    /* opacity: 0; */
-    background: transparent;
-    backdrop-filter: none;
-  }
+.title-leave-to {
+  height: 0px;
+  opacity: 0;
+  transform: translateY(30px);
 }
 </style>

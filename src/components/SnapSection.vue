@@ -28,13 +28,17 @@ function scrollToSection(behaviour: "auto" | "smooth" | "instant" = "auto") {
 watch(route, () => {
   if (route.path.includes(props.routeName)) {
     clearTimeout(timeout);
-    console.log(intersecting, props.title);
-    if (route.hash == `#${props.title}` && !intersecting) {
-      if (settings.value.animationLevel >= 1) {
-        show.value = false;
-        timeout = setTimeout(scrollToSection, 5 * settings.value.animationSpeed);
+    if (route.hash == `#${props.title}`) {
+      console.log("routed", intersecting, props.title, route.hash);
+      if (!intersecting) {
+        if (settings.value.animationLevel >= 1) {
+          show.value = false;
+          timeout = setTimeout(scrollToSection, 5 * settings.value.animationSpeed);
+        } else
+          scrollToSection();
       } else
-        scrollToSection("smooth");
+        show.value = true;
+
     } else if (settings.value.animationLevel >= 1) {
       show.value = false;
       // if (elm) timeout = setTimeout(() => elm?.scrollIntoView({ behavior: "auto", inline: "nearest", block: "end" }), 5 * settings.animationSpeed);
@@ -49,7 +53,7 @@ onMounted(() => {
 
   const observer = new IntersectionObserver((e) => {
     intersecting = e[0].isIntersecting;
-    show.value = intersecting || settings.value.animationLevel < 1;
+    show.value = intersecting || settings.value.animationLevel < 2;
     if (intersecting && route.hash != `#${props.title}`) {
       router.push(`#${props.title}`);
       userStore.feedback();
@@ -76,20 +80,6 @@ onMounted(() => {
 </template>
 
 <style scoped>
-/* section.snap-section {
-  width: 100%;
-  max-width: 300px;
-  min-height: var(--safe-height);
-  margin: 0 auto;
-  padding: var(--vertical-padding) 0;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  scroll-snap-align: start;
-  overflow: visible;
-} */
-
 .innerWrap {
   display: flex;
   flex-direction: column;

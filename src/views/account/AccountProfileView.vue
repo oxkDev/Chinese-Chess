@@ -13,6 +13,22 @@ const router = useRouter();
 const userStore = useUserStore();
 const user = computed(() => userStore.getUser);
 
+interface Stats {
+  [key: string]: {
+    title: string,
+    val: string | number,
+    sub?: {
+      [key: string]: {
+        title: string,
+        val: string | number,
+        suffix?: string,
+      }
+    },
+    suffix?: string,
+    show?: string
+  }
+}
+
 const sideNav = {
   "account 2": "#profile",
   "data": "#statistics",
@@ -25,7 +41,8 @@ const types: { [key: string]: string } = {
   "cp": "Computer"
 }
 
-function rankSuffix(n: number) {
+function rankSuffix(n?: number) {
+  if (!n) return "";
   let numList = n.toString().split("").reverse();
   const prefixes: { [key: string]: string } = {
     "1": "st",
@@ -43,22 +60,6 @@ function formatTiming(time: number) {
 }
 
 const statShow = ref("");
-
-interface Stats {
-  [key: string]: {
-    title: string,
-    val: string | number,
-    sub?: {
-      [key: string]: {
-        title: string,
-        val: string | number,
-        suffix?: string,
-      }
-    },
-    suffix?: string,
-    show?: string
-  }
-}
 
 const stats = computed((): Stats => {
   const raw = userStore.getStatistics
@@ -84,7 +85,7 @@ const stats = computed((): Stats => {
   }
 
   return {
-    "bestRank": { title: "Best Rank", val: raw.bestRank ? raw.bestRank : "unknown", suffix: raw.bestRank ? rankSuffix(raw.bestRank) : '' },
+    "bestRank": { title: "Best Rank", val: raw.bestRank || "unknown", suffix: rankSuffix(raw.bestRank) },
     ...totals,
   }
 });
@@ -97,9 +98,8 @@ watch(route, () => {
 
 <template>
   <div id="accountProfile" class="scroll-snap-view">
-    <!-- <div id="profileScreen" class="scroll-page-view"> -->
     <snap-section title="profile" route-name="/account">
-      <img src="@/assets/logo/favicon-jiang (dark).svg" id="profilePicture" />
+      <img src="@/assets/logo/favicon-jiang (dark).svg" class="profile-picture" />
       <label class="profile-text-wrap">
         <h3 id="username" class="user-details">{{ user.username }}</h3>
       </label>
@@ -117,7 +117,7 @@ watch(route, () => {
         <label class="data-rank data-wrap">
           <icon-main icon="rank 2" class="data-icon" />
           <label class="profile-text-wrap user-rank">
-            <p class="data-value"><b>{{ user.rank || "?" }} </b> {{ user.rank ? rankSuffix(user.rank) : "" }}</p>
+            <p class="data-value"><b>{{ user.rank || "?" }} </b> {{ rankSuffix(user.rank) }}</p>
           </label>
         </label>
       </div>
@@ -136,7 +136,7 @@ watch(route, () => {
             <label v-for="(sub, i) in stat.sub" :key="i" @click="() => { statShow = ''; }"
               class="stat-row group-heading">
               <h3 class="stat-title group-title">{{ sub.title }}</h3>
-              <p class="stat-value group-value"><b>{{ sub.val }}</b> {{ stat.suffix ? sub.suffix : "" }}</p>
+              <p class="stat-value group-value"><b>{{ sub.val }}</b> {{ stat.suffix }}</p>
             </label>
 
           </sequence-transition>
@@ -145,63 +145,20 @@ watch(route, () => {
     </snap-section>
 
     <snap-section title="actions" route-name="/account">
-      <button-main @click="router.push('/account/update')">Update</button-main>
+      <button-main @click="router.push({ name: 'Update Account' })">Update</button-main>
       <button-main @click="userStore.resetAccount()">Reset</button-main>
-      <button-main @click="router.push('/account/delete')">Delete</button-main>
-      <button-main @click="userStore.signOut()">Log out</button-main>
+      <button-main @click="router.push({ name: 'Delete Account' })">Delete</button-main>
+      <button-main @click="userStore.signOut(); router.push({ name: 'Signed Out' });">Log out</button-main>
     </snap-section>
     <!-- </div> -->
     <nav id="sideNav">
-      <icon-button-main v-for="( value, key ) in sideNav " :active="route.hash == value" :key="key" :to="value"
-        :icon="key" class="side-nav" />
+      <icon-button-main v-for="(value, key) in sideNav" :active="route.hash == value" :key="key" :to="value" :icon="key"
+        class="side-nav" />
     </nav>
-    <transition :duration="{ enter: 700, leave: 500 }" mode="out-in">
-      <div :key="String(route.name != 'Account')" id="profileOverlay" class="overlay-view"
-        v-if="route.name != 'Account'">
-        <section class="page-view">
-          <router-view></router-view>
-        </section>
-        <!-- <div class="footer bottom">
-          <nav class="navbar main">
-            <transition-group name="footer-nav" :duration="500 * userStore.getSettings.animationSpeed">
-              <icon-button-main v-if="route.path.includes('menu') && (!!route.hash || route.name != 'Menu')"
-                type="button" @click="router.push('/game-play/menu')" icon="back 1" />
-              <icon-button-main type="button" @click="router.push('/game-play')" icon="cross" key="cross" />
-            </transition-group>
-          </nav>
-        </div> -->
-      </div>
-    </transition>
   </div>
 </template>
 
 <style>
-/* #accountProfile {
-  width: 100vw;
-  height: 100vh;
-  position: fixed;
-  left: 0px;
-  top: 0px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-#profileScreen {
-  height: 100vh;
-  width: calc(100% - 120px);
-  padding: 0 60px;
-  overflow-y: scroll;
-  scroll-snap-type: y mandatory;
-} */
-
-#profilePicture {
-  width: 60%;
-  align-self: center;
-  transition: var(--transition-m);
-  margin-bottom: 20px;
-}
-
 #username {
   text-align: center;
   text-transform: none;
@@ -281,12 +238,6 @@ svg.data-icon {
   .stat-row {
     opacity: 0;
   }
-
-  /* .stat-row .stat-value,
-  &.stat-sub .stat-row .stat-value {
-    transform: scale(.8);
-    opacity: 0;
-  } */
 
   #userScoreData {
 

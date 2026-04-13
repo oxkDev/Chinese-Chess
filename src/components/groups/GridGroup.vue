@@ -49,19 +49,10 @@ onMounted(transitiondelays);
   gap: v-bind(margin);
 }
 
-.v-enter-from,
-.v-leave-to {
-
-  h3.grid-title,
-  h3.grid-title {
-    transform: translateX(-50%);
-    opacity: 0;
-  }
-
-  .grid>* {
-    transform: scale(.9);
-    opacity: 0;
-  }
+.v-enter-from .grid>*,
+.v-leave-to .grid>* {
+  transform: scale(.9);
+  opacity: 0;
 }
 
 .v-enter-active .grid-group>div.grid>*,

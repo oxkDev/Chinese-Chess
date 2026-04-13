@@ -2,7 +2,6 @@
 import GameSettingsGroup from '@/components/groups/GameSettingsGroup.vue';
 import ButtonMain from '@/components/mains/ButtonMain.vue';
 import router from '@/router';
-import { type GameSettings } from '@/store/chinese chess';
 import { ref } from 'vue';
 import { useGameStore } from '@/store';
 
@@ -12,7 +11,7 @@ defineEmits<{
   (e: "action", act: "update" | ""): void,
 }>();
 
-const gameSettings: GameSettings = gameStore.getGame.settings;
+const gameSettings = gameStore.getGame.settings;
 
 const durations = ref({ gameDuration: gameSettings.gameDuration, turnDuration: gameSettings.turnDuration });
 

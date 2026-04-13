@@ -38,11 +38,8 @@ label.switch-label {
   overflow: hidden;
 }
 
-.v-enter-from,
-.v-leave-to {
-  
-  .switch-main {
+.v-enter-from .switch-main,
+.v-leave-to .switch-main {
     opacity: 0;
-  }
 }
 </style>

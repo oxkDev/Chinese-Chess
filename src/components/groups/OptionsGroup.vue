@@ -33,11 +33,8 @@ const output = defineModel<number>();
   margin: 15px 0;
 }
 
-.v-enter-from,
-.v-leave-to {
-
-  .options {
+.v-enter-from .options,
+.v-leave-to .options {
     opacity: 0;
-  }
 }
 </style>

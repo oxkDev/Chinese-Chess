@@ -28,7 +28,7 @@ const rotate = ["cross", "restart", "settings 1", "undo"];
     <icon-main :icon="icon" :class="{ rotate: rotate.includes(props.icon) }" ref="svg" />
   </a>
   <router-link v-else :onclick="() => userStore.feedback()"
-    :active="String(props.active) != 'route' ? !!props.active : ''" :disable="!!props.disable" :to="to ? to : ''"
+    :active="String(props.active) != 'route' ? props.active : ''" :disable="!!props.disable" :to="to ? to : ''"
     class="icon-button-main" :class="{ big }">
     <icon-main :icon="icon" :class="{ rotate: rotate.includes(props.icon) }" ref="svg" />
   </router-link>
@@ -79,7 +79,7 @@ svg path {
 }
 
 .icon-button-main[active="true"],
-.icon-button-main.router-link-exact-active:not([active="false"]),
+.icon-button-main.router-link-active:not([active="false"]),
 .icon-button-main[disable="true"] {
   pointer-events: none;
 }
@@ -89,23 +89,23 @@ svg path {
 }
 
 .icon-button-main[active="true"] svg,
-a.router-link-exact-active:not([active="false"]) svg {
+a.router-link-active:not([active="false"]) svg {
   filter: drop-shadow(var(--icon-glow));
 }
 
 
 .icon-button-main[active="true"],
-a.router-link-exact-active.icon-button-main:not([active="false"]) {
+a.router-link-active.icon-button-main:not([active="false"]) {
   opacity: 1;
 }
 
 .icon-button-main[active="true"] svg:deep(path),
-a.router-link-exact-active.icon-button-main:not([active="false"]) svg:deep(path) {
+a.router-link-active.icon-button-main:not([active="false"]) svg:deep(path) {
   stroke: var(--secondary);
 }
 
 .icon-button-main[active="true"] svg.rotate,
-a.router-link-exact-active.icon-button-main:not([active="false"]) svg.rotate {
+a.router-link-active.icon-button-main:not([active="false"]) svg.rotate {
   transform: rotate(-90deg);
 }
 
@@ -129,4 +129,4 @@ a.router-link-exact-active.icon-button-main:not([active="false"]) svg.rotate {
 .v-leave-to .icon-button-main>svg.rotate {
   transform: rotate(-135deg) !important;
 }
-</style>./mains/IconMain.vue
+</style>

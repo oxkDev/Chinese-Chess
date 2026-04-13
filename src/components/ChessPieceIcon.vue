@@ -121,6 +121,12 @@ onMounted(() => {
   stroke: var(--translucent-less);
 }
 
+.piece-leave-from .chess-piece-icon,
+.piece-enter-from .chess-piece-icon {
+  transform: scale(.7);
+  opacity: 0;
+}
+
 .chess-piece-icon.active>.outline-svg>.outline-circle {
   stroke-width: 2px;
   /* stroke: black; */
